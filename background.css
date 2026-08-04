@@ -1,0 +1,191 @@
+/* Казино лабиринт фон */
+
+.casino-background{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:0;
+
+    overflow:hidden;
+
+    background:
+    linear-gradient(
+        90deg,
+        rgba(255,215,0,.05) 1px,
+        transparent 1px
+    ),
+    linear-gradient(
+        rgba(255,215,0,.05) 1px,
+        transparent 1px
+    ),
+
+    radial-gradient(
+        circle,
+        #550000,
+        #050505 80%
+    );
+
+
+    background-size:
+    60px 60px,
+    60px 60px,
+    100% 100%;
+
+
+    animation:
+    mazeMove 15s linear infinite;
+
+}
+
+
+/* движение на лабиринта */
+
+@keyframes mazeMove{
+
+
+from{
+
+background-position:
+0 0,
+0 0,
+0 0;
+
+}
+
+
+to{
+
+background-position:
+120px 120px,
+-120px -120px,
+0 0;
+
+}
+
+}
+
+
+
+/* неонови линии */
+
+.maze-light{
+
+
+position:absolute;
+
+width:4px;
+
+height:120px;
+
+background:
+
+linear-gradient(
+gold,
+transparent
+);
+
+
+box-shadow:
+
+0 0 15px gold,
+0 0 30px orange;
+
+
+opacity:.8;
+
+
+animation:
+
+lightMove 3s linear infinite;
+
+
+}
+
+
+
+
+@keyframes lightMove{
+
+
+from{
+
+transform:
+translateY(-200px);
+
+}
+
+
+to{
+
+transform:
+translateY(110vh);
+
+}
+
+}
+
+
+
+/* мигащи казино точки */
+
+
+.casino-dot{
+
+
+position:absolute;
+
+width:12px;
+
+height:12px;
+
+border-radius:50%;
+
+
+background:#ffd700;
+
+
+box-shadow:
+
+0 0 10px gold,
+0 0 30px red;
+
+
+animation:
+
+blink 1s infinite alternate;
+
+
+}
+
+
+
+@keyframes blink{
+
+
+from{
+
+opacity:.2;
+
+}
+
+
+to{
+
+opacity:1;
+
+}
+
+
+}
+
+
+
+/* леко движение на целия фон */
+
+body{
+
+background-color:#050505;
+
+}
