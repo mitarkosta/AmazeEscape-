@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="bg">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -11,140 +10,83 @@
 
 *{
     box-sizing:border-box;
-    margin:0;
-    padding:0;
 }
 
-
 body{
-
+    margin:0;
     height:100vh;
-    overflow:hidden;
-
     display:flex;
     justify-content:center;
     align-items:center;
-
+    overflow:hidden;
     font-family:Arial,sans-serif;
-
     background:
-    radial-gradient(circle,#650000,#050505 75%);
+    radial-gradient(circle,#800000,#050505 70%);
 }
 
 
 /* фон */
 
 body::before{
-
     content:"";
-
     position:absolute;
-
     inset:0;
-
     background-image:
-    radial-gradient(gold 2px,transparent 2px);
-
+    radial-gradient(#ffd700 2px,transparent 2px);
     background-size:45px 45px;
-
     opacity:.15;
-
-    animation:moveStars 15s linear infinite;
-
+    animation:stars 20s linear infinite;
 }
 
-
-@keyframes moveStars{
-
-from{
-transform:translateY(0);
-}
-
-to{
-transform:translateY(100px);
-}
-
+@keyframes stars{
+    from{
+        transform:translateY(0);
+    }
+    to{
+        transform:translateY(100px);
+    }
 }
 
 
 
 /* машина */
 
-
 .machine{
 
     position:relative;
-
     z-index:2;
 
     width:90%;
-    max-width:520px;
+    max-width:500px;
+
+    background:#111;
 
     padding:35px;
 
-    background:
-    linear-gradient(#222,#050505);
+    border-radius:30px;
 
     border:5px solid gold;
-
-    border-radius:30px;
 
     text-align:center;
 
     box-shadow:
-
     0 0 30px gold,
     0 0 80px orange;
-
 }
-
-
-
-.shake{
-
-animation:shake .4s;
-
-}
-
-
-@keyframes shake{
-
-0%{
-transform:translateX(0);
-}
-
-25%{
-transform:translateX(-15px);
-}
-
-50%{
-transform:translateX(15px);
-}
-
-75%{
-transform:translateX(-10px);
-}
-
-100%{
-transform:translateX(0);
-}
-
-}
-
 
 
 
 h1{
 
-font-size:55px;
+    margin:0;
 
-color:#ffd700;
+    font-size:60px;
 
-letter-spacing:5px;
+    color:#ffd700;
 
-text-shadow:
-0 0 10px gold,
-0 0 40px orange;
+    text-shadow:
+    0 0 10px gold,
+    0 0 40px orange;
 
 }
 
@@ -152,11 +94,11 @@ text-shadow:
 
 .subtitle{
 
-color:white;
+    color:white;
 
-margin-top:10px;
+    margin:10px;
 
-letter-spacing:5px;
+    letter-spacing:5px;
 
 }
 
@@ -164,22 +106,17 @@ letter-spacing:5px;
 
 /* екран */
 
-
 .display{
 
-margin-top:30px;
+    background:black;
 
-padding:25px;
+    padding:25px;
 
-background:black;
+    border-radius:20px;
 
-border:3px solid #555;
+    border:3px solid #555;
 
-border-radius:20px;
-
-box-shadow:
-inset 0 0 20px black,
-0 0 20px gold;
+    margin-top:25px;
 
 }
 
@@ -187,11 +124,11 @@ inset 0 0 20px black,
 
 .slots{
 
-display:flex;
+    display:flex;
 
-justify-content:center;
+    justify-content:center;
 
-gap:15px;
+    gap:15px;
 
 }
 
@@ -199,46 +136,41 @@ gap:15px;
 
 .slot{
 
-width:90px;
+    width:90px;
 
-height:90px;
+    height:90px;
 
-background:#222;
+    background:#222;
 
-border:3px solid gold;
+    border:3px solid gold;
 
-border-radius:15px;
+    border-radius:15px;
 
-display:flex;
+    display:flex;
 
-align-items:center;
+    justify-content:center;
 
-justify-content:center;
+    align-items:center;
 
-font-size:50px;
-
-box-shadow:
-inset 0 0 20px black;
+    font-size:50px;
 
 }
 
 
 
-.running{
+.spin{
 
-animation:rolling .12s infinite;
-
-}
-
-
-
-@keyframes rolling{
-
-50%{
-
-transform:translateY(15px);
+    animation:spin .12s infinite;
 
 }
+
+
+
+@keyframes spin{
+
+    50%{
+        transform:translateY(15px);
+    }
 
 }
 
@@ -247,25 +179,25 @@ transform:translateY(15px);
 
 button{
 
-margin-top:30px;
+    margin-top:30px;
 
-padding:18px 50px;
+    padding:18px 50px;
 
-font-size:25px;
+    border:0;
 
-font-weight:bold;
+    border-radius:50px;
 
-border:none;
+    font-size:25px;
 
-border-radius:50px;
+    font-weight:bold;
 
-cursor:pointer;
+    cursor:pointer;
 
-background:
-linear-gradient(#ffe066,#cc9900);
+    background:
+    linear-gradient(#ffe066,#cc9900);
 
-box-shadow:
-0 0 25px gold;
+    box-shadow:
+    0 0 25px gold;
 
 }
 
@@ -273,7 +205,7 @@ box-shadow:
 
 button:disabled{
 
-opacity:.5;
+    opacity:.5;
 
 }
 
@@ -281,79 +213,78 @@ opacity:.5;
 
 #message{
 
-margin-top:25px;
+    color:white;
 
-font-size:30px;
+    font-size:30px;
 
-font-weight:bold;
+    margin-top:25px;
 
-color:white;
+    min-height:40px;
+
+}
+
+
+
+#counter{
+
+    color:#aaa;
+
+    margin-top:10px;
 
 }
 
-
-
-#attempt{
-
-margin-top:10px;
-
-color:#aaa;
-
-}
 
 
 
 .win{
 
-animation:win .8s infinite;
+    animation:win .8s infinite;
 
 }
+
 
 
 @keyframes win{
 
-50%{
-
-transform:scale(1.2);
-
-}
+    50%{
+        transform:scale(1.2);
+    }
 
 }
 
 
 
+/* конфети */
 
 .confetti{
 
-position:absolute;
+    position:absolute;
 
-width:10px;
+    width:10px;
 
-height:20px;
+    height:20px;
 
-top:-20px;
+    top:-20px;
 
-animation:drop 3s linear forwards;
-
-}
-
-
-
-@keyframes drop{
-
-to{
-
-transform:
-translateY(110vh)
-rotate(720deg);
+    animation:fall 3s linear forwards;
 
 }
+
+
+@keyframes fall{
+
+    to{
+
+        transform:
+        translateY(110vh)
+        rotate(720deg);
+
+    }
 
 }
 
 
 </style>
-
 
 </head>
 
@@ -362,7 +293,7 @@ rotate(720deg);
 
 
 
-<div class="machine" id="machine">
+<div class="machine">
 
 
 <h1>
@@ -381,21 +312,11 @@ TRY YOUR LUCK
 
 <div class="slots">
 
+<div class="slot" id="slot1">🍒</div>
 
-<div class="slot" id="one">
-🍒
-</div>
+<div class="slot" id="slot2">⭐</div>
 
-
-<div class="slot" id="two">
-⭐
-</div>
-
-
-<div class="slot" id="three">
-💎
-</div>
-
+<div class="slot" id="slot3">💎</div>
 
 </div>
 
@@ -404,20 +325,19 @@ TRY YOUR LUCK
 
 
 
-<button id="spin">
+<button id="button">
 🎰 SPIN
 </button>
 
 
 
 <div id="message">
-Almost...
+Ready...
 </div>
 
 
-
-<div id="attempt">
-Attempt: 0
+<div id="counter">
+Attempts: 0
 </div>
 
 
@@ -440,75 +360,81 @@ const symbols=[
 ];
 
 
-const one=document.getElementById("one");
-const two=document.getElementById("two");
-const three=document.getElementById("three");
+const slot1=document.getElementById("slot1");
+const slot2=document.getElementById("slot2");
+const slot3=document.getElementById("slot3");
 
-const button=document.getElementById("spin");
+const button=document.getElementById("button");
 
 const message=document.getElementById("message");
 
-const machine=document.getElementById("machine");
-
-const attemptText=document.getElementById("attempt");
+const counter=document.getElementById("counter");
 
 
 let attempts=0;
 
 
-
-let audio;
-
+let audioContext=null;
 
 
-function startAudio(){
+
+function sound(freq,duration){
 
 
-if(!audio){
+try{
 
-audio=new AudioContext();
+if(!audioContext){
+
+audioContext=
+new AudioContext();
 
 }
 
 
-}
+let osc=
+audioContext.createOscillator();
 
 
-
-function beep(freq,time){
-
-
-startAudio();
-
-
-let osc=audio.createOscillator();
-
-let gain=audio.createGain();
+let gain=
+audioContext.createGain();
 
 
 osc.frequency.value=freq;
+
 
 gain.gain.value=.08;
 
 
 osc.connect(gain);
 
-gain.connect(audio.destination);
+gain.connect(
+audioContext.destination
+);
 
 
 osc.start();
 
-osc.stop(audio.currentTime+time);
+
+osc.stop(
+audioContext.currentTime+duration
+);
 
 
 }
+
+catch(e){}
+
+}
+
 
 
 
 function randomSymbol(){
 
 return symbols[
-Math.floor(Math.random()*symbols.length)
+Math.floor(
+Math.random()*symbols.length
+)
 ];
 
 }
@@ -524,33 +450,30 @@ button.disabled=true;
 
 attempts++;
 
-attemptText.innerHTML=
-"Attempt: "+attempts;
-
-
-machine.classList.add("shake");
-
-
-beep(200,.15);
-
+counter.innerHTML=
+"Attempts: "+attempts;
 
 
 let slots=[
-one,
-two,
-three
+slot1,
+slot2,
+slot3
 ];
+
+
+sound(200,.1);
+
 
 
 slots.forEach(s=>{
 
-s.classList.add("running");
+s.classList.add("spin");
 
 });
 
 
 
-let count=0;
+let ticks=0;
 
 
 let timer=setInterval(()=>{
@@ -563,11 +486,10 @@ s.innerHTML=randomSymbol();
 });
 
 
-count++;
+ticks++;
 
 
-
-if(count>=25){
+if(ticks>=25){
 
 
 clearInterval(timer);
@@ -582,6 +504,7 @@ stopSlots(slots);
 },100);
 
 
+
 }
 
 
@@ -590,7 +513,7 @@ stopSlots(slots);
 function stopSlots(slots){
 
 
-let results=[];
+let result=[];
 
 
 slots.forEach((slot,index)=>{
@@ -599,24 +522,26 @@ slots.forEach((slot,index)=>{
 setTimeout(()=>{
 
 
-slot.classList.remove("running");
+slot.classList.remove("spin");
 
 
 slot.innerHTML=randomSymbol();
 
 
-results[index]=slot.innerHTML;
+result[index]=slot.innerHTML;
 
 
 
 if(index===2){
 
-check(results);
+check(result);
 
 }
 
 
-},700+(index*500));
+
+},500+index*400);
+
 
 
 });
@@ -626,8 +551,8 @@ check(results);
 
 
 
-function check(r){
 
+function check(result){
 
 
 button.disabled=false;
@@ -635,8 +560,8 @@ button.disabled=false;
 
 
 if(
-r[0]===r[1] &&
-r[1]===r[2]
+result[0]===result[1] &&
+result[1]===result[2]
 ){
 
 
@@ -644,22 +569,22 @@ message.innerHTML=
 "🎉 JACKPOT 🎉";
 
 
-message.classList.add("win");
+message.className="win";
 
 
-beep(900,.5);
+sound(900,.5);
 
 
-confetti();
+createConfetti();
 
 
 }
 
 else if(
 
-r[0]===r[1] ||
-r[1]===r[2] ||
-r[0]===r[2]
+result[0]===result[1] ||
+result[1]===result[2] ||
+result[0]===result[2]
 
 ){
 
@@ -667,12 +592,10 @@ r[0]===r[2]
 message.innerHTML=
 "🔥 ALMOST WIN";
 
-
-beep(500,.3);
+sound(500,.3);
 
 
 }
-
 
 else{
 
@@ -684,19 +607,19 @@ message.innerHTML=
 }
 
 
-
 }
 
 
 
 
-function confetti(){
+function createConfetti(){
 
 
-for(let i=0;i<100;i++){
+for(let i=0;i<80;i++){
 
 
 let c=document.createElement("div");
+
 
 c.className="confetti";
 
@@ -728,17 +651,15 @@ c.remove();
 },4000);
 
 
-}
-
 
 }
 
 
+}
 
-button.addEventListener(
-"click",
-spin
-);
+
+
+button.onclick=spin;
 
 
 
