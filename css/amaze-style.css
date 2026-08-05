@@ -386,3 +386,452 @@ body{
     30px;
 
 }
+/* =====================================================
+   AMAZE ESCAPE
+   STYLE ENGINE
+   PART 2
+   Display + Reels + Button + Lever
+   ===================================================== */
+
+
+/* ---------- DISPLAY ---------- */
+
+.display{
+
+    position:relative;
+
+    margin:25px auto;
+
+    width:320px;
+
+    padding:20px;
+
+    border-radius:20px;
+
+    background:
+
+    linear-gradient(
+        #050505,
+        #202020
+    );
+
+    border:4px solid #666;
+
+    box-shadow:
+        inset 0 0 25px black,
+        0 0 20px rgba(255,215,0,.3);
+
+}
+
+
+/* ---------- REELS ---------- */
+
+.slots{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:15px;
+
+}
+
+
+.slot{
+
+    position:relative;
+
+    width:85px;
+
+    height:85px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    overflow:hidden;
+
+    border-radius:14px;
+
+    border:3px solid gold;
+
+    background:
+
+    linear-gradient(
+        #ffffff,
+        #d8d8d8
+    );
+
+    color:#111;
+
+    font-size:48px;
+
+    font-weight:bold;
+
+    transform-style:preserve-3d;
+
+    box-shadow:
+
+    inset 0 0 10px rgba(0,0,0,.4),
+
+    0 0 12px rgba(255,215,0,.4);
+
+}
+
+
+.slot::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+
+    linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,.25),
+        transparent
+    );
+
+    pointer-events:none;
+
+}
+
+
+/* ---------- SPIN ---------- */
+
+.reel-spin{
+
+    animation:
+    reelSpin .12s linear infinite;
+
+}
+
+
+@keyframes reelSpin{
+
+    0%{
+
+        transform:
+        rotateX(0deg)
+        translateY(0);
+
+        filter:blur(0px);
+
+    }
+
+    50%{
+
+        transform:
+        rotateX(180deg)
+        translateY(16px);
+
+        filter:blur(2px);
+
+    }
+
+    100%{
+
+        transform:
+        rotateX(360deg)
+        translateY(0);
+
+        filter:blur(0px);
+
+    }
+
+}
+
+
+.reel-stop{
+
+    animation:
+    reelStop .45s ease-out;
+
+}
+
+
+@keyframes reelStop{
+
+    from{
+
+        transform:
+        rotateX(180deg);
+
+    }
+
+    to{
+
+        transform:
+        rotateX(0deg);
+
+    }
+
+}
+
+
+/* ---------- BUTTON ---------- */
+
+#button,
+#spin{
+
+    display:block;
+
+    margin:35px auto 0;
+
+    width:210px;
+
+    height:65px;
+
+    border:none;
+
+    border-radius:40px;
+
+    cursor:pointer;
+
+    font-size:24px;
+
+    font-weight:bold;
+
+    color:#222;
+
+    background:
+
+    linear-gradient(
+        #fff6b0,
+        #ffd700,
+        #c58a00
+    );
+
+    box-shadow:
+
+    0 8px 0 #7b5200,
+
+    0 0 20px gold;
+
+    transition:
+    transform .15s,
+    box-shadow .15s;
+
+}
+
+
+#button:hover,
+#spin:hover{
+
+    box-shadow:
+
+    0 8px 0 #7b5200,
+
+    0 0 35px gold;
+
+}
+
+
+#button:active,
+#spin:active{
+
+    transform:
+    translateY(5px);
+
+    box-shadow:
+
+    0 3px 0 #7b5200,
+
+    0 0 18px gold;
+
+}
+
+
+#button:disabled,
+#spin:disabled{
+
+    opacity:.5;
+
+    cursor:not-allowed;
+
+}
+
+
+/* ---------- LEVER ---------- */
+
+.real-lever{
+
+    position:absolute;
+
+    right:-90px;
+
+    top:130px;
+
+    width:32px;
+
+    height:170px;
+
+    border-radius:18px;
+
+    transform-origin:top center;
+
+    background:
+
+    linear-gradient(
+        90deg,
+        #222,
+        #d9d9d9,
+        #444
+    );
+
+    box-shadow:
+
+    0 0 15px black;
+
+}
+
+
+.real-lever .ball{
+
+    position:absolute;
+
+    bottom:-42px;
+
+    left:-22px;
+
+    width:76px;
+
+    height:76px;
+
+    border-radius:50%;
+
+    background:
+
+    radial-gradient(
+        circle at 30% 30%,
+        white,
+        red 35%,
+        darkred 75%
+    );
+
+    box-shadow:
+
+    0 0 20px red;
+
+}
+
+
+.pull-lever{
+
+    animation:
+    pullLever .8s ease;
+
+}
+
+
+@keyframes pullLever{
+
+    25%{
+
+        transform:
+        rotateX(55deg)
+        translateY(55px);
+
+    }
+
+    60%{
+
+        transform:
+        rotateX(20deg)
+        translateY(28px);
+
+    }
+
+    100%{
+
+        transform:none;
+
+    }
+
+}
+
+
+/* ---------- LED BORDER ---------- */
+
+.led-border{
+
+    position:absolute;
+
+    inset:-14px;
+
+    border-radius:42px;
+
+    border:5px dotted gold;
+
+    animation:
+    ledFlash 1s infinite;
+
+}
+
+
+@keyframes ledFlash{
+
+    50%{
+
+        filter:
+        brightness(2);
+
+    }
+
+}
+
+
+/* ---------- JACKPOT LAMP ---------- */
+
+.jackpot-lamp{
+
+    position:absolute;
+
+    top:20px;
+
+    right:24px;
+
+    width:30px;
+
+    height:30px;
+
+    border-radius:50%;
+
+    background:#330000;
+
+    border:3px solid #700;
+
+}
+
+
+.jackpot-lamp.on{
+
+    background:red;
+
+    box-shadow:
+
+    0 0 20px red,
+
+    0 0 60px red;
+
+    animation:
+    lampPulse .35s infinite;
+
+}
+
+
+@keyframes lampPulse{
+
+    50%{
+
+        opacity:.35;
+
+    }
+
+}
