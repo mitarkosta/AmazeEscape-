@@ -1,54 +1,159 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#fff27a"/>
-      <stop offset="50%" stop-color="#ffd700"/>
-      <stop offset="100%" stop-color="#b88600"/>
-    </linearGradient>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 600">
 
-    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ff3030"/>
-      <stop offset="100%" stop-color="#700000"/>
-    </linearGradient>
-  </defs>
+<defs>
 
-  <!-- фон -->
-  <rect width="512" height="512" rx="100" fill="#080808"/>
+<!-- метал -->
+<linearGradient id="metal" x2="0" y2="1">
+  <stop stop-color="#d9dde2"/>
+  <stop offset="0.35" stop-color="#7d858d"/>
+  <stop offset="1" stop-color="#30343a"/>
+</linearGradient>
 
-  <!-- светещ ореол -->
-  <circle cx="256" cy="240" r="210" fill="#660000" opacity="0.5"/>
+<!-- злато -->
+<linearGradient id="gold" x2="0" y2="1">
+  <stop stop-color="#fff59d"/>
+  <stop offset="0.3" stop-color="#ffd700"/>
+  <stop offset="1" stop-color="#a66b00"/>
+</linearGradient>
 
-  <!-- казино машина -->
-  <rect x="95" y="80" width="322" height="350" rx="45"
-        fill="url(#gold)" stroke="#fff2a0" stroke-width="8"/>
+<!-- бутон -->
+<radialGradient id="button">
+  <stop stop-color="#fff8b0"/>
+  <stop offset="0.4" stop-color="#ffd700"/>
+  <stop offset="1" stop-color="#b87900"/>
+</radialGradient>
 
-  <!-- горна част -->
-  <rect x="125" y="120" width="262" height="80" rx="20"
-        fill="#111" stroke="#ffd700" stroke-width="6"/>
+<!-- maze pattern -->
+<pattern id="maze" width="100" height="100" patternUnits="userSpaceOnUse">
+  <path d="
+  M10 10 H70 V40 H40 V80
+  M90 20 V70 H60
+  M20 90 H80"
+  fill="none"
+  stroke="#00c8ff"
+  stroke-width="4"
+  opacity="0.35"/>
+</pattern>
 
-  <!-- барабани -->
-  <rect x="130" y="220" width="252" height="120" rx="20"
-        fill="#222"/>
+<filter id="shadow">
+  <feDropShadow dx="0" dy="8" stdDeviation="8" flood-opacity=".5"/>
+</filter>
 
-  <rect x="150" y="240" width="60" height="80" rx="10" fill="white"/>
-  <rect x="226" y="240" width="60" height="80" rx="10" fill="white"/>
-  <rect x="302" y="240" width="60" height="80" rx="10" fill="white"/>
+</defs>
 
-  <!-- символи -->
-  <text x="180" y="295" font-size="45" text-anchor="middle">🍒</text>
-  <text x="256" y="295" font-size="45" text-anchor="middle">⭐</text>
-  <text x="332" y="295" font-size="45" text-anchor="middle">7️⃣</text>
 
-  <!-- лост -->
-  <rect x="395" y="170" width="15" height="100" fill="#222"/>
-  <circle cx="403" cy="150" r="25" fill="url(#red)" stroke="#ffd700" stroke-width="5"/>
+<!-- фон -->
+<rect width="700" height="600" fill="#050505"/>
 
-  <!-- копче -->
-  <circle cx="256" cy="380" r="25" fill="#ff0000" stroke="#ffd700" stroke-width="6"/>
+<!-- сияние -->
+<circle cx="330" cy="270" r="240" fill="#111827"/>
 
-  <!-- име -->
-  <text x="256" y="105" fill="#fff" font-size="28"
-        text-anchor="middle" font-family="Arial">
-    JACKPOT
-  </text>
+
+<!-- корпус -->
+<rect x="120" y="70"
+      width="330"
+      height="450"
+      rx="45"
+      fill="url(#metal)"
+      stroke="#222"
+      stroke-width="10"
+      filter="url(#shadow)"/>
+
+
+<!-- maze гравировка -->
+<rect x="140" y="90"
+      width="290"
+      height="410"
+      rx="35"
+      fill="url(#maze)"/>
+
+
+<!-- горен панел -->
+<rect x="175" y="120"
+      width="220"
+      height="70"
+      rx="20"
+      fill="#111"
+      stroke="#ffd700"
+      stroke-width="5"/>
+
+<text x="285" y="165"
+      fill="#ffd700"
+      font-size="30"
+      text-anchor="middle"
+      font-family="Arial">
+ALMOST
+</text>
+
+
+<!-- барабани -->
+<rect x="160" y="220"
+      width="250"
+      height="130"
+      rx="20"
+      fill="#20242a"
+      stroke="#aaa"
+      stroke-width="5"/>
+
+
+<rect x="180" y="240" width="60" height="90" rx="10" fill="white"/>
+<rect x="260" y="240" width="60" height="90" rx="10" fill="white"/>
+<rect x="340" y="240" width="50" height="90" rx="10" fill="white"/>
+
+
+<text x="210" y="300" font-size="42" text-anchor="middle">🍒</text>
+<text x="290" y="300" font-size="42" text-anchor="middle">⭐</text>
+<text x="365" y="300" font-size="42" text-anchor="middle">7️⃣</text>
+
+
+<!-- SPIN бутон -->
+<circle cx="285" cy="415"
+        r="55"
+        fill="url(#button)"
+        stroke="#fff2a0"
+        stroke-width="8"
+        filter="url(#shadow)"/>
+
+<text x="285" y="425"
+      text-anchor="middle"
+      font-family="Arial"
+      font-weight="bold"
+      font-size="28"
+      fill="#222">
+SPIN
+</text>
+
+
+<!-- ръчка основа -->
+<circle cx="455" cy="250"
+        r="35"
+        fill="#555"
+        stroke="#ddd"
+        stroke-width="5"/>
+
+
+<!-- рамо -->
+<rect x="465" y="230"
+      width="100"
+      height="18"
+      rx="9"
+      fill="#aaa"
+      transform="rotate(-25 465 230)"/>
+
+
+<!-- дръжка -->
+<circle cx="560" cy="190"
+        r="25"
+        fill="url(#gold)"
+        stroke="#fff2a0"
+        stroke-width="5"/>
+
+
+<!-- малки LED лампи -->
+<circle cx="170" cy="105" r="8" fill="#00eaff"/>
+<circle cx="400" cy="105" r="8" fill="#00eaff"/>
+<circle cx="170" cy="475" r="8" fill="#00eaff"/>
+<circle cx="400" cy="475" r="8" fill="#00eaff"/>
+
+
 </svg>
