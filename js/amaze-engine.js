@@ -679,3 +679,350 @@ function checkResult(result){
 
 
 }
+/* ==========================================================
+   AMAZE ESCAPE
+   ENGINE v2
+   PART 3 / 3
+   EFFECTS + WIN SYSTEM
+   ========================================================== */
+
+
+
+/* ==========================================================
+   LEVER
+   ========================================================== */
+
+
+function leverPull(){
+
+
+    if(!AMAZE.lever)
+    return;
+
+
+
+    AMAZE.lever.classList.remove(
+        "pull-lever"
+    );
+
+
+    void AMAZE.lever.offsetWidth;
+
+
+    AMAZE.lever.classList.add(
+        "pull-lever"
+    );
+
+
+
+    tone(
+        90,
+        .25,
+        "square",
+        .08
+    );
+
+
+}
+
+
+
+
+
+
+/* ==========================================================
+   JACKPOT
+   ========================================================== */
+
+
+function jackpot(){
+
+
+    tone(
+        800,
+        .25,
+        "square",
+        .08
+    );
+
+
+    setTimeout(()=>{
+
+
+        tone(
+            1200,
+            .25,
+            "square",
+            .08
+        );
+
+
+    },200);
+
+
+
+
+    if(AMAZE.lamp){
+
+
+        AMAZE.lamp.classList.add(
+            "on"
+        );
+
+
+    }
+
+
+
+
+    createCoins();
+
+
+    createConfetti();
+
+
+
+    slots.forEach(
+    slot=>{
+
+
+        slot.classList.add(
+            "flash"
+        );
+
+
+    });
+
+
+}
+
+
+
+
+
+
+/* ==========================================================
+   COINS
+   ========================================================== */
+
+
+function createCoins(){
+
+
+
+    for(
+        let i=0;
+        i<50;
+        i++
+    ){
+
+
+
+        let coin =
+        document.createElement(
+            "div"
+        );
+
+
+
+        coin.className =
+        "coin";
+
+
+
+        coin.style.left =
+        Math.random()*100
+        +
+        "vw";
+
+
+
+        coin.style.animationDelay =
+        Math.random()*2
+        +
+        "s";
+
+
+
+        document.body.appendChild(
+            coin
+        );
+
+
+
+        setTimeout(()=>{
+
+
+            coin.remove();
+
+
+        },4000);
+
+
+
+    }
+
+
+}
+
+
+
+
+
+
+/* ==========================================================
+   CONFETTI
+   ========================================================== */
+
+
+function createConfetti(){
+
+
+
+    let colors=[
+
+        "gold",
+        "red",
+        "blue",
+        "green",
+        "purple"
+
+    ];
+
+
+
+
+
+    for(
+        let i=0;
+        i<80;
+        i++
+    ){
+
+
+
+        let piece =
+        document.createElement(
+            "div"
+        );
+
+
+
+        piece.className =
+        "confetti";
+
+
+
+        piece.style.left =
+        Math.random()*100
+        +
+        "vw";
+
+
+
+        piece.style.background =
+        colors[
+            Math.floor(
+                Math.random()
+                *
+                colors.length
+            )
+        ];
+
+
+
+        piece.style.animationDelay =
+        Math.random()*2
+        +
+        "s";
+
+
+
+        document.body.appendChild(
+            piece
+        );
+
+
+
+        setTimeout(()=>{
+
+
+            piece.remove();
+
+
+        },4000);
+
+
+
+    }
+
+
+}
+
+
+
+
+
+
+/* ==========================================================
+   CLEAN EFFECTS
+   ========================================================== */
+
+
+function resetEffects(){
+
+
+    if(AMAZE.lamp){
+
+
+        AMAZE.lamp.classList.remove(
+            "on"
+        );
+
+
+    }
+
+
+
+    slots.forEach(
+    slot=>{
+
+
+        if(slot){
+
+
+            slot.classList.remove(
+                "flash"
+            );
+
+
+        }
+
+
+    });
+
+
+}
+
+
+
+
+
+
+/* ==========================================================
+   ERROR MONITOR
+   ========================================================== */
+
+
+window.addEventListener(
+"error",
+event=>{
+
+
+    console.warn(
+        "AmazeEscape:",
+        event.message
+    );
+
+
+});
