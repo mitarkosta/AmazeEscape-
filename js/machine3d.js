@@ -394,3 +394,119 @@
     0 0 15px #00eaff;
 
 }
+/* =====================================
+   LEVER ANIMATION
+   ===================================== */
+
+.lever.pull {
+
+    animation:
+    pullLever .35s ease;
+
+}
+
+
+@keyframes pullLever {
+
+    0% {
+        transform:rotate(-25deg);
+    }
+
+    50% {
+        transform:rotate(25deg);
+    }
+
+    100% {
+        transform:rotate(-25deg);
+    }
+
+}
+
+
+/* =====================================
+   REEL SPIN EFFECT
+   ===================================== */
+
+
+.reel.spinning {
+
+    animation:
+    reelSpin .12s linear infinite;
+
+}
+
+
+@keyframes reelSpin {
+
+    0% {
+
+        transform:
+        translateY(-10px);
+
+        filter:
+        blur(2px);
+
+    }
+
+
+    50% {
+
+        transform:
+        translateY(10px);
+
+    }
+
+
+    100% {
+
+        transform:
+        translateY(-10px);
+
+        filter:
+        blur(2px);
+
+    }
+
+}
+
+
+/* =====================================
+   MACHINE LIGHT EFFECT
+   ===================================== */
+
+
+.machine.playing {
+
+
+    animation:
+    machineGlow .8s infinite alternate;
+
+
+}
+
+
+@keyframes machineGlow {
+
+
+    from {
+
+        box-shadow:
+
+        inset 0 0 30px rgba(255,255,255,.2),
+
+        0 0 20px #00c8ff;
+
+    }
+
+
+    to {
+
+        box-shadow:
+
+        inset 0 0 50px rgba(255,255,255,.4),
+
+        0 0 60px #ffd700;
+
+    }
+
+}
