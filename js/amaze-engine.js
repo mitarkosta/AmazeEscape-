@@ -764,7 +764,7 @@ function checkResult(result){
    ========================================================== */
 
 
-ocument.addEventListener(
+document.addEventListener(
 "DOMContentLoaded",
 ()=>{
 
