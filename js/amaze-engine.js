@@ -764,15 +764,19 @@ function checkResult(result){
    ========================================================== */
 
 
-document.addEventListener(
+ocument.addEventListener(
 "DOMContentLoaded",
 ()=>{
+
+    button =
+    document.getElementById("button")
+    ||
+    document.getElementById("spin");
 
 
     if(button){
 
-
-         button.onclick = spinGame;
+        button.addEventListener(
             "click",
             spinGame
         );
