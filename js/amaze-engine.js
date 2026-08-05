@@ -425,3 +425,360 @@ function unlockButton(){
     }
 
 }
+/* ==========================================================
+   AMAZE ESCAPE
+   GAME ENGINE
+   PART 2 / 3
+   SPIN ENGINE + REELS
+   ========================================================== */
+
+
+/* ==========================================================
+   SPIN START
+   ========================================================== */
+
+
+function spinGame(){
+
+
+    if(AMAZE.playing)
+    return;
+
+
+    if(!slots[0] || !slots[1] || !slots[2])
+    return;
+
+
+
+    AMAZE.playing =
+    true;
+
+
+    AMAZE.attempts++;
+
+
+    updateCounter();
+
+
+    lockButton();
+
+
+
+    setMessage(
+        "🎰 Spinning..."
+    );
+
+
+
+    playTone(
+        120,
+        .2,
+        "square",
+        .06
+    );
+
+
+
+    pullLever();
+
+
+    if(AMAZE.machine){
+
+        AMAZE.machine.classList.add(
+            "playing"
+        );
+
+    }
+
+
+
+    startReels();
+
+
+
+}
+
+
+
+
+
+/* ==========================================================
+   REEL ANIMATION
+   ========================================================== */
+
+
+function startReels(){
+
+
+    let speed =
+    setInterval(()=>{
+
+
+        slots.forEach(
+        slot=>{
+
+
+            slot.innerHTML =
+            randomSymbol();
+
+
+        });
+
+
+    },80);
+
+
+
+
+
+    setTimeout(()=>{
+
+
+        clearInterval(speed);
+
+
+        stopReels();
+
+
+
+    },1800);
+
+
+
+}
+
+
+
+
+
+/* ==========================================================
+   STOP REELS ONE BY ONE
+   ========================================================== */
+
+
+function stopReels(){
+
+
+    let result=[];
+
+
+
+    slots.forEach(
+    (slot,index)=>{
+
+
+        setTimeout(()=>{
+
+
+            slot.classList.remove(
+                "reel-spin"
+            );
+
+
+            slot.classList.add(
+                "reel-stop"
+            );
+
+
+
+            let symbol =
+            randomSymbol();
+
+
+
+            slot.innerHTML =
+            symbol;
+
+
+
+            result[index] =
+            symbol;
+
+
+
+            playTone(
+                700-index*100,
+                .05,
+                "square",
+                .03
+            );
+
+
+
+            if(index===2){
+
+
+                finishSpin(
+                    result
+                );
+
+
+            }
+
+
+
+        },
+
+        index*600);
+
+
+
+    });
+
+
+
+}
+
+
+
+
+
+/* ==========================================================
+   FINISH SPIN
+   ========================================================== */
+
+
+function finishSpin(result){
+
+
+
+    AMAZE.playing =
+    false;
+
+
+
+    unlockButton();
+
+
+
+    if(AMAZE.machine){
+
+        AMAZE.machine.classList.remove(
+            "playing"
+        );
+
+    }
+
+
+
+    checkResult(
+        result
+    );
+
+
+}
+
+
+
+
+
+/* ==========================================================
+   RESULT CHECK
+   ========================================================== */
+
+
+function checkResult(result){
+
+
+
+    let a =
+    result[0];
+
+
+    let b =
+    result[1];
+
+
+    let c =
+    result[2];
+
+
+
+
+    if(
+        a===b &&
+        b===c
+    ){
+
+
+        setMessage(
+            "🎉 JACKPOT 🎉"
+        );
+
+
+        jackpotEffect();
+
+
+        return;
+
+
+    }
+
+
+
+
+
+    if(
+        a===b ||
+        b===c ||
+        a===c
+    ){
+
+
+        setMessage(
+            "🔥 ALMOST WIN"
+        );
+
+
+        playTone(
+            500,
+            .3,
+            "triangle",
+            .06
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+
+    setMessage(
+        "❌ TRY AGAIN"
+    );
+
+
+
+}
+
+
+
+
+
+/* ==========================================================
+   BUTTON CONNECTION
+   ========================================================== */
+
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+
+    if(button){
+
+
+        button.addEventListener(
+            "click",
+            spinGame
+        );
+
+
+    }
+
+
+});
