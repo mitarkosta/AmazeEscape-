@@ -382,3 +382,454 @@ function createCabinet(){
 
 
 }
+/* ==========================================================
+   AMAZE ESCAPE
+   ENGINE v2
+   PART 2 / 3
+   SPIN ENGINE
+   ========================================================== */
+
+
+
+/* ==========================================================
+   SPIN GAME
+   ========================================================== */
+
+
+function spinGame(){
+
+
+
+    if(AMAZE.playing)
+    return;
+
+
+
+    AMAZE.playing=true;
+
+
+
+    AMAZE.attempts++;
+
+
+    updateCounter();
+
+
+
+    setMessage(
+        "🎰 Spinning..."
+    );
+
+
+
+    if(button){
+
+        button.disabled=true;
+
+    }
+
+
+
+    pullLever();
+
+
+
+    if(AMAZE.machine){
+
+        AMAZE.machine.classList.add(
+            "reel-shake"
+        );
+
+
+
+        setTimeout(()=>{
+
+
+            AMAZE.machine.classList.remove(
+                "reel-shake"
+            );
+
+
+        },300);
+
+
+    }
+
+
+
+    startReels();
+
+
+
+}
+
+
+
+
+
+
+
+/* ==========================================================
+   START REELS
+   ========================================================== */
+
+
+function startReels(){
+
+
+    let timer =
+    setInterval(()=>{
+
+
+        slots.forEach(
+        slot=>{
+
+
+            slot.innerHTML =
+            randomSymbol();
+
+
+
+            slot.classList.add(
+                "reel-spin"
+            );
+
+
+        });
+
+
+
+    },90);
+
+
+
+
+
+    setTimeout(()=>{
+
+
+        clearInterval(timer);
+
+
+
+        stopReels();
+
+
+
+    },1800);
+
+
+
+}
+
+
+
+
+
+
+
+/* ==========================================================
+   STOP REELS
+   ========================================================== */
+
+
+function stopReels(){
+
+
+    let result=[];
+
+
+
+    slots.forEach(
+    (slot,index)=>{
+
+
+
+        setTimeout(()=>{
+
+
+            slot.classList.remove(
+                "reel-spin"
+            );
+
+
+
+            slot.classList.add(
+                "reel-stop"
+            );
+
+
+
+            let symbol =
+            randomSymbol();
+
+
+
+            slot.innerHTML =
+            symbol;
+
+
+
+            result[index]=
+            symbol;
+
+
+
+            playClick();
+
+
+
+            if(index===2){
+
+
+                finishSpin(
+                    result
+                );
+
+
+            }
+
+
+
+        },
+
+
+        index*600);
+
+
+
+    });
+
+
+
+}
+
+
+
+
+
+
+
+/* ==========================================================
+   FINISH
+   ========================================================== */
+
+
+function finishSpin(result){
+
+
+
+    AMAZE.playing=false;
+
+
+
+    if(button){
+
+        button.disabled=false;
+
+    }
+
+
+
+    checkResult(
+        result
+    );
+
+
+
+}
+
+
+
+
+
+
+
+/* ==========================================================
+   CHECK RESULT
+   ========================================================== */
+
+
+function checkResult(result){
+
+
+    let a=result[0];
+
+    let b=result[1];
+
+    let c=result[2];
+
+
+
+
+
+    if(
+        a===b &&
+        b===c
+    ){
+
+
+
+        setMessage(
+            "🎉 JACKPOT 🎉"
+        );
+
+
+
+        jackpot();
+
+
+
+        return;
+
+    }
+
+
+
+
+
+
+    if(
+        a===b ||
+        b===c ||
+        a===c
+    ){
+
+
+
+        setMessage(
+            "🔥 ALMOST WIN"
+        );
+
+
+
+        return;
+
+
+    }
+
+
+
+
+
+
+    setMessage(
+        "❌ TRY AGAIN"
+    );
+
+
+
+}
+
+
+
+
+
+
+
+/* ==========================================================
+   LEVER
+   ========================================================== */
+
+
+function pullLever(){
+
+
+
+    if(!AMAZE.lever)
+    return;
+
+
+
+    AMAZE.lever.classList.remove(
+        "pull-lever"
+    );
+
+
+
+    void AMAZE.lever.offsetWidth;
+
+
+
+    AMAZE.lever.classList.add(
+        "pull-lever"
+    );
+
+
+
+}
+
+
+
+
+
+
+
+/* ==========================================================
+   SIMPLE SOUND
+   ========================================================== */
+
+
+function playClick(){
+
+
+
+    try{
+
+
+        if(!AMAZE.audio){
+
+
+            AMAZE.audio =
+            new AudioContext();
+
+
+        }
+
+
+
+        let osc =
+        AMAZE.audio.createOscillator();
+
+
+
+        let gain =
+        AMAZE.audio.createGain();
+
+
+
+
+        osc.frequency.value=700;
+
+
+        gain.gain.value=.03;
+
+
+
+
+        osc.connect(gain);
+
+
+        gain.connect(
+            AMAZE.audio.destination
+        );
+
+
+
+        osc.start();
+
+
+
+        osc.stop(
+            AMAZE.audio.currentTime+.05
+        );
+
+
+
+    }
+
+    catch(e){}
+
+
+
+}
