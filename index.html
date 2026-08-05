@@ -1,391 +1,756 @@
 <!DOCTYPE html>
+
 <html lang="bg">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+
+
 <title>Almost Jackpot</title>
+
+
 
 <style>
 
 
+
+
+
 <link rel="stylesheet" href="css/background.css">
+
 <link rel="stylesheet" href="css/casino-effects.css">
+
 <link rel="stylesheet" href="css/machine3d.css">
+
 <link rel="stylesheet" href="css/reel-engine.css">
 
+
+
 *{
+
     box-sizing:border-box;
+
 }
 
-/style>
-
-</head>
-
-<body>
 
 
-<title>Almost Jackpot</title>
-
-<script src="main.js"></script>
-
-</body>
-</html>
-    
 body{
+
     margin:0;
+
     height:100vh;
+
     display:flex;
+
     justify-content:center;
+
     align-items:center;
+
     overflow:hidden;
+
     font-family:Arial,sans-serif;
+
     background:
+
     radial-gradient(circle,#800000,#050505 70%);
+
 }
+
+
+
 
 
 /* фон */
 
+
+
 body::before{
+
     content:"";
+
     position:absolute;
+
     inset:0;
+
     background-image:
+
     radial-gradient(#ffd700 2px,transparent 2px);
+
     background-size:45px 45px;
+
     opacity:.15;
+
     animation:stars 20s linear infinite;
+
 }
 
+
+
 @keyframes stars{
+
     from{
+
         transform:translateY(0);
+
     }
+
     to{
+
         transform:translateY(100px);
+
     }
+
 }
+
+
+
+
 
 
 
 /* машина */
 
+
+
 .machine{
 
+
+
     position:relative;
+
     z-index:2;
 
+
+
     width:90%;
+
     max-width:500px;
+
+
 
     background:#111;
 
+
+
     padding:35px;
+
+
 
     border-radius:30px;
 
+
+
     border:5px solid gold;
+
+
 
     text-align:center;
 
+
+
     box-shadow:
+
     0 0 30px gold,
+
     0 0 80px orange;
+
 }
+
+
+
+
 
 
 
 h1{
 
+
+
     margin:0;
+
+
 
     font-size:60px;
 
+
+
     color:#ffd700;
 
+
+
     text-shadow:
+
     0 0 10px gold,
+
     0 0 40px orange;
 
+
+
 }
+
+
+
+
 
 
 
 .subtitle{
 
+
+
     color:white;
+
+
 
     margin:10px;
 
+
+
     letter-spacing:5px;
 
+
+
 }
+
+
+
+
 
 
 
 /* екран */
 
+
+
 .display{
+
+
 
     background:black;
 
+
+
     padding:25px;
+
+
 
     border-radius:20px;
 
+
+
     border:3px solid #555;
+
+
 
     margin-top:25px;
 
+
+
 }
+
+
+
+
 
 
 
 .slots{
 
+
+
     display:flex;
+
+
 
     justify-content:center;
 
+
+
     gap:15px;
 
+
+
 }
+
+
+
+
 
 
 
 .slot{
 
+
+
     width:90px;
+
+
 
     height:90px;
 
+
+
     background:#222;
+
+
 
     border:3px solid gold;
 
+
+
     border-radius:15px;
+
+
 
     display:flex;
 
+
+
     justify-content:center;
+
+
 
     align-items:center;
 
+
+
     font-size:50px;
 
+
+
 }
+
+
+
+
 
 
 
 .spin{
 
+
+
     animation:spin .12s infinite;
 
+
+
 }
+
+
+
+
 
 
 
 @keyframes spin{
 
+
+
     50%{
+
         transform:translateY(15px);
+
     }
 
+
+
 }
+
+
+
+
+
 
 
 
 
 button{
 
+
+
     margin-top:30px;
+
+
 
     padding:18px 50px;
 
+
+
     border:0;
+
+
 
     border-radius:50px;
 
+
+
     font-size:25px;
+
+
 
     font-weight:bold;
 
+
+
     cursor:pointer;
 
+
+
     background:
+
     linear-gradient(#ffe066,#cc9900);
 
+
+
     box-shadow:
+
     0 0 25px gold;
 
+
+
 }
+
+
+
+
 
 
 
 button:disabled{
 
+
+
     opacity:.5;
 
+
+
 }
+
+
+
+
 
 
 
 #message{
 
+
+
     color:white;
+
+
 
     font-size:30px;
 
+
+
     margin-top:25px;
+
+
 
     min-height:40px;
 
+
+
 }
+
+
+
+
 
 
 
 #counter{
 
+
+
     color:#aaa;
+
+
 
     margin-top:10px;
 
+
+
 }
+
+
+
+
+
 
 
 
 
 .win{
 
+
+
     animation:win .8s infinite;
 
+
+
 }
+
+
+
+
 
 
 
 @keyframes win{
 
+
+
     50%{
+
         transform:scale(1.2);
+
     }
 
+
+
 }
+
+
+
+
 
 
 
 /* конфети */
 
+
+
 .confetti{
+
+
 
     position:absolute;
 
+
+
     width:10px;
+
+
 
     height:20px;
 
+
+
     top:-20px;
+
+
 
     animation:fall 3s linear forwards;
 
+
+
 }
+
+
+
 
 
 @keyframes fall{
 
+
+
     to{
 
+
+
         transform:
+
         translateY(110vh)
+
         rotate(720deg);
 
+
+
     }
+
+
 
 }
 
 
+
+
+
 </style>
 
+
+
 </head>
+
+
+
 
 
 <body>
 
 
 
+
+
+
+
 <div class="machine">
 
 
+
+
+
 <h1>
+
 JACKPOT
+
 </h1>
 
 
+
+
+
 <div class="subtitle">
+
 TRY YOUR LUCK
+
 </div>
+
+
+
+
 
 
 
 <div class="display">
 
 
+
+
+
 <div class="slots">
+
+
 
 <div class="slot" id="slot1">🍒</div>
 
+
+
 <div class="slot" id="slot2">⭐</div>
+
+
 
 <div class="slot" id="slot3">💎</div>
 
-</div>
 
 
 </div>
+
+
+
+
+
+</div>
+
+
+
+
 
 
 
 <button id="button">
+
 🎰 SPIN
+
 </button>
 
 
 
+
+
+
+
 <div id="message">
+
 Ready...
+
 </div>
+
+
+
 
 
 <div id="counter">
+
 Attempts: 0
+
 </div>
 
 
+
+
+
 </div>
+
+
+
+
 
 
 
 <script>
 
 
+
+
+
 const symbols=[
 
+
+
 "🍒",
+
 "🍋",
+
 "⭐",
+
 "💎",
+
 "🔔",
+
 "7️⃣"
+
+
 
 ];
 
 
 
+
+
+
+
 const button=document.getElementById("button");
+
+
 
 const message=document.getElementById("message");
 
+
+
 const counter=document.getElementById("counter");
+
+
+
+
+
+
 
 
 
@@ -395,66 +760,134 @@ let audioContext=null;
 
 
 
+
+
+
+
 function sound(freq,duration){
+
+
+
 
 
 try{
 
+
+
 if(!audioContext){
 
+
+
 audioContext=
+
 new AudioContext();
+
+
 
 }
 
 
+
+
+
 let osc=
+
 audioContext.createOscillator();
 
 
+
+
+
 let gain=
+
 audioContext.createGain();
+
+
+
 
 
 osc.frequency.value=freq;
 
 
+
+
+
 gain.gain.value=.08;
+
+
+
 
 
 osc.connect(gain);
 
+
+
 gain.connect(
+
 audioContext.destination
+
 );
+
+
+
 
 
 osc.start();
 
 
+
+
+
 osc.stop(
+
 audioContext.currentTime+duration
+
 );
 
 
+
+
+
 }
+
+
 
 catch(e){}
 
+
+
 }
+
+
+
+
+
 
 
 
 
 function randomSymbol(){
 
+
+
 return symbols[
+
 Math.floor(
+
 Math.random()*symbols.length
+
 )
+
 ];
 
+
+
 }
+
+
+
+
+
 
 
 
@@ -462,67 +895,135 @@ Math.random()*symbols.length
 function spin(){
 
 
+
+
+
 button.disabled=true;
+
+
+
 
 
 attempts++;
 
+
+
 counter.innerHTML=
+
 "Attempts: "+attempts;
 
 
+
+
+
 let slots=[
+
 slot1,
+
 slot2,
+
 slot3
+
 ];
+
+
+
 
 
 sound(200,.1);
 
 
 
+
+
+
+
 slots.forEach(s=>{
+
+
 
 s.classList.add("spin");
 
+
+
 });
+
+
+
+
 
 
 
 let ticks=0;
 
 
+
+
+
 let timer=setInterval(()=>{
+
+
+
 
 
 slots.forEach(s=>{
 
+
+
 s.innerHTML=randomSymbol();
 
+
+
 });
+
+
+
 
 
 ticks++;
 
 
+
+
+
 if(ticks>=25){
+
+
+
 
 
 clearInterval(timer);
 
 
+
+
+
 stopSlots(slots);
 
 
+
+
+
 }
+
+
+
 
 
 },100);
 
 
 
+
+
+
+
 }
+
+
+
+
+
 
 
 
@@ -530,30 +1031,60 @@ stopSlots(slots);
 function stopSlots(slots){
 
 
+
+
+
 let result=[];
+
+
+
 
 
 slots.forEach((slot,index)=>{
 
 
+
+
+
 setTimeout(()=>{
+
+
+
 
 
 slot.classList.remove("spin");
 
 
+
+
+
 slot.innerHTML=randomSymbol();
+
+
+
 
 
 result[index]=slot.innerHTML;
 
 
 
+
+
+
+
 if(index===2){
+
+
 
 check(result);
 
+
+
 }
+
+
+
+
 
 
 
@@ -561,10 +1092,22 @@ check(result);
 
 
 
+
+
+
+
 });
 
 
+
+
+
 }
+
+
+
+
+
 
 
 
@@ -572,59 +1115,119 @@ check(result);
 function check(result){
 
 
+
+
+
 button.disabled=false;
 
 
 
+
+
+
+
 if(
+
 result[0]===result[1] &&
+
 result[1]===result[2]
+
 ){
 
 
+
+
+
 message.innerHTML=
+
 "🎉 JACKPOT 🎉";
+
+
+
 
 
 message.className="win";
 
 
+
+
+
 sound(900,.5);
+
+
+
 
 
 createConfetti();
 
 
+
+
+
 }
+
+
 
 else if(
 
+
+
 result[0]===result[1] ||
+
 result[1]===result[2] ||
+
 result[0]===result[2]
+
+
 
 ){
 
 
+
+
+
 message.innerHTML=
+
 "🔥 ALMOST WIN";
+
+
 
 sound(500,.3);
 
 
+
+
+
 }
+
+
 
 else{
 
 
+
+
+
 message.innerHTML=
+
 "❌ Try again";
 
 
+
+
+
 }
 
 
+
+
+
 }
+
+
+
+
+
 
 
 
@@ -632,47 +1235,94 @@ message.innerHTML=
 function createConfetti(){
 
 
+
+
+
 for(let i=0;i<80;i++){
+
+
+
 
 
 let c=document.createElement("div");
 
 
+
+
+
 c.className="confetti";
 
 
+
+
+
 c.style.left=
+
 Math.random()*100+"vw";
 
 
+
+
+
 c.style.background=
+
 [
+
 "gold",
+
 "red",
+
 "blue",
+
 "green"
+
 ]
+
 [
+
 Math.floor(Math.random()*4)
+
 ];
+
+
+
 
 
 document.body.appendChild(c);
 
 
 
+
+
+
+
 setTimeout(()=>{
 
+
+
 c.remove();
+
+
 
 },4000);
 
 
 
-}
+
+
 
 
 }
+
+
+
+
+
+}
+
+
+
+
 
 
 
@@ -680,18 +1330,36 @@ button.onclick=spin;
 
 
 
+
+
+
+
 </script>
+
+
 
     
 
+
+
 <script src="js/main.js"></script>
+
 <script src="js/background.js"></script>
+
 <script src="js/cabinet-sound.js"></script>
+
 <script src="js/casino-effects.js"></script>
+
 <script src="js/machine3d.js"></script>
+
 <script src="js/reel-engine.js"></script>
 
 
+
+
+
     
+
 </body>
+
 </html>
