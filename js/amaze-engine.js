@@ -1,257 +1,427 @@
 /* ==========================================================
    AMAZE ESCAPE
-   GAME ENGINE v2.0
-   PART 1A
+   GAME ENGINE
+   PART 1 / 3
+   CORE SYSTEM
    ========================================================== */
 
 "use strict";
 
-/* ===========================
-   GAME CONFIG
-=========================== */
 
-const SYMBOLS = [
-    "🍒",
-    "🍋",
-    "⭐",
-    "💎",
-    "🔔",
-    "7️⃣"
-];
+/* ==========================================================
+   GAME DATA
+   ========================================================== */
 
-const GAME = {
 
-    attempts: 0,
+const AMAZE = {
 
-    playing: false,
+    symbols:[
+        "🍒",
+        "🍋",
+        "⭐",
+        "💎",
+        "🔔",
+        "7️⃣"
+    ],
 
-    audio: null
+    attempts:0,
+
+    playing:false,
+
+    audio:null,
+
+    machine:null,
+
+    lever:null,
+
+    lamp:null
 
 };
 
 
-/* ===========================
-   DOM
-=========================== */
 
-const machine =
-document.querySelector(".machine");
-
-const button =
-document.getElementById("button");
-
-const message =
-document.getElementById("message");
-
-const counter =
-document.getElementById("counter");
-
-const slot1 =
-document.getElementById("slot1");
-
-const slot2 =
-document.getElementById("slot2");
-
-const slot3 =
-document.getElementById("slot3");
-
-const slots = [
-    slot1,
-    slot2,
-    slot3
-];
+/* ==========================================================
+   DOM ELEMENTS
+   ========================================================== */
 
 
-/* ===========================
+let button;
+let message;
+let counter;
+
+let slots=[];
+
+
+
+/* ==========================================================
+   INITIALIZATION
+   ========================================================== */
+
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+
+    button =
+    document.getElementById("button")
+    ||
+    document.getElementById("spin");
+
+
+    message =
+    document.getElementById("message");
+
+
+    counter =
+    document.getElementById("counter");
+
+
+    slots=[
+
+        document.getElementById("slot1"),
+
+        document.getElementById("slot2"),
+
+        document.getElementById("slot3")
+
+    ];
+
+
+
+    AMAZE.machine =
+    document.querySelector(".machine");
+
+
+
+    if(!AMAZE.machine)
+    return;
+
+
+
+    createBackground();
+
+    createCabinet();
+
+
+    updateCounter();
+
+
+});
+
+
+
+/* ==========================================================
    RANDOM SYMBOL
-=========================== */
+   ========================================================== */
+
 
 function randomSymbol(){
 
-    return SYMBOLS[
+
+    return AMAZE.symbols[
+
         Math.floor(
-            Math.random() *
-            SYMBOLS.length
+            Math.random()
+            *
+            AMAZE.symbols.length
         )
+
     ];
 
 }
 
 
-/* ===========================
-   AUDIO
-=========================== */
 
-function audio(){
 
-    if(!GAME.audio){
+/* ==========================================================
+   AUDIO ENGINE
+   ========================================================== */
 
-        GAME.audio =
+
+function getAudio(){
+
+
+    if(!AMAZE.audio){
+
+        AMAZE.audio =
         new AudioContext();
 
     }
 
-    return GAME.audio;
+
+    return AMAZE.audio;
 
 }
 
 
-function tone(
+
+
+function playTone(
 frequency,
 duration,
 type="sine",
 volume=.05
 ){
 
-    const ctx = audio();
 
-    const osc =
-    ctx.createOscillator();
+    try{
 
-    const gain =
-    ctx.createGain();
 
-    osc.type = type;
+        const ctx =
+        getAudio();
 
-    osc.frequency.value =
-    frequency;
 
-    gain.gain.value =
-    volume;
+        const oscillator =
+        ctx.createOscillator();
 
-    osc.connect(gain);
 
-    gain.connect(
-        ctx.destination
-    );
+        const gain =
+        ctx.createGain();
 
-    osc.start();
 
-    osc.stop(
-        ctx.currentTime +
-        duration
-    );
+
+        oscillator.type =
+        type;
+
+
+        oscillator.frequency.value =
+        frequency;
+
+
+        gain.gain.value =
+        volume;
+
+
+
+        oscillator.connect(gain);
+
+        gain.connect(
+            ctx.destination
+        );
+
+
+
+        oscillator.start();
+
+
+        oscillator.stop(
+            ctx.currentTime+
+            duration
+        );
+
+
+    }
+
+    catch(error){}
+
 
 }
 
 
-/* ===========================
-   BACKGROUND
-=========================== */
+
+
+/* ==========================================================
+   BACKGROUND ENGINE
+   ========================================================== */
+
 
 function createBackground(){
+
 
     const bg =
     document.createElement("div");
 
+
     bg.className =
     "casino-background";
 
+
     document.body.prepend(bg);
 
+
+
     for(let i=0;i<15;i++){
+
 
         const light =
         document.createElement("div");
 
+
         light.className =
         "maze-light";
+
 
         light.style.left =
         Math.random()*100+"vw";
 
+
         light.style.height =
-        (80+Math.random()*120)+"px";
+        (
+            60+
+            Math.random()*140
+        )
+        +"px";
+
 
         light.style.animationDelay =
-        Math.random()*4+"s";
+        Math.random()*5+"s";
+
 
         bg.appendChild(light);
 
+
     }
 
-    for(let i=0;i<40;i++){
+
+
+    for(let i=0;i<35;i++){
+
 
         const dot =
         document.createElement("div");
 
+
         dot.className =
         "casino-dot";
+
 
         dot.style.left =
         Math.random()*100+"vw";
 
+
         dot.style.top =
         Math.random()*100+"vh";
+
 
         dot.style.animationDelay =
         Math.random()*3+"s";
 
+
         bg.appendChild(dot);
+
+
+    }
+
+
+}
+
+
+
+/* ==========================================================
+   CABINET ELEMENTS
+   ========================================================== */
+
+
+function createCabinet(){
+
+
+    const led =
+    document.createElement("div");
+
+
+    led.className =
+    "led-border";
+
+
+    AMAZE.machine.appendChild(led);
+
+
+
+    AMAZE.lamp =
+    document.createElement("div");
+
+
+    AMAZE.lamp.className =
+    "jackpot-lamp";
+
+
+    AMAZE.machine.appendChild(
+        AMAZE.lamp
+    );
+
+
+
+    AMAZE.lever =
+    document.createElement("div");
+
+
+    AMAZE.lever.className =
+    "real-lever";
+
+
+    AMAZE.lever.innerHTML =
+    '<div class="ball"></div>';
+
+
+
+    AMAZE.machine.appendChild(
+        AMAZE.lever
+    );
+
+
+}
+
+
+
+
+/* ==========================================================
+   HELPERS
+   ========================================================== */
+
+
+function updateCounter(){
+
+
+    if(counter){
+
+        counter.innerHTML =
+        "Attempts: "
+        +
+        AMAZE.attempts;
 
     }
 
 }
 
 
-/* ===========================
-   MACHINE PARTS
-=========================== */
 
-function createCabinet(){
-
-    const leds =
-    document.createElement("div");
-
-    leds.className =
-    "led-border";
-
-    machine.appendChild(leds);
+function setMessage(text){
 
 
-    const lamp =
-    document.createElement("div");
+    if(message){
 
-    lamp.className =
-    "jackpot-lamp";
+        message.innerHTML =
+        text;
 
-    machine.appendChild(lamp);
-
-
-    const lever =
-    document.createElement("div");
-
-    lever.className =
-    "real-lever";
-
-    lever.innerHTML =
-    '<div class="ball"></div>';
-
-    machine.appendChild(lever);
+    }
 
 }
 
 
-/* ===========================
-   HELPERS
-=========================== */
 
-function updateCounter(){
+function lockButton(){
 
-    counter.textContent =
-    "Attempts: " +
-    GAME.attempts;
 
-}
+    if(button){
 
-function disableButton(){
+        button.disabled =
+        true;
 
-    button.disabled = true;
+    }
 
 }
 
-function enableButton(){
 
-    button.disabled = false;
+
+function unlockButton(){
+
+
+    if(button){
+
+        button.disabled =
+        false;
+
+    }
 
 }
