@@ -782,3 +782,336 @@ document.addEventListener(
 
 
 });
+/* ==========================================================
+   AMAZE ESCAPE
+   GAME ENGINE
+   PART 3 / 3
+   EFFECTS + WIN SYSTEM
+   ========================================================== */
+
+
+/* ==========================================================
+   LEVER EFFECT
+   ========================================================== */
+
+
+function pullLever(){
+
+
+    if(!AMAZE.lever)
+    return;
+
+
+
+    AMAZE.lever.classList.remove(
+        "pull-lever"
+    );
+
+
+    void AMAZE.lever.offsetWidth;
+
+
+    AMAZE.lever.classList.add(
+        "pull-lever"
+    );
+
+
+
+    playTone(
+        90,
+        .25,
+        "square",
+        .08
+    );
+
+
+}
+
+
+
+
+
+/* ==========================================================
+   JACKPOT EFFECT
+   ========================================================== */
+
+
+function jackpotEffect(){
+
+
+    playTone(
+        900,
+        .3,
+        "square",
+        .08
+    );
+
+
+    setTimeout(()=>{
+
+        playTone(
+            1200,
+            .3,
+            "square",
+            .08
+        );
+
+    },200);
+
+
+
+    if(AMAZE.lamp){
+
+        AMAZE.lamp.classList.add(
+            "on"
+        );
+
+    }
+
+
+
+    createCoins();
+
+
+    createConfetti();
+
+
+
+    slots.forEach(
+    slot=>{
+
+        slot.classList.add(
+            "flash"
+        );
+
+
+    });
+
+
+
+}
+
+
+
+
+
+/* ==========================================================
+   COINS
+   ========================================================== */
+
+
+function createCoins(){
+
+
+    for(
+        let i=0;
+        i<60;
+        i++
+    ){
+
+
+        const coin =
+        document.createElement(
+            "div"
+        );
+
+
+        coin.className =
+        "coin";
+
+
+        coin.style.left =
+        Math.random()*100
+        +
+        "vw";
+
+
+
+        coin.style.animationDelay =
+        Math.random()*1.5
+        +
+        "s";
+
+
+
+        document.body.appendChild(
+            coin
+        );
+
+
+
+        setTimeout(()=>{
+
+
+            coin.remove();
+
+
+        },3500);
+
+
+
+    }
+
+
+}
+
+
+
+
+
+/* ==========================================================
+   CONFETTI
+   ========================================================== */
+
+
+function createConfetti(){
+
+
+    const colors=[
+
+        "gold",
+        "red",
+        "blue",
+        "green",
+        "purple"
+
+    ];
+
+
+
+    for(
+        let i=0;
+        i<100;
+        i++
+    ){
+
+
+
+        const piece =
+        document.createElement(
+            "div"
+        );
+
+
+
+        piece.className =
+        "confetti";
+
+
+
+        piece.style.left =
+        Math.random()*100
+        +
+        "vw";
+
+
+
+        piece.style.background =
+        colors[
+            Math.floor(
+                Math.random()
+                *
+                colors.length
+            )
+        ];
+
+
+
+        piece.style.animationDelay =
+        Math.random()*2
+        +
+        "s";
+
+
+
+        document.body.appendChild(
+            piece
+        );
+
+
+
+        setTimeout(()=>{
+
+
+            piece.remove();
+
+
+        },4000);
+
+
+
+    }
+
+
+
+}
+
+
+
+
+/* ==========================================================
+   RESET WIN LIGHTS
+   ========================================================== */
+
+
+function resetEffects(){
+
+
+    if(AMAZE.lamp){
+
+        AMAZE.lamp.classList.remove(
+            "on"
+        );
+
+    }
+
+
+
+    slots.forEach(
+    slot=>{
+
+
+        if(slot){
+
+            slot.classList.remove(
+                "flash"
+            );
+
+        }
+
+
+    });
+
+
+}
+
+
+
+/* ==========================================================
+   ERROR PROTECTION
+   ========================================================== */
+
+
+window.addEventListener(
+"error",
+(event)=>{
+
+
+    console.warn(
+        "AmazeEscape Engine:",
+        event.message
+    );
+
+
+});
+
+
+
+/* ==========================================================
+   ENGINE READY
+   ========================================================== */
+
+
+console.log(
+    "🎰 AmazeEscape Engine Loaded"
+);
