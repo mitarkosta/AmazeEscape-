@@ -61,6 +61,15 @@ document.getElementById("button")
 ||
 document.getElementById("spin");
 
+// =======================
+// НОВА АНИМАЦИЯ НА МАШИНАТА
+// =======================
+
+const machine = document.querySelector(".machine");
+const lever = document.querySelector(".lever");
+
+const reels = document.querySelectorAll(".reel");
+
 
 const message =
 document.getElementById("message");
@@ -111,6 +120,51 @@ function randomSymbol(){
 
 function spin(){
 
+function spin(){
+
+    attempts++;
+
+    if(playing){
+        return;
+    }
+
+    playing = true;
+
+
+    // дърпане на ръчката
+    lever.classList.remove("pull");
+    void lever.offsetWidth;
+    lever.classList.add("pull");
+
+
+    // светене на машината
+    machine.classList.add("playing");
+
+
+    // въртене на барабаните
+    reels.forEach(reel=>{
+        reel.classList.add("spinning");
+    });
+
+
+
+    setTimeout(()=>{
+
+
+        reels.forEach(reel=>{
+            reel.classList.remove("spinning");
+        });
+
+
+        machine.classList.remove("playing");
+
+
+        playing = false;
+
+
+    },2000);
+
+}
 
 if(playing)
 return;
