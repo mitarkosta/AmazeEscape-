@@ -833,3 +833,393 @@ function playClick(){
 
 
 }
+/* ==========================================================
+   AMAZE ESCAPE
+   ENGINE v2
+   PART 3 / 3
+   EFFECTS + JACKPOT
+   ========================================================== */
+
+
+
+/* ==========================================================
+   JACKPOT
+   ========================================================== */
+
+
+function jackpot(){
+
+
+    setMessage(
+        "🎉 JACKPOT 🎉"
+    );
+
+
+
+    if(AMAZE.lamp){
+
+
+        AMAZE.lamp.classList.add(
+            "on"
+        );
+
+
+    }
+
+
+
+    playJackpotSound();
+
+
+    createCoins();
+
+
+    createConfetti();
+
+
+
+    slots.forEach(
+    slot=>{
+
+
+        if(slot){
+
+
+            slot.classList.add(
+                "flash"
+            );
+
+
+            setTimeout(()=>{
+
+
+                slot.classList.remove(
+                    "flash"
+                );
+
+
+            },3000);
+
+
+
+        }
+
+
+    });
+
+
+
+}
+
+
+
+
+
+
+
+/* ==========================================================
+   JACKPOT SOUND
+   ========================================================== */
+
+
+function playJackpotSound(){
+
+
+    let notes=[
+
+        700,
+        900,
+        1100,
+        1400
+
+    ];
+
+
+
+    notes.forEach(
+    (note,index)=>{
+
+
+        setTimeout(()=>{
+
+
+            playToneSimple(
+                note,
+                .25
+            );
+
+
+        },index*150);
+
+
+
+    });
+
+
+
+}
+
+
+
+
+
+
+
+/* ==========================================================
+   SIMPLE TONE
+   ========================================================== */
+
+
+function playToneSimple(
+frequency,
+duration
+){
+
+
+    try{
+
+
+        if(!AMAZE.audio){
+
+            AMAZE.audio =
+            new AudioContext();
+
+        }
+
+
+
+        let osc =
+        AMAZE.audio.createOscillator();
+
+
+
+        let gain =
+        AMAZE.audio.createGain();
+
+
+
+        osc.frequency.value =
+        frequency;
+
+
+
+        gain.gain.value =
+        .08;
+
+
+
+        osc.connect(gain);
+
+
+        gain.connect(
+            AMAZE.audio.destination
+        );
+
+
+
+        osc.start();
+
+
+
+        osc.stop(
+            AMAZE.audio.currentTime
+            +
+            duration
+        );
+
+
+    }
+
+    catch(e){}
+
+
+
+}
+
+
+
+
+
+
+
+/* ==========================================================
+   COINS
+   ========================================================== */
+
+
+function createCoins(){
+
+
+
+    for(
+        let i=0;
+        i<70;
+        i++
+    ){
+
+
+
+        let coin =
+        document.createElement(
+            "div"
+        );
+
+
+
+        coin.className =
+        "coin";
+
+
+
+        coin.style.left =
+        Math.random()*100
+        +
+        "vw";
+
+
+
+        coin.style.animationDelay =
+        Math.random()*2
+        +
+        "s";
+
+
+
+        document.body.appendChild(
+            coin
+        );
+
+
+
+        setTimeout(()=>{
+
+
+            coin.remove();
+
+
+        },4000);
+
+
+
+    }
+
+
+
+}
+
+
+
+
+
+
+
+/* ==========================================================
+   CONFETTI
+   ========================================================== */
+
+
+function createConfetti(){
+
+
+
+    let colors=[
+
+        "gold",
+        "red",
+        "blue",
+        "green"
+
+    ];
+
+
+
+    for(
+        let i=0;
+        i<100;
+        i++
+    ){
+
+
+
+        let piece =
+        document.createElement(
+            "div"
+        );
+
+
+
+        piece.className =
+        "confetti";
+
+
+
+        piece.style.left =
+        Math.random()*100
+        +
+        "vw";
+
+
+
+        piece.style.background =
+        colors[
+            Math.floor(
+                Math.random()
+                *
+                colors.length
+            )
+        ];
+
+
+
+        piece.style.animationDelay =
+        Math.random()*2
+        +
+        "s";
+
+
+
+        document.body.appendChild(
+            piece
+        );
+
+
+
+        setTimeout(()=>{
+
+
+            piece.remove();
+
+
+        },5000);
+
+
+
+    }
+
+
+
+}
+
+
+
+
+
+
+
+/* ==========================================================
+   GLOBAL ERROR CHECK
+   ========================================================== */
+
+
+window.addEventListener(
+"error",
+(event)=>{
+
+
+    console.warn(
+        "AmazeEscape:",
+        event.message
+    );
+
+
+});
