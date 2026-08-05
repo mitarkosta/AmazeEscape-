@@ -1,177 +1,259 @@
 <!DOCTYPE html>
 <html lang="bg">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Almost Jackpot</title>
+<title>AmazeEscape 🎰</title>
+
 
 <style>
-<link rel="stylesheet" href="css/background.css">
-<link rel="stylesheet" href="css/casino-effects.css">
-<link rel="stylesheet" href="css/machine3d.css">
-<link rel="stylesheet" href="css/reel-engine.css">
-
-<style>
-    
-<head>
-
-
-
 
 *{
     box-sizing:border-box;
 }
 
+
 body{
+
     margin:0;
     height:100vh;
+
     display:flex;
     justify-content:center;
     align-items:center;
+
     overflow:hidden;
+
     font-family:Arial,sans-serif;
+
     background:
-    radial-gradient(circle,#800000,#050505 70%);
+    radial-gradient(circle,#990000,#050505 75%);
+
 }
 
 
-/* фон */
+
+/* фон със светлини */
 
 body::before{
+
     content:"";
+
     position:absolute;
+
     inset:0;
+
     background-image:
     radial-gradient(#ffd700 2px,transparent 2px);
+
     background-size:45px 45px;
-    opacity:.15;
-    animation:stars 20s linear infinite;
+
+    opacity:.2;
+
+    animation:
+    stars 15s linear infinite;
+
 }
 
+
+
 @keyframes stars{
+
     from{
         transform:translateY(0);
     }
+
     to{
         transform:translateY(100px);
     }
+
 }
 
 
 
-/* машина */
+/* слот машина */
+
 
 .machine{
 
     position:relative;
+
     z-index:2;
 
-    width:90%;
-    max-width:500px;
-
-    background:#111;
+    width:min(95%,520px);
 
     padding:35px;
 
-    border-radius:30px;
+    border-radius:35px;
 
-    border:5px solid gold;
+
+    background:
+    linear-gradient(145deg,#222,#050505);
+
+
+    border:6px solid gold;
+
 
     text-align:center;
 
+
     box-shadow:
+
     0 0 30px gold,
-    0 0 80px orange;
+    0 0 80px orange,
+    inset 0 0 40px black;
+
+
 }
+
 
 
 
 h1{
 
+
     margin:0;
 
-    font-size:60px;
+
+    font-size:55px;
+
 
     color:#ffd700;
 
+
     text-shadow:
-    0 0 10px gold,
+
+    0 0 10px white,
     0 0 40px orange;
 
+
 }
+
 
 
 
 .subtitle{
 
+
     color:white;
 
-    margin:10px;
 
-    letter-spacing:5px;
+    margin-top:10px;
+
+
+    letter-spacing:6px;
+
+
+    font-size:18px;
+
 
 }
+
 
 
 
 /* екран */
 
+
 .display{
 
-    background:black;
+
+    margin-top:30px;
+
 
     padding:25px;
 
+
+    background:black;
+
+
     border-radius:20px;
 
-    border:3px solid #555;
 
-    margin-top:25px;
+    border:4px solid #555;
+
+
+    box-shadow:
+
+    inset 0 0 30px black;
+
 
 }
+
+
 
 
 
 .slots{
 
+
     display:flex;
+
 
     justify-content:center;
 
-    gap:15px;
+
+    gap:12px;
+
 
 }
+
 
 
 
 .slot{
 
-    width:90px;
 
-    height:90px;
+    width:95px;
 
-    background:#222;
+    height:95px;
 
-    border:3px solid gold;
-
-    border-radius:15px;
 
     display:flex;
+
 
     justify-content:center;
 
     align-items:center;
 
-    font-size:50px;
+
+    font-size:55px;
+
+
+    background:
+
+    linear-gradient(#333,#111);
+
+
+    border:3px solid gold;
+
+
+    border-radius:18px;
+
+
+    box-shadow:
+
+    0 0 15px gold;
+
 
 }
 
 
 
+
+/* въртене */
+
+
 .spin{
 
-    animation:spin .12s infinite;
+
+    animation:
+
+    spin .12s infinite;
+
 
 }
 
@@ -179,36 +261,69 @@ h1{
 
 @keyframes spin{
 
+
     50%{
-        transform:translateY(15px);
+
+        transform:
+
+        translateY(15px);
+
+        filter:blur(2px);
+
     }
+
 
 }
 
 
 
 
+
 button{
+
 
     margin-top:30px;
 
-    padding:18px 50px;
+
+    padding:18px 55px;
+
 
     border:0;
 
+
     border-radius:50px;
+
 
     font-size:25px;
 
+
     font-weight:bold;
+
 
     cursor:pointer;
 
+
     background:
-    linear-gradient(#ffe066,#cc9900);
+
+    linear-gradient(#ffe878,#cc9900);
+
 
     box-shadow:
-    0 0 25px gold;
+
+    0 0 30px gold;
+
+
+}
+
+
+
+
+
+button:hover{
+
+
+    transform:scale(1.08);
+
 
 }
 
@@ -216,83 +331,162 @@ button{
 
 button:disabled{
 
+
     opacity:.5;
 
+
 }
+
 
 
 
 #message{
 
-    color:white;
-
-    font-size:30px;
 
     margin-top:25px;
 
-    min-height:40px;
+
+    height:45px;
+
+
+    color:white;
+
+
+    font-size:30px;
+
 
 }
 
-
-
-#counter{
-
-    color:#aaa;
-
-    margin-top:10px;
-
-}
 
 
 
 
 .win{
 
-    animation:win .8s infinite;
+
+    animation:
+
+    winner .6s infinite;
+
 
 }
 
 
 
-@keyframes win{
+
+@keyframes winner{
+
 
     50%{
-        transform:scale(1.2);
+
+        transform:scale(1.25);
+
     }
 
+
 }
+
+
+
+
+#stats{
+
+
+    margin-top:15px;
+
+
+    color:#aaa;
+
+
+    font-size:18px;
+
+
+}
+
+
 
 
 
 /* конфети */
 
+
 .confetti{
+
 
     position:absolute;
 
-    width:10px;
+
+    width:12px;
+
 
     height:20px;
 
+
     top:-20px;
 
-    animation:fall 3s linear forwards;
+
+    animation:
+
+    fall 3s linear forwards;
+
 
 }
+
+
 
 
 @keyframes fall{
 
+
     to{
 
+
         transform:
+
         translateY(110vh)
+
         rotate(720deg);
+
 
     }
 
+
 }
+
+
+
+
+
+@media(max-width:500px){
+
+
+h1{
+
+font-size:42px;
+
+}
+
+
+.slot{
+
+width:75px;
+
+height:75px;
+
+font-size:40px;
+
+}
+
+
+.machine{
+
+padding:25px;
+
+}
+
+
+}
+
 
 
 </style>
@@ -300,15 +494,18 @@ button:disabled{
 </head>
 
 
+
 <body>
 
+
+<!-- AmazeEscape Slot Machine -->
 
 
 <div class="machine">
 
 
 <h1>
-JACKPOT
+AmazeEscape
 </h1>
 
 
@@ -323,129 +520,161 @@ TRY YOUR LUCK
 
 <div class="slots">
 
-<div class="slot" id="slot1">🍒</div>
 
-<div class="slot" id="slot2">⭐</div>
+<div class="slot" id="slot1">
+🍒
+</div>
 
-<div class="slot" id="slot3">💎</div>
 
+<div class="slot" id="slot2">
+⭐
+</div>
+
+
+<div class="slot" id="slot3">
+💎
 </div>
 
 
 </div>
 
 
+</div>
 
-<button id="button">
+
+
+<button id="spinButton">
+
 🎰 SPIN
+
 </button>
 
 
 
 <div id="message">
+
 Ready...
-</div>
-
-
-<div id="counter">
-Attempts: 0
-</div>
-
 
 </div>
 
 
 
+<div id="stats">
+
+Attempts:
+<span id="attempts">
+0
+</span>
+
+</div>
+
+
+
+</div>
+
+
+
+<!--
+=====================================
+ТУК СЕ ПОСТАВЯ ЧАСТ 2
+JavaScript кодът започва тук
+=====================================
+-->
 <script>
 
 
-const symbols=[
-
-"🍒",
-"🍋",
-"⭐",
-"💎",
-"🔔",
-"7️⃣"
-
+const symbols = [
+    "🍒",
+    "🍋",
+    "⭐",
+    "💎",
+    "🔔",
+    "7️⃣"
 ];
 
 
-
-const button=document.getElementById("button");
-
-const message=document.getElementById("message");
-
-const counter=document.getElementById("counter");
+const slot1 = document.getElementById("slot1");
+const slot2 = document.getElementById("slot2");
+const slot3 = document.getElementById("slot3");
 
 
+const button = document.getElementById("spinButton");
 
+const message = document.getElementById("message");
 
-
-let audioContext=null;
+const attemptsText = document.getElementById("attempts");
 
 
 
-function sound(freq,duration){
+let attempts = 0;
+
+let audioContext = null;
 
 
-try{
 
-if(!audioContext){
+// звуци
 
-audioContext=
-new AudioContext();
+function sound(freq, duration){
+
+    try{
+
+        if(!audioContext){
+
+            audioContext = new AudioContext();
+
+        }
+
+
+        let osc =
+        audioContext.createOscillator();
+
+
+        let gain =
+        audioContext.createGain();
+
+
+
+        osc.frequency.value = freq;
+
+        gain.gain.value = 0.08;
+
+
+
+        osc.connect(gain);
+
+        gain.connect(
+            audioContext.destination
+        );
+
+
+        osc.start();
+
+
+        osc.stop(
+            audioContext.currentTime + duration
+        );
+
+
+    }
+
+    catch(e){}
 
 }
 
-
-let osc=
-audioContext.createOscillator();
-
-
-let gain=
-audioContext.createGain();
-
-
-osc.frequency.value=freq;
-
-
-gain.gain.value=.08;
-
-
-osc.connect(gain);
-
-gain.connect(
-audioContext.destination
-);
-
-
-osc.start();
-
-
-osc.stop(
-audioContext.currentTime+duration
-);
-
-
-}
-
-catch(e){}
-
-}
 
 
 
 
 function randomSymbol(){
 
-return symbols[
-Math.floor(
-Math.random()*symbols.length
-)
-];
+    return symbols[
+        Math.floor(
+            Math.random()*symbols.length
+        )
+    ];
 
 }
+
 
 
 
@@ -453,67 +682,83 @@ Math.random()*symbols.length
 function spin(){
 
 
-button.disabled=true;
+    button.disabled = true;
 
 
-attempts++;
+    attempts++;
 
-counter.innerHTML=
-"Attempts: "+attempts;
-
-
-let slots=[
-slot1,
-slot2,
-slot3
-];
-
-
-sound(200,.1);
+    attemptsText.innerHTML =
+    attempts;
 
 
 
-slots.forEach(s=>{
+    message.className = "";
 
-s.classList.add("spin");
-
-});
-
+    message.innerHTML =
+    "🎰 Spinning...";
 
 
-let ticks=0;
+    sound(200,0.1);
 
 
-let timer=setInterval(()=>{
+
+    let slots = [
+        slot1,
+        slot2,
+        slot3
+    ];
 
 
-slots.forEach(s=>{
 
-s.innerHTML=randomSymbol();
+    slots.forEach(slot=>{
 
-});
+        slot.classList.add("spin");
 
-
-ticks++;
+    });
 
 
-if(ticks>=25){
+
+    let counter = 0;
 
 
-clearInterval(timer);
+
+    let animation =
+    setInterval(()=>{
 
 
-stopSlots(slots);
+        slots.forEach(slot=>{
+
+            slot.innerHTML =
+            randomSymbol();
+
+        });
+
+
+
+        counter++;
+
+
+
+        if(counter >= 25){
+
+
+            clearInterval(animation);
+
+
+            stopSlots(slots);
+
+
+        }
+
+
+
+    },100);
+
 
 
 }
 
 
-},100);
-
-
-
-}
 
 
 
@@ -521,72 +766,516 @@ stopSlots(slots);
 function stopSlots(slots){
 
 
-let result=[];
+    let result = [];
 
 
-slots.forEach((slot,index)=>{
+
+    slots.forEach((slot,index)=>{
+
+
+        setTimeout(()=>{
+
+
+            slot.classList.remove("spin");
+
+
+
+            slot.innerHTML =
+            randomSymbol();
+
+
+
+            result[index] =
+            slot.innerHTML;
+
+
+
+            sound(
+                300 + index*100,
+                0.15
+            );
+
+
+
+            if(index === 2){
+
+
+                checkWin(result);
+
+
+            }
+
+
+
+        },600 + index*500);
+
+
+
+    });
+
+
+
+}
+
+
+
+
+
+
+
+function checkWin(result){
+
+
+
+    button.disabled = false;
+
+
+
+    if(
+
+        result[0] === result[1] &&
+
+        result[1] === result[2]
+
+    ){
+
+
+
+        message.innerHTML =
+        "🎉 JACKPOT! 🎉";
+
+
+        message.className =
+        "win";
+
+
+
+        sound(900,0.5);
+
+
+
+        createConfetti();
+
+
+
+    }
+
+
+
+    else if(
+
+        result[0] === result[1] ||
+
+        result[1] === result[2] ||
+
+        result[0] === result[2]
+
+    ){
+
+
+
+        message.innerHTML =
+        "🔥 ALMOST WIN!";
+
+
+        sound(500,0.3);
+
+
+
+    }
+
+
+
+    else{
+
+
+        message.innerHTML =
+        "❌ Try again";
+
+        sound(250,0.2);
+
+
+    }
+
+
+
+}
+
+
+
+
+
+
+
+
+function createConfetti(){
+
+
+
+    for(let i=0;i<100;i++){
+
+
+
+        let c =
+        document.createElement("div");
+
+
+
+        c.className =
+        "confetti";
+
+
+
+        c.style.left =
+        Math.random()*100+"vw";
+
+
+
+        let colors = [
+
+            "gold",
+            "red",
+            "blue",
+            "green",
+            "purple"
+
+        ];
+
+
+
+        c.style.background =
+        colors[
+            Math.floor(
+                Math.random()*colors.length
+            )
+        ];
+
+
+
+        c.style.animationDelay =
+        Math.random()*1+"s";
+
+
+
+        document.body.appendChild(c);
+
+
+
+
+        setTimeout(()=>{
+
+            c.remove();
+
+        },4000);
+
+
+
+    }
+
+
+
+}
+
+
+
+
+
+
+
+button.onclick = spin;
+
+
+
+</script>
+
+    <script>
+
+
+// ================================
+// AmazeEscape Upgrade Pack
+// Баланс + залози + печалби
+// ================================
+
+
+let balance = 
+localStorage.getItem("amazeBalance")
+?
+Number(localStorage.getItem("amazeBalance"))
+:
+1000;
+
+
+let bet =
+localStorage.getItem("amazeBet")
+?
+Number(localStorage.getItem("amazeBet"))
+:
+10;
+
+
+
+// създаваме панела
+
+const machine =
+document.querySelector(".machine");
+
+
+
+const upgrade =
+document.createElement("div");
+
+
+upgrade.style.color="white";
+upgrade.style.marginTop="20px";
+
+
+
+upgrade.innerHTML = `
+
+<div style="
+background:#111;
+border:2px solid gold;
+border-radius:15px;
+padding:15px;
+">
+
+<div>
+💰 Balance:
+<span id="balance">
+${balance}
+</span>
+</div>
+
+
+<div style="margin-top:10px">
+
+Bet:
+
+<button id="minus">
+-
+</button>
+
+
+<span id="bet">
+${bet}
+</span>
+
+
+<button id="plus">
++
+</button>
+
+
+</div>
+
+
+<div style="
+margin-top:15px;
+font-size:14px;
+color:#ffd700;
+">
+
+🏆 7️⃣7️⃣7️⃣ = x100<br>
+💎💎💎 = x50<br>
+⭐⭐⭐ = x25<br>
+3 еднакви = x10<br>
+2 еднакви = x2
+
+</div>
+
+
+</div>
+
+`;
+
+
+
+machine.appendChild(upgrade);
+
+
+
+
+const balanceText =
+document.getElementById("balance");
+
+
+const betText =
+document.getElementById("bet");
+
+
+
+document.getElementById("minus")
+.onclick=function(){
+
+
+if(bet>10){
+
+bet-=10;
+
+updateMoney();
+
+}
+
+};
+
+
+
+document.getElementById("plus")
+.onclick=function(){
+
+
+if(bet<100){
+
+bet+=10;
+
+updateMoney();
+
+}
+
+};
+
+
+
+
+function updateMoney(){
+
+
+balanceText.innerHTML =
+balance;
+
+
+betText.innerHTML =
+bet;
+
+
+localStorage.setItem(
+"amazeBalance",
+balance
+);
+
+
+localStorage.setItem(
+"amazeBet",
+bet
+);
+
+
+}
+
+
+
+
+
+// запазване на оригиналната функция
+
+const oldSpin =
+spin;
+
+
+
+
+spin=function(){
+
+
+
+if(balance < bet){
+
+
+message.innerHTML =
+"💸 Нямаш достатъчно кредити";
+
+
+return;
+
+}
+
+
+
+balance -= bet;
+
+
+updateMoney();
+
+
+oldSpin();
+
+
+};
+
+
+
+
+
+
+// награди
+
+
+const oldCheckWin =
+checkWin;
+
+
+
+
+checkWin=function(result){
+
+
+
+oldCheckWin(result);
+
 
 
 setTimeout(()=>{
 
 
-slot.classList.remove("spin");
-
-
-slot.innerHTML=randomSymbol();
-
-
-result[index]=slot.innerHTML;
-
-
-
-if(index===2){
-
-check(result);
-
-}
-
-
-
-},500+index*400);
-
-
-
-});
-
-
-}
-
-
-
-
-function check(result){
-
-
-button.disabled=false;
+let multiplier=0;
 
 
 
 if(
-result[0]===result[1] &&
-result[1]===result[2]
+result[0]=="7️⃣" &&
+result[1]=="7️⃣" &&
+result[2]=="7️⃣"
 ){
 
-
-message.innerHTML=
-"🎉 JACKPOT 🎉";
-
-
-message.className="win";
-
-
-sound(900,.5);
-
-
-createConfetti();
-
+multiplier=100;
 
 }
+
+
+else if(
+
+result.every(x=>x=="💎")
+
+){
+
+multiplier=50;
+
+}
+
+
+else if(
+
+result.every(x=>x=="⭐")
+
+){
+
+multiplier=25;
+
+}
+
+
+else if(
+
+result[0]===result[1] &&
+result[1]===result[2]
+
+){
+
+multiplier=10;
+
+}
+
+
 
 else if(
 
@@ -596,93 +1285,56 @@ result[0]===result[2]
 
 ){
 
-
-message.innerHTML=
-"🔥 ALMOST WIN";
-
-sound(500,.3);
-
-
-}
-
-else{
-
-
-message.innerHTML=
-"❌ Try again";
-
-
-}
-
+multiplier=2;
 
 }
 
 
 
-
-function createConfetti(){
-
-
-for(let i=0;i<80;i++){
+if(multiplier>0){
 
 
-let c=document.createElement("div");
-
-
-c.className="confetti";
-
-
-c.style.left=
-Math.random()*100+"vw";
-
-
-c.style.background=
-[
-"gold",
-"red",
-"blue",
-"green"
-]
-[
-Math.floor(Math.random()*4)
-];
-
-
-document.body.appendChild(c);
+let win =
+bet * multiplier;
 
 
 
-setTimeout(()=>{
+balance += win;
 
-c.remove();
 
-},4000);
+updateMoney();
+
+
+
+message.innerHTML +=
+
+"<br>💰 WIN +" + win;
+
+
+sound(1000,.5);
 
 
 
 }
 
 
-}
+
+},200);
 
 
 
-button.addEventListener("click", spin);
+};
 
+
+
+
+
+updateMoney();
 
 
 </script>
-
     
 
-<script src="js/main.js"></script>
-<script src="js/background.js"></script>
-<script src="js/cabinet-sound.js"></script>
-<script src="js/casino-effects.js"></script>
-<script src="js/machine3d.js"></script>
-<script src="js/reel-engine.js"></script>
-
-
-    
 </body>
+
 </html>
