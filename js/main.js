@@ -43,20 +43,17 @@ let playing = false;
 
 const slot1 =
 document.getElementById("slot1")
-||
-document.getElementById("one");
+
 
 
 const slot2 =
 document.getElementById("slot2")
-||
-document.getElementById("two");
+
 
 
 const slot3 =
 document.getElementById("slot3")
-||
-document.getElementById("three");
+
 
 
 const button =
