@@ -1454,3 +1454,50 @@ body {
 
 
 }
+.coin {
+
+    position:fixed;
+
+    top:-40px;
+
+    width:25px;
+
+    height:25px;
+
+    border-radius:50%;
+
+    background:
+    radial-gradient(
+        circle,
+        #fff,
+        gold,
+        #b8860b
+    );
+
+    z-index:9999;
+
+    animation:
+    coinFall 3s linear forwards;
+
+}
+
+
+@keyframes coinFall {
+
+    from {
+
+        transform:
+        translateY(-50px)
+        rotate(0deg);
+
+    }
+
+    to {
+
+        transform:
+        translateY(110vh)
+        rotate(720deg);
+
+    }
+
+}
