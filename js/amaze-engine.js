@@ -772,7 +772,7 @@ document.addEventListener(
     if(button){
 
 
-        button.addEventListener(
+         button.onclick = spinGame;
             "click",
             spinGame
         );
