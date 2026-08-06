@@ -606,3 +606,179 @@ function checkResult(result){
     );
 
 }
+/* ==========================================================
+   AMAZE ESCAPE
+   ENGINE v4
+   PART 3 / 3
+   EFFECTS + LEVER + JACKPOT
+   ========================================================== */
+
+
+/* ==========================================================
+   LEVER
+   ========================================================== */
+
+function leverPull(){
+
+    if(!AMAZE.lever)
+        return;
+
+    AMAZE.lever.classList.remove("pull-lever");
+
+    void AMAZE.lever.offsetWidth;
+
+    AMAZE.lever.classList.add("pull-lever");
+
+}
+
+
+
+/* ==========================================================
+   JACKPOT
+   ========================================================== */
+
+function jackpot(){
+
+    playSound(900,.15,"square",.08);
+
+    setTimeout(()=>{
+
+        playSound(1200,.20,"square",.08);
+
+    },180);
+
+
+    if(AMAZE.lamp){
+
+        AMAZE.lamp.classList.add("on");
+
+    }
+
+
+    createCoins();
+
+    createConfetti();
+
+
+    AMAZE.slots.forEach(slot=>{
+
+        slot.classList.add("flash");
+
+    });
+
+
+    setTimeout(resetEffects,3500);
+
+}
+
+
+
+/* ==========================================================
+   COINS
+   ========================================================== */
+
+function createCoins(){
+
+    for(let i=0;i<40;i++){
+
+        const coin=document.createElement("div");
+
+        coin.className="coin";
+
+        coin.innerHTML="🪙";
+
+        coin.style.left=Math.random()*100+"vw";
+
+        coin.style.animationDelay=Math.random()*1.2+"s";
+
+        document.body.appendChild(coin);
+
+        setTimeout(()=>coin.remove(),4000);
+
+    }
+
+}
+
+
+
+/* ==========================================================
+   CONFETTI
+   ========================================================== */
+
+function createConfetti(){
+
+    const colors=[
+        "#ffd700",
+        "#ff4040",
+        "#3fa9ff",
+        "#52d452",
+        "#bb55ff"
+    ];
+
+
+    for(let i=0;i<80;i++){
+
+        const piece=document.createElement("div");
+
+        piece.className="confetti";
+
+        piece.style.left=Math.random()*100+"vw";
+
+        piece.style.background=
+        colors[
+            Math.floor(
+                Math.random()*colors.length
+            )
+        ];
+
+        piece.style.animationDelay=
+        Math.random()*1.5+"s";
+
+        document.body.appendChild(piece);
+
+        setTimeout(()=>piece.remove(),4000);
+
+    }
+
+}
+
+
+
+/* ==========================================================
+   RESET
+   ========================================================== */
+
+function resetEffects(){
+
+    if(AMAZE.lamp){
+
+        AMAZE.lamp.classList.remove("on");
+
+    }
+
+
+    AMAZE.slots.forEach(slot=>{
+
+        slot.classList.remove("flash");
+
+    });
+
+}
+
+
+
+/* ==========================================================
+   ERROR HANDLER
+   ========================================================== */
+
+window.addEventListener("error",event=>{
+
+    console.warn(
+        "AmazeEscape:",
+        event.message
+    );
+
+});
+
+
+console.log("🎰 AmazeEscape Engine v4 READY");
