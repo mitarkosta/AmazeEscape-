@@ -1,6 +1,6 @@
 /* ==========================================================
    AMAZE ESCAPE
-   ENGINE v4
+   ENGINE v4 FINAL
    PART 1 / 3
    CORE SYSTEM
    ========================================================== */
@@ -44,7 +44,7 @@ const AMAZE = {
 
 
 /* ==========================================================
-   INITIALIZE
+   INIT
    ========================================================== */
 
 
@@ -103,7 +103,7 @@ document.addEventListener(
 
 
     console.log(
-        "🎰 AmazeEscape v4 loaded"
+        "🎰 AmazeEscape v4 FINAL loaded"
     );
 
 
@@ -128,15 +128,12 @@ document.addEventListener(
 
     if(AMAZE.button){
 
-
         AMAZE.button.addEventListener(
             "click",
             spinGame
         );
 
-
     }
-
 
 
     updateCounter();
@@ -149,7 +146,7 @@ document.addEventListener(
 
 
 /* ==========================================================
-   RANDOM SYMBOL
+   RANDOM
    ========================================================== */
 
 
@@ -183,8 +180,7 @@ function setMessage(text){
 
     if(AMAZE.message){
 
-        AMAZE.message.innerHTML =
-        text;
+        AMAZE.message.innerHTML=text;
 
     }
 
@@ -220,7 +216,7 @@ function updateCounter(){
 
 
 /* ==========================================================
-   AUDIO
+   SOUND
    ========================================================== */
 
 
@@ -237,7 +233,6 @@ function getAudio(){
 
     return AMAZE.audio;
 
-
 }
 
 
@@ -245,9 +240,9 @@ function getAudio(){
 
 function playSound(
 frequency,
-duration=0.1,
+duration=.1,
 type="square",
-volume=0.05
+volume=.05
 ){
 
 
@@ -267,15 +262,15 @@ volume=0.05
 
 
 
-        osc.type =
-        type;
+        osc.type=type;
 
 
-        osc.frequency.value =
+        osc.frequency.value=
         frequency;
 
 
-        gain.gain.value =
+
+        gain.gain.value=
         volume;
 
 
@@ -286,6 +281,7 @@ volume=0.05
         gain.connect(
             ctx.destination
         );
+
 
 
         osc.start();
@@ -302,18 +298,20 @@ volume=0.05
     catch(e){}
 
 
+
 }
 /* ==========================================================
    AMAZE ESCAPE
-   ENGINE v4
+   ENGINE v4 FINAL
    PART 2 / 3
    SPIN ENGINE
    ========================================================== */
 
 
 /* ==========================================================
-   SPIN GAME
+   SPIN
    ========================================================== */
+
 
 function spinGame(){
 
@@ -322,20 +320,21 @@ function spinGame(){
     return;
 
 
+
     if(
-        AMAZE.slots.length!==3 ||
         !AMAZE.slots[0] ||
         !AMAZE.slots[1] ||
         !AMAZE.slots[2]
     ){
 
         console.warn(
-            "Slots missing."
+            "Slots not found"
         );
 
         return;
 
     }
+
 
 
     AMAZE.playing=true;
@@ -347,16 +346,32 @@ function spinGame(){
     updateCounter();
 
 
-    setMessage(
-        "🎰 SPINNING..."
-    );
-
 
     if(AMAZE.button){
 
         AMAZE.button.disabled=true;
 
     }
+
+
+
+    setMessage(
+        "🎰 SPINNING..."
+    );
+
+
+
+    playSound(
+        120,
+        .25,
+        "sawtooth",
+        .08
+    );
+
+
+
+    leverPull();
+
 
 
     if(AMAZE.machine){
@@ -368,18 +383,10 @@ function spinGame(){
     }
 
 
-    leverPull();
-
-
-    playSound(
-        120,
-        .20,
-        "sawtooth",
-        .07
-    );
-
 
     startReels();
+
+
 
 }
 
@@ -388,34 +395,40 @@ function spinGame(){
 
 
 /* ==========================================================
-   START REELS
+   REELS START
    ========================================================== */
+
 
 function startReels(){
 
 
-    AMAZE.slots.forEach(slot=>{
+    AMAZE.slots.forEach(
+    slot=>{
+
 
         slot.classList.remove(
             "reel-stop"
         );
 
+
         slot.classList.add(
             "reel-spin"
         );
+
 
     });
 
 
 
-    const timer =
+    let timer =
     setInterval(()=>{
 
 
-        AMAZE.slots.forEach(slot=>{
+        AMAZE.slots.forEach(
+        slot=>{
 
 
-            slot.innerHTML=
+            slot.innerHTML =
             randomSymbol();
 
 
@@ -423,6 +436,7 @@ function startReels(){
 
 
     },80);
+
 
 
 
@@ -436,7 +450,9 @@ function startReels(){
         stopReels();
 
 
-    },2200);
+
+    },2000);
+
 
 
 }
@@ -449,10 +465,12 @@ function startReels(){
    STOP REELS
    ========================================================== */
 
+
 function stopReels(){
 
 
     let result=[];
+
 
 
     AMAZE.slots.forEach(
@@ -472,41 +490,51 @@ function stopReels(){
             );
 
 
-            const symbol=
+
+            let symbol =
             randomSymbol();
 
 
-            slot.innerHTML=
+
+            slot.innerHTML =
             symbol;
+
 
 
             result[index]=
             symbol;
 
 
+
             playSound(
                 700-index*120,
                 .08,
                 "square",
-                .05
+                .04
             );
 
 
+
             if(index===2){
+
 
                 finishSpin(
                     result
                 );
 
+
             }
+
 
 
         },
 
-        index*500);
+        index*600);
+
 
 
     });
+
 
 
 }
@@ -519,10 +547,12 @@ function stopReels(){
    FINISH
    ========================================================== */
 
+
 function finishSpin(result){
 
 
     AMAZE.playing=false;
+
 
 
     if(AMAZE.button){
@@ -530,6 +560,7 @@ function finishSpin(result){
         AMAZE.button.disabled=false;
 
     }
+
 
 
     if(AMAZE.machine){
@@ -541,9 +572,11 @@ function finishSpin(result){
     }
 
 
+
     checkResult(
         result
     );
+
 
 }
 
@@ -555,26 +588,41 @@ function finishSpin(result){
    RESULT
    ========================================================== */
 
+
 function checkResult(result){
 
 
-    const a=result[0];
-    const b=result[1];
-    const c=result[2];
+    const a =
+    result[0];
+
+
+    const b =
+    result[1];
+
+
+    const c =
+    result[2];
 
 
 
-    if(a===b && b===c){
+    if(
+        a===b &&
+        b===c
+    ){
 
         setMessage(
-            "🎉 JACKPOT!"
+            "🎉 JACKPOT 🎉"
         );
 
+
         jackpot();
+
 
         return;
 
     }
+
+
 
 
 
@@ -584,9 +632,11 @@ function checkResult(result){
         a===c
     ){
 
+
         setMessage(
             "🔥 ALMOST WIN"
         );
+
 
         playSound(
             500,
@@ -595,9 +645,12 @@ function checkResult(result){
             .06
         );
 
+
         return;
 
     }
+
+
 
 
 
@@ -605,124 +658,50 @@ function checkResult(result){
         "❌ TRY AGAIN"
     );
 
-}
-const symbols = [
-    "🍒",
-    "🍋",
-    "⭐",
-    "💎",
-    "🔔",
-    "7️⃣"
-];
-
-
-const slot1 = document.getElementById("slot1");
-const slot2 = document.getElementById("slot2");
-const slot3 = document.getElementById("slot3");
-
-
-const spinButton =
-document.getElementById("spin");
-
-
-const creditsText =
-document.getElementById("credits");
-
-
-const winText =
-document.getElementById("win");
-
-
-const message =
-document.getElementById("message");
-
-
-const betInput =
-document.getElementById("bet");
-
-
-
-let credits = 1000;
-
-let totalWin = 0;
-
-let spinning = false;
-
-
-
-// ЗВУКОВ ДВИГАТЕЛ
-
-let audioContext;
-
-
-function playSound(freq,time){
-
-
-try{
-
-
-if(!audioContext){
-
-audioContext =
-new AudioContext();
 
 }
-
-
-let osc =
-audioContext.createOscillator();
-
-
-let gain =
-audioContext.createGain();
-
-
-
-osc.frequency.value=freq;
-
-
-gain.gain.value=.08;
-
-
-osc.connect(gain);
-
-gain.connect(
-audioContext.destination
-);
+/* ==========================================================
+   AMAZE ESCAPE
+   ENGINE v4 FINAL
+   PART 3 / 3
+   EFFECTS SYSTEM
+   ========================================================== */
 
 
 
-osc.start();
+/* ==========================================================
+   LEVER
+   ========================================================== */
 
 
-osc.stop(
-audioContext.currentTime+time
-);
+function leverPull(){
 
 
-
-}
-
-catch(e){}
-
-
-
-}
+    if(!AMAZE.lever)
+    return;
 
 
 
-
-// СЛУЧАЕН СИМВОЛ
-
-
-function randomSymbol(){
+    AMAZE.lever.classList.remove(
+        "pull-lever"
+    );
 
 
-return symbols[
-Math.floor(
-Math.random()*symbols.length
-)
-];
+    void AMAZE.lever.offsetWidth;
+
+
+    AMAZE.lever.classList.add(
+        "pull-lever"
+    );
+
+
+
+    playSound(
+        90,
+        .25,
+        "square",
+        .08
+    );
 
 
 }
@@ -731,116 +710,71 @@ Math.random()*symbols.length
 
 
 
-// АНИМАЦИЯ НА БАРАБАНИ
+/* ==========================================================
+   JACKPOT
+   ========================================================== */
 
 
-function startReels(){
+function jackpot(){
 
 
-let reels=[
-slot1,
-slot2,
-slot3
-];
+    playSound(
+        900,
+        .3,
+        "square",
+        .08
+    );
 
 
-let counter=0;
 
+    setTimeout(()=>{
 
 
-let timer=setInterval(()=>{
+        playSound(
+            1200,
+            .3,
+            "square",
+            .08
+        );
 
 
-reels.forEach(reel=>{
+    },200);
 
-reel.innerHTML =
-randomSymbol();
 
-});
 
 
-counter++;
 
+    if(AMAZE.lamp){
 
 
-playSound(
-200+counter*5,
-0.05
-);
+        AMAZE.lamp.classList.add(
+            "on"
+        );
 
 
+    }
 
-if(counter>25){
 
 
-clearInterval(timer);
 
 
-stopReels();
+    createCoins();
 
 
+    createConfetti();
 
-}
 
 
+    AMAZE.slots.forEach(
+    slot=>{
 
-},80);
 
+        slot.classList.add(
+            "flash"
+        );
 
 
-}
-
-
-
-
-// СПИРАНЕ НА БАРАБАНИТЕ
-
-
-function stopReels(){
-
-
-let result=[];
-
-
-let reels=[
-slot1,
-slot2,
-slot3
-];
-
-
-
-reels.forEach((reel,index)=>{
-
-
-setTimeout(()=>{
-
-
-let value =
-randomSymbol();
-
-
-reel.innerHTML=value;
-
-
-result[index]=value;
-
-
-
-if(index===2){
-
-checkWin(result);
-
-}
-
-
-
-},500+(index*500));
-
-
-
-});
-
+    });
 
 
 }
@@ -849,266 +783,227 @@ checkWin(result);
 
 
 
-// ПРОВЕРКА НА ПЕЧАЛБА
 
-
-function checkWin(result){
-
-
-
-spinning=false;
-
-spinButton.disabled=false;
-
-
-
-let bet =
-Number(betInput.value);
-
-
-
-let prize=0;
-
-
-
-
-if(
-result[0]===result[1] &&
-result[1]===result[2]
-){
-
-
-
-prize =
-bet*100;
-
-
-
-message.innerHTML =
-"🎉 JACKPOT +"+prize;
-
-
-
-message.className="win";
-
-
-createCoins();
-
-
-playSound(
-900,
-0.5
-);
-
-
-
-}
-
-
-
-else if(
-
-result[0]===result[1] ||
-
-result[1]===result[2] ||
-
-result[0]===result[2]
-
-){
-
-
-
-prize =
-bet*5;
-
-
-
-message.innerHTML =
-"🔥 ALMOST WIN +"+prize;
-
-
-
-playSound(
-500,
-0.3
-);
-
-
-
-}
-
-
-
-else{
-
-
-message.innerHTML =
-"❌ TRY AGAIN";
-
-
-playSound(
-150,
-0.2
-);
-
-
-
-}
-
-
-
-
-credits += prize;
-
-
-totalWin += prize;
-
-
-
-creditsText.innerHTML =
-credits;
-
-
-
-winText.innerHTML =
-totalWin;
-
-
-
-}
-
-
-
-
-// БУТОН SPIN
-
-
-spinButton.onclick=function(){
-
-
-
-if(spinning)
-return;
-
-
-
-let bet =
-Number(
-betInput.value
-);
-
-
-
-if(
-bet<=0
-){
-
-message.innerHTML=
-"Въведи залог";
-
-return;
-
-}
-
-
-
-if(
-bet>credits
-){
-
-
-message.innerHTML=
-"Нямаш достатъчно кредити";
-
-
-return;
-
-
-}
-
-
-
-
-credits -= bet;
-
-
-
-creditsText.innerHTML =
-credits;
-
-
-
-spinning=true;
-
-
-spinButton.disabled=true;
-
-
-
-message.innerHTML =
-"🎰 SPINNING...";
-
-
-message.className="";
-
-
-
-startReels();
-
-
-
-};
-
-
-
-
-
-// ПАДАЩИ МОНЕТИ
+/* ==========================================================
+   COINS
+   ========================================================== */
 
 
 function createCoins(){
 
 
-
-for(let i=0;i<60;i++){
-
-
-
-let coin =
-document.createElement("div");
+    for(
+        let i=0;
+        i<60;
+        i++
+    ){
 
 
-
-coin.className="coin";
-
-
-
-coin.style.left =
-Math.random()*100+"vw";
+        const coin =
+        document.createElement(
+            "div"
+        );
 
 
 
-coin.style.animationDelay =
-Math.random()*2+"s";
+        coin.className =
+        "coin";
 
 
 
-document.body.appendChild(
-coin
+        coin.style.left =
+        Math.random()*100
+        +
+        "vw";
+
+
+
+        coin.style.animationDelay =
+        Math.random()*2
+        +
+        "s";
+
+
+
+        document.body.appendChild(
+            coin
+        );
+
+
+
+        setTimeout(()=>{
+
+
+            coin.remove();
+
+
+        },4000);
+
+
+
+    }
+
+
+}
+
+
+
+
+
+/* ==========================================================
+   CONFETTI
+   ========================================================== */
+
+
+function createConfetti(){
+
+
+    const colors=[
+
+        "gold",
+        "red",
+        "blue",
+        "green",
+        "purple"
+
+    ];
+
+
+
+    for(
+        let i=0;
+        i<100;
+        i++
+    ){
+
+
+
+        const piece =
+        document.createElement(
+            "div"
+        );
+
+
+
+        piece.className =
+        "confetti";
+
+
+
+        piece.style.left =
+        Math.random()*100
+        +
+        "vw";
+
+
+
+        piece.style.background =
+        colors[
+            Math.floor(
+                Math.random()
+                *
+                colors.length
+            )
+        ];
+
+
+
+        piece.style.animationDelay =
+        Math.random()*2
+        +
+        "s";
+
+
+
+        document.body.appendChild(
+            piece
+        );
+
+
+
+        setTimeout(()=>{
+
+
+            piece.remove();
+
+
+        },4000);
+
+
+
+    }
+
+
+}
+
+
+
+
+
+/* ==========================================================
+   RESET EFFECTS
+   ========================================================== */
+
+
+function resetEffects(){
+
+
+    if(AMAZE.lamp){
+
+
+        AMAZE.lamp.classList.remove(
+            "on"
+        );
+
+
+    }
+
+
+
+    AMAZE.slots.forEach(
+    slot=>{
+
+
+        if(slot){
+
+            slot.classList.remove(
+                "flash"
+            );
+
+        }
+
+
+    });
+
+
+}
+
+
+
+
+
+/* ==========================================================
+   ERROR MONITOR
+   ========================================================== */
+
+
+window.addEventListener(
+"error",
+event=>{
+
+
+    console.warn(
+        "AmazeEscape:",
+        event.message
+    );
+
+
+});
+
+
+
+
+
+console.log(
+    "🎰 AmazeEscape v4 FINAL READY"
 );
-
-
-
-setTimeout(()=>{
-
-coin.remove();
-
-},4000);
-
-
-
-}
-
-
-
-}
