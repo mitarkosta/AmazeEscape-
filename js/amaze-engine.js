@@ -303,3 +303,306 @@ volume=0.05
 
 
 }
+/* ==========================================================
+   AMAZE ESCAPE
+   ENGINE v4
+   PART 2 / 3
+   SPIN ENGINE
+   ========================================================== */
+
+
+/* ==========================================================
+   SPIN GAME
+   ========================================================== */
+
+function spinGame(){
+
+
+    if(AMAZE.playing)
+    return;
+
+
+    if(
+        AMAZE.slots.length!==3 ||
+        !AMAZE.slots[0] ||
+        !AMAZE.slots[1] ||
+        !AMAZE.slots[2]
+    ){
+
+        console.warn(
+            "Slots missing."
+        );
+
+        return;
+
+    }
+
+
+    AMAZE.playing=true;
+
+
+    AMAZE.attempts++;
+
+
+    updateCounter();
+
+
+    setMessage(
+        "🎰 SPINNING..."
+    );
+
+
+    if(AMAZE.button){
+
+        AMAZE.button.disabled=true;
+
+    }
+
+
+    if(AMAZE.machine){
+
+        AMAZE.machine.classList.add(
+            "playing"
+        );
+
+    }
+
+
+    leverPull();
+
+
+    playSound(
+        120,
+        .20,
+        "sawtooth",
+        .07
+    );
+
+
+    startReels();
+
+}
+
+
+
+
+
+/* ==========================================================
+   START REELS
+   ========================================================== */
+
+function startReels(){
+
+
+    AMAZE.slots.forEach(slot=>{
+
+        slot.classList.remove(
+            "reel-stop"
+        );
+
+        slot.classList.add(
+            "reel-spin"
+        );
+
+    });
+
+
+
+    const timer =
+    setInterval(()=>{
+
+
+        AMAZE.slots.forEach(slot=>{
+
+
+            slot.innerHTML=
+            randomSymbol();
+
+
+        });
+
+
+    },80);
+
+
+
+
+    setTimeout(()=>{
+
+
+        clearInterval(timer);
+
+
+        stopReels();
+
+
+    },2200);
+
+
+}
+
+
+
+
+
+/* ==========================================================
+   STOP REELS
+   ========================================================== */
+
+function stopReels(){
+
+
+    let result=[];
+
+
+    AMAZE.slots.forEach(
+    (slot,index)=>{
+
+
+        setTimeout(()=>{
+
+
+            slot.classList.remove(
+                "reel-spin"
+            );
+
+
+            slot.classList.add(
+                "reel-stop"
+            );
+
+
+            const symbol=
+            randomSymbol();
+
+
+            slot.innerHTML=
+            symbol;
+
+
+            result[index]=
+            symbol;
+
+
+            playSound(
+                700-index*120,
+                .08,
+                "square",
+                .05
+            );
+
+
+            if(index===2){
+
+                finishSpin(
+                    result
+                );
+
+            }
+
+
+        },
+
+        index*500);
+
+
+    });
+
+
+}
+
+
+
+
+
+/* ==========================================================
+   FINISH
+   ========================================================== */
+
+function finishSpin(result){
+
+
+    AMAZE.playing=false;
+
+
+    if(AMAZE.button){
+
+        AMAZE.button.disabled=false;
+
+    }
+
+
+    if(AMAZE.machine){
+
+        AMAZE.machine.classList.remove(
+            "playing"
+        );
+
+    }
+
+
+    checkResult(
+        result
+    );
+
+}
+
+
+
+
+
+/* ==========================================================
+   RESULT
+   ========================================================== */
+
+function checkResult(result){
+
+
+    const a=result[0];
+    const b=result[1];
+    const c=result[2];
+
+
+
+    if(a===b && b===c){
+
+        setMessage(
+            "🎉 JACKPOT!"
+        );
+
+        jackpot();
+
+        return;
+
+    }
+
+
+
+    if(
+        a===b ||
+        b===c ||
+        a===c
+    ){
+
+        setMessage(
+            "🔥 ALMOST WIN"
+        );
+
+        playSound(
+            500,
+            .25,
+            "triangle",
+            .06
+        );
+
+        return;
+
+    }
+
+
+
+    setMessage(
+        "❌ TRY AGAIN"
+    );
+
+}
