@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <title>AmazeEscape v7.1</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         CASINO BACKGROUND
+    ====================================================== -->
+
+    <div id="casinoBackground"></div>
+
+    <div id="snowContainer"></div>
+
+
+    <!-- =====================================================
+         ANTICIPATION OVERLAY
+    ====================================================== -->
+
+    <div
+        id="anticipationOverlay"
+        aria-hidden="true"
+    >
+        <div class="anticipation-content">
+            <div class="anticipation-title">
+                🔥 FINAL REEL 🔥
+            </div>
+
+            <div class="anticipation-subtitle">
+                TWO MATCH
+            </div>
+
+            <div id="anticipationParticles"></div>
+        </div>
+    </div>
+
+
+    <!-- =====================================================
+         HOLD OVERLAY
+    ====================================================== -->
+
+    <div
+        id="holdOverlay"
+        aria-hidden="true"
+    >
+        <div class="hold-panel">
+
+            <div class="hold-icon">
+                ❄
+            </div>
+
+            <div class="hold-title">
+                ICE HOLD
+            </div>
+
+            <div
+                id="holdCountdown"
+                class="hold-countdown"
+            >
+                30
+            </div>
+
+            <div class="hold-label">
+                MACHINE FROZEN
+            </div>
+
+            <div
+                id="holdProgress"
+                class="hold-progress"
+            >
+                <div
+                    id="holdProgressFill"
+                    class="hold-progress-fill"
+                ></div>
+            </div>
+
+            <div id="holdStatus">
+                MACHINE FROZEN
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- =====================================================
+         MAIN GAME
+    ====================================================== -->
+
+    <main class="game">
+
+        <header class="game-header">
+
+            <div class="brand">
+                <span class="brand-small">
+                    AMAZE
+                </span>
+
+                <span class="brand-big">
+                    ESCAPE
+                </span>
+            </div>
+
+            <div
+                id="roundStatus"
+                class="round-status"
+            >
+                ROUND 1
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             MACHINE
+        ================================================== -->
+
+        <section
+            id="machine"
+            class="slot-machine"
+        >
+
+            <!-- TOP LIGHTS -->
+
+            <div class="machine-top">
+
+                <div class="chrome-line"></div>
+
+                <div class="top-lamps">
+
+                    <span></span>
+                    <span></span>
+                    <span
+                        id="jackpotLamp"
+                        class="jackpot-lamp"
+                    ></span>
+                    <span></span>
+                    <span></span>
+
+                </div>
+
+                <div class="chrome-line"></div>
+
+            </div>
+
+
+            <!-- MACHINE BODY -->
+
+            <div class="machine-body">
+
+                <!-- LEVER -->
+
+                <div class="lever-system">
+
+                    <div class="lever-top"></div>
+
+                    <div class="real-lever">
+                        <div class="lever-ball"></div>
+                        <div class="lever-stick"></div>
+                    </div>
+
+                    <div class="lever-base"></div>
+
+                </div>
+
+
+                <!-- REEL AREA -->
+
+                <div class="reel-area">
+
+                    <div class="reel-frame">
+
+                        <!-- LEFT SIDE METAL -->
+
+                        <div class="side-metal left"></div>
+
+
+                        <!-- REELS -->
+
+                        <div class="reels">
+
+                            <!-- REEL 1 -->
+
+                            <div class="reel-window">
+
+                                <div
+                                    id="slot1"
+                                    class="reel"
+                                >
+                                    <div class="reel-track"></div>
+                                </div>
+
+                            </div>
+
+
+                            <!-- METAL SEPARATOR -->
+
+                            <div class="reel-separator">
+                                <div></div>
+                            </div>
+
+
+                            <!-- REEL 2 -->
+
+                            <div class="reel-window">
+
+                                <div
+                                    id="slot2"
+                                    class="reel"
+                                >
+                                    <div class="reel-track"></div>
+                                </div>
+
+                            </div>
+
+
+                            <!-- METAL SEPARATOR -->
+
+                            <div class="reel-separator">
+                                <div></div>
+                            </div>
+
+
+                            <!-- REEL 3 -->
+
+                            <div class="reel-window final-window">
+
+                                <div
+                                    id="slot3"
+                                    class="reel"
+                                >
+                                    <div class="reel-track"></div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- RIGHT SIDE METAL -->
+
+                        <div class="side-metal right"></div>
+
+
+                        <!-- CENTER PAYLINE -->
+
+                        <div class="payline"></div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MESSAGE -->
+
+                <div
+                    id="message"
+                    class="message"
+                >
+                    READY
+                </div>
+
+
+                <!-- SPIN BUTTON -->
+
+                <button
+                    id="button"
+                    class="spin-button"
+                    type="button"
+                >
+                    <span>SPIN</span>
+                    <small>PLAY</small>
+                </button>
+
+
+                <!-- LEVER HINT -->
+
+                <div class="machine-footer-light">
+                    ★ ★ ★
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PROGRESS
+        ================================================== -->
+
+        <section class="progress-panel">
+
+            <div class="progress-heading">
+
+                <span>
+                    SPINS
+                </span>
+
+                <strong id="counterValue">
+                    0 / 100
+                </strong>
+
+            </div>
+
+            <div
+                id="spinProgress"
+                class="progress-bar"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+            >
+                <div
+                    id="spinProgressFill"
+                    class="progress-fill"
+                ></div>
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PERSISTENT PROGRESS
+        ================================================== -->
+
+        <section class="persistent-panel">
+
+            <div class="persistent-heading">
+
+                <span>
+                    💰 PERSISTENT REWARD
+                </span>
+
+                <strong id="persistentValue">
+                    0 / 10
+                </strong>
+
+            </div>
+
+            <div
+                id="persistentBar"
+                class="persistent-bar"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="10"
+                aria-valuenow="0"
+            >
+                <div
+                    id="persistentFill"
+                    class="persistent-fill"
+                ></div>
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         SCRIPTS
+    ====================================================== -->
+
+    <script src="script.js"></script>
+
+</body>
+</html>
