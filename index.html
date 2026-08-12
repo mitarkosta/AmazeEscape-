@@ -20,20 +20,53 @@
 
     <link
         rel="stylesheet"
-        href="css/amaze-style-v5.1.css"
+        href="css/amaze-style-v6.1.css"
     >
 </head>
 
 <body>
 
-    <!-- ======================================================
-         CASINO BACKGROUND
-    ======================================================= -->
-
+    <!-- CASINO BACKGROUND -->
     <div
         class="casino-background"
         id="casinoBackground"
     ></div>
+
+
+    <!-- ======================================================
+         ANTICIPATION OVERLAY
+    ======================================================= -->
+
+    <div
+        class="anticipation-overlay"
+        id="anticipationOverlay"
+        aria-hidden="true"
+    >
+
+        <div class="anticipation-vignette"></div>
+
+        <div class="anticipation-fire"></div>
+
+        <div
+            class="anticipation-particles"
+            id="anticipationParticles"
+        ></div>
+
+        <div class="anticipation-text">
+
+            <span>🔥</span>
+
+            <strong>
+                TWO MATCH!
+            </strong>
+
+            <small>
+                FINAL REEL
+            </small>
+
+        </div>
+
+    </div>
 
 
     <!-- ======================================================
@@ -117,9 +150,7 @@
         </div>
 
 
-        <!-- ==================================================
-             REEL CABINET
-        =================================================== -->
+        <!-- REEL CABINET -->
 
         <section class="cabinet">
 
@@ -148,21 +179,6 @@
                         ⭐
                     </div>
 
-                    <!-- ANTICIPATION FX LAYER -->
-
-                    <div
-                        class="anticipation-layer"
-                        id="anticipationLayer"
-                        aria-hidden="true"
-                    >
-
-                        <div class="anticipation-fire"></div>
-
-                        <div class="anticipation-particles">
-                        </div>
-
-                    </div>
-
                 </div>
 
             </div>
@@ -170,13 +186,14 @@
         </section>
 
 
-        <!-- ==================================================
-             MACHINE HARDWARE
-        =================================================== -->
+        <!-- HARDWARE -->
 
         <div class="led-border"></div>
 
-        <div class="jackpot-lamp"></div>
+        <div
+            class="jackpot-lamp"
+            id="jackpotLamp"
+        ></div>
 
         <div class="real-lever">
 
@@ -205,9 +222,7 @@
         </div>
 
 
-        <!-- ==================================================
-             MAIN SPIN PROGRESS
-        =================================================== -->
+        <!-- SPIN PROGRESS -->
 
         <div class="progress-section">
 
@@ -258,9 +273,7 @@
         </div>
 
 
-        <!-- ==================================================
-             PERSISTENT PRIZE COUNTER
-        =================================================== -->
+        <!-- PERSISTENT PRIZE -->
 
         <section
             class="persistent-section"
@@ -273,9 +286,7 @@
                     PERSISTENT PRIZE
                 </span>
 
-                <span
-                    id="persistentValue"
-                >
+                <span id="persistentValue">
                     0 / 10
                 </span>
 
@@ -283,7 +294,7 @@
 
             <div
                 class="persistent-progress"
-                id="persistentProgress"
+                id="persistentBar"
                 role="progressbar"
                 aria-valuemin="0"
                 aria-valuemax="10"
@@ -321,7 +332,7 @@
     </main>
 
 
-    <script src="js/amaze-engine-v5.1.js"></script>
+    <script src="js/amaze-engine-v6.1.js"></script>
 
 </body>
 
