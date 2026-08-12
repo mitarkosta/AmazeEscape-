@@ -10,37 +10,66 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>AmazeEscape - Jackpot Maze</title>
-
-    <link
-        rel="icon"
-        href="favicon.svg"
+    <meta
+        name="theme-color"
+        content="#220000"
     >
+
+    <title>AmazeEscape - Jackpot Maze v6</title>
+
+    <link rel="icon" href="favicon.svg">
 
     <link
         rel="stylesheet"
-        href="css/amaze-style.css"
+        href="css/amaze-style-v6.css"
     >
 
 </head>
 
-
 <body>
 
-
-    <!-- ======================================================
-         INTERACTIVE CASINO BACKGROUND
-    ======================================================= -->
+    <!-- =====================================================
+         CASINO BACKGROUND
+    ====================================================== -->
 
     <div
         class="casino-background"
         id="casinoBackground"
+        aria-hidden="true"
     ></div>
 
 
-    <!-- ======================================================
-         ICE / HOLD OVERLAY
-    ======================================================= -->
+    <!-- =====================================================
+         ANTICIPATION EFFECT
+    ====================================================== -->
+
+    <div
+        class="anticipation-overlay"
+        id="anticipationOverlay"
+        aria-hidden="true"
+    >
+
+        <div class="anticipation-fire"></div>
+
+        <div
+            class="anticipation-particles"
+            id="anticipationParticles"
+        ></div>
+
+        <div class="anticipation-vignette"></div>
+
+        <div class="anticipation-text">
+            <span>🔥</span>
+            <strong>ANTICIPATION</strong>
+            <small>FINAL REEL</small>
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         HOLD / ICE MODE
+    ====================================================== -->
 
     <div
         class="hold-overlay"
@@ -55,23 +84,19 @@
             id="snowContainer"
         ></div>
 
-
         <div class="hold-panel">
 
             <div class="hold-icon">
                 ❄
             </div>
 
-
             <div class="hold-title">
                 HOLD
             </div>
 
-
             <div class="hold-subtitle">
                 ICE MODE
             </div>
-
 
             <div
                 class="hold-countdown"
@@ -79,12 +104,6 @@
             >
                 30
             </div>
-
-
-            <div class="hold-time-label">
-                SECONDS REMAINING
-            </div>
-
 
             <div class="hold-progress">
 
@@ -94,7 +113,6 @@
                 ></div>
 
             </div>
-
 
             <div
                 class="hold-status"
@@ -108,17 +126,14 @@
     </div>
 
 
-    <!-- ======================================================
-         MAIN MACHINE
-    ======================================================= -->
+    <!-- =====================================================
+         MACHINE
+    ====================================================== -->
 
     <main
         class="machine"
         id="machine"
     >
-
-
-        <!-- HEADER -->
 
         <div class="machine-header">
 
@@ -133,16 +148,15 @@
         </div>
 
 
-        <!-- ==================================================
-             SLOT CABINET
-        =================================================== -->
+        <!-- =================================================
+             CABINET / REELS
+        ================================================== -->
 
         <section class="cabinet">
 
             <div class="display">
 
                 <div class="slots">
-
 
                     <div
                         class="slot reel-stop"
@@ -151,14 +165,12 @@
                         🍒
                     </div>
 
-
                     <div
                         class="slot reel-stop"
                         id="slot2"
                     >
                         🍋
                     </div>
-
 
                     <div
                         class="slot reel-stop"
@@ -167,7 +179,6 @@
                         ⭐
                     </div>
 
-
                 </div>
 
             </div>
@@ -175,15 +186,16 @@
         </section>
 
 
-        <!-- ==================================================
-             MACHINE HARDWARE
-        =================================================== -->
+        <!-- =================================================
+             HARDWARE
+        ================================================== -->
 
         <div class="led-border"></div>
 
-
-        <div class="jackpot-lamp"></div>
-
+        <div
+            class="jackpot-lamp"
+            id="jackpotLamp"
+        ></div>
 
         <div class="real-lever">
 
@@ -192,9 +204,9 @@
         </div>
 
 
-        <!-- ==================================================
+        <!-- =================================================
              CONTROLS
-        =================================================== -->
+        ================================================== -->
 
         <div class="controls">
 
@@ -208,8 +220,6 @@
         </div>
 
 
-        <!-- MESSAGE -->
-
         <div
             id="message"
             class="message"
@@ -218,9 +228,9 @@
         </div>
 
 
-        <!-- ==================================================
+        <!-- =================================================
              MAIN SPIN PROGRESS
-        =================================================== -->
+        ================================================== -->
 
         <div class="progress-section">
 
@@ -236,7 +246,6 @@
 
             </div>
 
-
             <div
                 class="spin-progress"
                 id="spinProgress"
@@ -251,14 +260,11 @@
                     id="spinProgressFill"
                 ></div>
 
-
                 <div
                     class="spin-progress-glow"
-                    id="spinProgressGlow"
                 ></div>
 
             </div>
-
 
             <div class="progress-milestones">
 
@@ -274,9 +280,69 @@
         </div>
 
 
-        <!-- ==================================================
-             ROUND
-        =================================================== -->
+        <!-- =================================================
+             PERSISTENT PRIZE COUNTER
+        ================================================== -->
+
+        <section
+            class="persistent-section"
+            aria-label="Persistent prize progress"
+        >
+
+            <div class="persistent-header">
+
+                <div>
+
+                    <span class="persistent-title">
+                        PERSISTENT PRIZE
+                    </span>
+
+                    <span class="persistent-subtitle">
+                        COLLECT THE FRUITS
+                    </span>
+
+                </div>
+
+                <div
+                    class="persistent-value"
+                    id="persistentValue"
+                >
+                    0 / 10
+                </div>
+
+            </div>
+
+
+            <div
+                class="persistent-bar"
+                id="persistentBar"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="10"
+                aria-valuenow="0"
+            >
+
+                <div
+                    class="persistent-fill"
+                    id="persistentFill"
+                ></div>
+
+                <div
+                    class="persistent-coins"
+                    id="persistentCoins"
+                ></div>
+
+                <div class="persistent-shine"></div>
+
+            </div>
+
+
+            <div class="persistent-hint">
+                3 MATCH = 💰 COLLECT
+            </div>
+
+        </section>
+
 
         <div
             id="roundStatus"
@@ -285,68 +351,14 @@
             ROUND 1
         </div>
 
-
-        <!-- ==================================================
-             PERSISTENT WIN BANK
-        =================================================== -->
-
-        <section
-            class="persistent-section"
-            id="persistentSection"
-        >
-
-            <div class="persistent-label">
-
-                <span>
-                    PERSISTENT BANK
-                </span>
-
-                <span id="persistentValue">
-                    $0 / $100
-                </span>
-
-            </div>
-
-
-            <div
-                class="persistent-progress"
-                id="persistentProgress"
-                role="progressbar"
-                aria-valuemin="0"
-                aria-valuemax="100"
-                aria-valuenow="0"
-            >
-
-                <div
-                    class="persistent-progress-fill"
-                    id="persistentProgressFill"
-                ></div>
-
-
-                <div
-                    class="persistent-coins"
-                    id="persistentCoins"
-                ></div>
-
-            </div>
-
-
-            <div class="persistent-hint">
-                3 MATCH = +$20
-            </div>
-
-        </section>
-
-
     </main>
 
 
-    <!-- ======================================================
-         GAME ENGINE
-    ======================================================= -->
+    <!-- =====================================================
+         ENGINE
+    ====================================================== -->
 
-    <script src="js/amaze-engine-v5.js"></script>
-
+    <script src="js/amaze-engine-v6.js"></script>
 
 </body>
 
