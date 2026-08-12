@@ -21,7 +21,7 @@
 
 const AMAZE = {
 
-    version: "7.0",
+    version: "8.0",
 
     symbols: [
         "🍒",
@@ -114,7 +114,7 @@ const AMAZE = {
 
     persistentTarget: 10,
 
-    storageKey: "AmazeEscape_v7_State",
+    storageKey: "AmazeEscape_v8_State",
 
     reelState: [
 
