@@ -1,0 +1,1946 @@
+/* ==========================================================
+   AMAZE GAMING
+   ESCAPE ENGINE v8
+   STYLE
+========================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    overflow-x: hidden;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    color: #ffffff;
+
+    background:
+        radial-gradient(
+            circle at 50% 20%,
+            #351000 0%,
+            #100703 38%,
+            #020202 80%
+        );
+}
+
+/* ==========================================================
+   BACKGROUND
+========================================================== */
+
+.casino-background {
+    position: fixed;
+    inset: 0;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    z-index: 0;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 10%,
+            rgba(255, 80, 0, .12),
+            transparent 45%
+        );
+}
+
+.casino-particle {
+    position: absolute;
+
+    top: 105%;
+
+    border-radius: 50%;
+
+    background: #ff9d00;
+
+    box-shadow:
+        0 0 8px #ff4200,
+        0 0 15px #ff1800;
+
+    opacity: var(--opacity);
+
+    animation:
+        casinoFloat
+        var(--duration)
+        linear
+        infinite;
+}
+
+@keyframes casinoFloat {
+
+    from {
+        transform:
+            translate3d(0, 0, 0);
+    }
+
+    to {
+        transform:
+            translate3d(
+                var(--drift),
+                -120vh,
+                0
+            );
+    }
+}
+
+/* ==========================================================
+   SNOW
+========================================================== */
+
+.snow-container {
+    position: fixed;
+    inset: 0;
+
+    pointer-events: none;
+
+    overflow: hidden;
+
+    opacity: 0;
+
+    z-index: 80;
+
+    transition:
+        opacity .5s ease;
+}
+
+.snow-container.active {
+    opacity: 1;
+}
+
+.snowflake {
+    position: absolute;
+
+    top: -20px;
+
+    width: var(--size);
+    height: var(--size);
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    opacity: var(--opacity);
+
+    box-shadow:
+        0 0 7px #ffffff;
+
+    animation:
+        snowFall
+        var(--duration)
+        linear
+        infinite;
+}
+
+@keyframes snowFall {
+
+    from {
+        transform:
+            translate3d(0, -30px, 0);
+    }
+
+    to {
+        transform:
+            translate3d(
+                var(--sway),
+                110vh,
+                0
+            );
+    }
+}
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
+.game-page {
+    position: relative;
+
+    z-index: 5;
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: flex-start;
+
+    padding:
+        24px
+        14px
+        50px;
+}
+
+/* ==========================================================
+   MACHINE
+========================================================== */
+
+.slot-machine {
+    position: relative;
+
+    width: min(
+        720px,
+        100%
+    );
+
+    padding:
+        18px
+        18px
+        22px;
+
+    border:
+        3px solid #777;
+
+    border-radius: 26px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #303030,
+            #090909 45%,
+            #202020
+        );
+
+    box-shadow:
+        0 0 0 4px #111,
+        0 0 0 7px #5b5b5b,
+        0 25px 80px rgba(0, 0, 0, .9),
+        inset 0 0 30px rgba(255, 255, 255, .04);
+
+    transition:
+        box-shadow .3s ease,
+        filter .3s ease;
+}
+
+.slot-machine.playing {
+    box-shadow:
+        0 0 0 4px #111,
+        0 0 0 7px #666,
+        0 0 35px rgba(255, 70, 0, .35),
+        0 25px 80px rgba(0, 0, 0, .9),
+        inset 0 0 30px rgba(255, 255, 255, .05);
+}
+
+.slot-machine.anticipation-mode {
+    box-shadow:
+        0 0 0 4px #160000,
+        0 0 0 7px #ff3b00,
+        0 0 35px #ff1800,
+        0 0 90px rgba(255, 30, 0, .65),
+        0 25px 80px #000;
+}
+
+.slot-machine.ice-mode {
+    filter:
+        saturate(.45)
+        brightness(.8);
+
+    box-shadow:
+        0 0 0 4px #0a1b24,
+        0 0 0 7px #69d8ff,
+        0 0 35px rgba(50, 200, 255, .55),
+        0 0 90px rgba(0, 120, 255, .3);
+}
+
+.slot-machine.round-complete {
+    box-shadow:
+        0 0 0 4px #382700,
+        0 0 0 7px #ffd700,
+        0 0 50px #ffb000,
+        0 0 120px rgba(255, 160, 0, .65);
+}
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.machine-header {
+    display: grid;
+
+    grid-template-columns:
+        60px
+        1fr
+        auto;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding:
+        8px
+        8px
+        14px;
+
+    border-bottom:
+        2px solid #555;
+}
+
+.brand-fire {
+    font-size: 34px;
+
+    text-align: center;
+
+    filter:
+        drop-shadow(
+            0 0 10px
+            #ff4500
+        );
+}
+
+.brand {
+    text-align: center;
+}
+
+.brand-name {
+    font-size: clamp(
+        25px,
+        6vw,
+        44px
+    );
+
+    font-weight: 900;
+
+    letter-spacing:
+        .16em;
+
+    color: #ffd400;
+
+    text-shadow:
+        0 2px 0 #6d3900,
+        0 0 10px #ff6a00,
+        0 0 25px #ff2200;
+}
+
+.brand-subtitle {
+    font-size: 13px;
+
+    letter-spacing:
+        .5em;
+
+    color: #ffffff;
+}
+
+.brand-version {
+    margin-top: 3px;
+
+    font-size: 11px;
+
+    color: #ff8500;
+
+    letter-spacing:
+        .25em;
+}
+
+.jackpot-lamp {
+    padding:
+        8px
+        10px;
+
+    border:
+        2px solid #651010;
+
+    border-radius: 8px;
+
+    background:
+        #180505;
+
+    color: #ff3c3c;
+
+    font-size: 11px;
+
+    font-weight: 900;
+
+    box-shadow:
+        inset 0 0 10px #000;
+
+    transition:
+        .2s ease;
+}
+
+.jackpot-lamp.on {
+    color: #ffffff;
+
+    background:
+        #ff0000;
+
+    border-color:
+        #ffb000;
+
+    box-shadow:
+        0 0 10px #ff0000,
+        0 0 25px #ff4500,
+        0 0 50px #ff0000;
+}
+
+/* ==========================================================
+   STATUS
+========================================================== */
+
+.status-panel {
+    padding:
+        12px
+        4px
+        14px;
+
+    text-align: center;
+}
+
+.round-status {
+    color: #ffc400;
+
+    font-size: 14px;
+
+    font-weight: 900;
+
+    letter-spacing:
+        .2em;
+}
+
+.game-message {
+    min-height: 30px;
+
+    margin-top: 5px;
+
+    color: #ffffff;
+
+    font-size: 18px;
+
+    font-weight: 900;
+
+    text-shadow:
+        0 0 8px rgba(255, 100, 0, .7);
+}
+
+.spin-counter {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    margin-top: 5px;
+
+    font-size: 12px;
+
+    color: #aaa;
+}
+
+.spin-counter strong {
+    color: #ffffff;
+}
+
+.spin-progress {
+    width: min(
+        500px,
+        90%
+    );
+
+    height: 7px;
+
+    margin:
+        9px
+        auto
+        0;
+
+    overflow: hidden;
+
+    border:
+        1px solid #555;
+
+    border-radius: 20px;
+
+    background: #050505;
+
+    box-shadow:
+        inset 0 0 6px #000;
+}
+
+.spin-progress-fill {
+    width: 0;
+
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ff1b00,
+            #ffd000
+        );
+
+    box-shadow:
+        0 0 10px #ff4000;
+
+    transition:
+        width .25s ease;
+}
+
+/* ==========================================================
+   REEL STAGE
+========================================================== */
+
+.reel-stage {
+    position: relative;
+
+    width: 100%;
+
+    padding:
+        8px
+        0
+        18px;
+}
+
+.reel-frame {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        18px
+        minmax(0, 1fr)
+        18px
+        minmax(0, 1fr);
+
+    height:
+        clamp(
+            260px,
+            48vw,
+            360px
+        );
+
+    overflow: hidden;
+
+    border:
+        6px solid #777;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #8c8c8c,
+            #575757 18%,
+            #6b6b6b 50%,
+            #4c4c4c 82%,
+            #898989
+        );
+
+    box-shadow:
+        inset 0 0 20px #222,
+        0 8px 25px #000;
+}
+
+/* ==========================================================
+   REEL WINDOWS
+========================================================== */
+
+.reel-window {
+    position: relative;
+
+    min-width: 0;
+
+    height: 100%;
+
+    overflow: hidden;
+
+    background:
+        #101010;
+
+    box-shadow:
+        inset 8px 0 18px rgba(0, 0, 0, .7),
+        inset -8px 0 18px rgba(0, 0, 0, .7);
+}
+
+/*
+    Mask the top and bottom of the
+    reel so neighboring symbols remain
+    visible but slightly darker.
+*/
+
+.reel-window::before,
+.reel-window::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+
+    z-index: 8;
+
+    pointer-events: none;
+}
+
+.reel-window::before {
+    top: 0;
+
+    height: 25%;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(0, 0, 0, .85),
+            rgba(0, 0, 0, .15),
+            transparent
+        );
+}
+
+.reel-window::after {
+    bottom: 0;
+
+    height: 25%;
+
+    background:
+        linear-gradient(
+            0deg,
+            rgba(0, 0, 0, .85),
+            rgba(0, 0, 0, .15),
+            transparent
+        );
+}
+
+/* ==========================================================
+   REAL VERTICAL DRUM
+========================================================== */
+
+.reel-drum {
+    position: absolute;
+
+    left: 0;
+
+    width: 100%;
+
+    /*
+        JS controls transform.
+        Five symbols are kept visible:
+        partial top,
+        center-neighbor,
+        winning center,
+        center-neighbor,
+        partial bottom.
+    */
+
+    will-change:
+        transform;
+
+    transform:
+        translate3d(
+            0,
+            0,
+            0
+        );
+}
+
+/* ==========================================================
+   SYMBOL CELL
+========================================================== */
+
+.reel-symbol {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+    height:
+        clamp(
+            68px,
+            12vw,
+            88px
+        );
+
+    flex: 0 0 auto;
+
+    font-size:
+        clamp(
+            44px,
+            8vw,
+            64px
+        );
+
+    line-height: 1;
+
+    user-select: none;
+
+    background:
+        radial-gradient(
+            circle at 50% 45%,
+            #f8f8f8 0%,
+            #d8d8d8 55%,
+            #9e9e9e 100%
+        );
+
+    color: #111;
+
+    text-shadow:
+        0 2px 1px rgba(255,255,255,.9),
+        0 3px 4px rgba(0,0,0,.45);
+
+    border-bottom:
+        1px solid rgba(0,0,0,.18);
+}
+
+/*
+    The center row gets stronger contrast.
+*/
+
+.reel-symbol.center-symbol {
+    background:
+        radial-gradient(
+            circle at 50% 42%,
+            #ffffff,
+            #e8e8e8 65%,
+            #b8b8b8
+        );
+
+    box-shadow:
+        inset 0 0 12px rgba(255,255,255,.75);
+}
+
+/* ==========================================================
+   METAL SEPARATORS
+========================================================== */
+
+.metal-separator {
+    position: relative;
+
+    z-index: 30;
+
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #171717,
+            #bcbcbc 18%,
+            #f2f2f2 34%,
+            #696969 50%,
+            #e7e7e7 66%,
+            #777 82%,
+            #171717
+        );
+
+    box-shadow:
+        inset 0 0 5px #000,
+        0 0 8px rgba(0,0,0,.9);
+}
+
+.separator-bolt {
+    position: absolute;
+
+    left: 50%;
+
+    width: 9px;
+    height: 9px;
+
+    transform:
+        translateX(-50%);
+
+    border:
+        1px solid #222;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fff,
+            #999 35%,
+            #333 80%
+        );
+
+    box-shadow:
+        0 1px 2px #000;
+}
+
+.separator-bolt.top {
+    top: 8px;
+}
+
+.separator-bolt.middle {
+    top: 50%;
+
+    transform:
+        translate(
+            -50%,
+            -50%
+        );
+}
+
+.separator-bolt.bottom {
+    bottom: 8px;
+}
+
+/* ==========================================================
+   WIN LINE
+========================================================== */
+
+.win-line {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+
+    top: 50%;
+
+    height: 4px;
+
+    z-index: 40;
+
+    transform:
+        translateY(-50%);
+
+    pointer-events: none;
+
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        auto
+        1fr;
+
+    align-items: center;
+
+    gap: 4px;
+}
+
+.win-line-left,
+.win-line-right {
+    height: 4px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #ffcf00
+        );
+
+    box-shadow:
+        0 0 7px #ff6200;
+}
+
+.win-line-right {
+    background:
+        linear-gradient(
+            90deg,
+            #ffcf00,
+            transparent
+        );
+}
+
+.win-line-center {
+    width: 22px;
+    height: 22px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        2px solid #ffd000;
+
+    border-radius: 50%;
+
+    background:
+        #170800;
+
+    color: #ffd000;
+
+    font-size: 11px;
+
+    box-shadow:
+        0 0 8px #ff4d00;
+}
+
+/* ==========================================================
+   REEL MOTION
+========================================================== */
+
+.reel-drum.reel-spin {
+    filter:
+        blur(.8px);
+
+    transition:
+        none;
+}
+
+.reel-drum.reel-stop {
+    filter:
+        blur(0);
+
+    transition:
+        transform .08s ease-out;
+}
+
+/* ==========================================================
+   FINAL REEL ANTICIPATION
+========================================================== */
+
+#slot3.final-reel-anticipation {
+    filter:
+        blur(.5px)
+        saturate(1.3);
+
+    box-shadow:
+        inset 0 0 25px rgba(255, 0, 0, .7),
+        0 0 15px #ff0000,
+        0 0 40px #ff3b00,
+        0 0 70px #ff0000;
+
+    animation:
+        finalReelPulse
+        .22s
+        infinite
+        alternate;
+}
+
+@keyframes finalReelPulse {
+
+    from {
+        box-shadow:
+            inset 0 0 18px rgba(255,0,0,.45),
+            0 0 10px #ff0000,
+            0 0 25px #ff3b00;
+    }
+
+    to {
+        box-shadow:
+            inset 0 0 30px rgba(255,0,0,.9),
+            0 0 22px #ff0000,
+            0 0 65px #ff4500;
+    }
+}
+
+/* ==========================================================
+   FIRE
+========================================================== */
+
+.final-reel-fire {
+    position: absolute;
+
+    left: -18px;
+    right: -18px;
+    top: -18px;
+    bottom: -18px;
+
+    z-index: 25;
+
+    pointer-events: none;
+
+    border-radius: 20px;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            transparent 25%,
+            rgba(255,70,0,.15) 48%,
+            rgba(255,0,0,.38) 70%,
+            transparent 82%
+        );
+
+    filter:
+        blur(5px);
+
+    animation:
+        finalFireGlow
+        .3s
+        infinite
+        alternate;
+}
+
+@keyframes finalFireGlow {
+
+    from {
+        transform: scale(.96);
+        opacity: .65;
+    }
+
+    to {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+}
+
+.final-reel-flame {
+    position: absolute;
+
+    width: var(--fire-size);
+    height: var(--fire-size);
+
+    left: var(--fire-left);
+    bottom: var(--fire-bottom);
+
+    border-radius:
+        50% 50% 45% 45%;
+
+    background:
+        radial-gradient(
+            circle at 50% 75%,
+            #fff7a0,
+            #ffd000 20%,
+            #ff6500 48%,
+            #ff1700 70%,
+            transparent 77%
+        );
+
+    opacity: var(--fire-opacity);
+
+    animation:
+        flameMove
+        var(--fire-duration)
+        ease-in-out
+        infinite
+        alternate;
+}
+
+@keyframes flameMove {
+
+    from {
+        transform:
+            translateY(5px)
+            scale(.75)
+            rotate(var(--fire-rotate));
+    }
+
+    to {
+        transform:
+            translateY(-15px)
+            scale(1.25)
+            rotate(calc(
+                var(--fire-rotate) * -1
+            ));
+    }
+}
+
+.final-reel-particle {
+    position: absolute;
+
+    width: var(--particle-size);
+    height: var(--particle-size);
+
+    left: var(--particle-left);
+    bottom: var(--particle-bottom);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #ffffff,
+            #ffd700 25%,
+            #ff5a00 55%,
+            #ff0000 75%,
+            transparent
+        );
+
+    box-shadow:
+        0 0 6px #ffcc00,
+        0 0 14px #ff3000;
+
+    animation:
+        fireParticle
+        var(--particle-duration)
+        linear
+        infinite;
+
+    animation-delay:
+        var(--particle-delay);
+}
+
+@keyframes fireParticle {
+
+    0% {
+        transform:
+            translate3d(0,0,0)
+            scale(.4);
+
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            translate3d(
+                var(--particle-drift),
+                var(--particle-rise),
+                0
+            )
+            scale(0);
+
+        opacity: 0;
+    }
+}
+
+/* ==========================================================
+   LEVER
+========================================================== */
+
+.lever-area {
+    position: absolute;
+
+    right: -54px;
+
+    top: 48%;
+
+    width: 70px;
+    height: 180px;
+
+    z-index: 50;
+}
+
+.real-lever {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    transform-origin:
+        35px 150px;
+}
+
+.lever-base {
+    position: absolute;
+
+    left: 19px;
+    bottom: 10px;
+
+    width: 42px;
+    height: 30px;
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #222,
+            #aaa,
+            #333
+        );
+
+    box-shadow:
+        0 4px 7px #000;
+}
+
+.lever-arm {
+    position: absolute;
+
+    left: 34px;
+    bottom: 30px;
+
+    width: 13px;
+    height: 120px;
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #222,
+            #ddd,
+            #555
+        );
+
+    transform:
+        rotate(-12deg);
+
+    transform-origin:
+        bottom center;
+
+    box-shadow:
+        2px 3px 5px #000;
+}
+
+.lever-ball {
+    position: absolute;
+
+    left: 20px;
+    top: 0;
+
+    width: 40px;
+    height: 40px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #ff6b3b,
+            #d71900 45%,
+            #650000
+        );
+
+    box-shadow:
+        0 0 10px #ff2500,
+        0 5px 8px #000;
+}
+
+.real-lever.pull-lever {
+    animation:
+        leverPull
+        .45s
+        ease-in-out;
+}
+
+@keyframes leverPull {
+
+    0% {
+        transform: rotate(0);
+    }
+
+    45% {
+        transform: rotate(30deg);
+    }
+
+    100% {
+        transform: rotate(0);
+    }
+}
+
+/* ==========================================================
+   CONTROL
+========================================================== */
+
+.control-panel {
+    display: flex;
+
+    justify-content: center;
+
+    padding:
+        8px
+        0
+        15px;
+}
+
+.spin-button {
+    min-width: 180px;
+
+    padding:
+        14px
+        34px;
+
+    border:
+        3px solid #ffd000;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ff4b18,
+            #b80000
+        );
+
+    color: #ffffff;
+
+    font-size: 18px;
+
+    font-weight: 900;
+
+    letter-spacing:
+        .15em;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 0 #580000,
+        0 0 15px rgba(255, 50, 0, .5);
+
+    transition:
+        transform .1s ease,
+        filter .2s ease;
+}
+
+.spin-button:hover {
+    filter:
+        brightness(1.2);
+}
+
+.spin-button:active {
+    transform:
+        translateY(4px);
+
+    box-shadow:
+        0 1px 0 #580000,
+        0 0 15px rgba(255, 50, 0, .7);
+}
+
+.spin-button:disabled {
+    cursor:
+        not-allowed;
+
+    opacity:
+        .45;
+
+    filter:
+        grayscale(.5);
+}
+
+/* ==========================================================
+   PERSISTENT
+========================================================== */
+
+.persistent-panel {
+    padding:
+        10px
+        5px
+        5px;
+}
+
+.persistent-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    color: #d5d5d5;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    letter-spacing:
+        .08em;
+}
+
+.persistent-header strong {
+    color: #ffd000;
+}
+
+.persistent-bar {
+    position: relative;
+
+    width: 100%;
+
+    height: 18px;
+
+    margin-top: 7px;
+
+    overflow: hidden;
+
+    border:
+        2px solid #555;
+
+    border-radius: 10px;
+
+    background:
+        #080808;
+
+    box-shadow:
+        inset 0 0 8px #000;
+}
+
+.persistent-fill {
+    position: relative;
+
+    width: 0;
+
+    height: 100%;
+
+    overflow: visible;
+
+    background:
+        linear-gradient(
+            90deg,
+            #008cff,
+            #00eaff,
+            #ffd000
+        );
+
+    box-shadow:
+        0 0 12px #00c8ff;
+
+    transition:
+        width .35s ease;
+}
+
+.mini-coin {
+    position: absolute;
+
+    width: 9px;
+    height: 9px;
+
+    border:
+        1px solid #fff;
+
+    border-radius: 50%;
+
+    background:
+        #ffd000;
+
+    box-shadow:
+        0 0 8px #ff8c00;
+
+    animation:
+        miniCoin
+        1s
+        ease-out
+        forwards;
+}
+
+@keyframes miniCoin {
+
+    from {
+        transform:
+            translateY(0)
+            scale(.5);
+
+        opacity: 1;
+    }
+
+    to {
+        transform:
+            translateY(-25px)
+            scale(1.2);
+
+        opacity: 0;
+    }
+}
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+.machine-footer {
+    padding-top: 14px;
+
+    text-align: center;
+
+    color: #777;
+
+    font-size: 11px;
+
+    letter-spacing:
+        .14em;
+}
+
+.machine-footer span {
+    color: #ff4d00;
+}
+
+/* ==========================================================
+   COINS / CONFETTI
+========================================================== */
+
+.coin {
+    position: fixed;
+
+    top: -40px;
+
+    width: 22px;
+    height: 22px;
+
+    z-index: 200;
+
+    border:
+        2px solid #fff1a0;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fff7a0,
+            #ffd000 45%,
+            #b66a00
+        );
+
+    box-shadow:
+        0 0 10px #ffd000;
+
+    animation:
+        coinFall
+        4s
+        ease-in
+        forwards;
+}
+
+@keyframes coinFall {
+
+    to {
+        transform:
+            translateY(110vh)
+            rotate(900deg);
+
+        opacity: .2;
+    }
+}
+
+.confetti {
+    position: fixed;
+
+    top: -20px;
+
+    width: 10px;
+    height: 20px;
+
+    z-index: 190;
+
+    animation:
+        confettiFall
+        4.5s
+        ease-in
+        forwards;
+}
+
+@keyframes confettiFall {
+
+    to {
+        transform:
+            translateY(110vh)
+            rotate(720deg);
+
+        opacity: 0;
+    }
+}
+
+/* ==========================================================
+   ANTICIPATION OVERLAY
+========================================================== */
+
+.anticipation-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 100;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: flex-start;
+
+    padding-top:
+        max(
+            18px,
+            env(safe-area-inset-top)
+        );
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    transition:
+        opacity .2s ease;
+}
+
+.anticipation-overlay.active {
+    opacity: 1;
+}
+
+.anticipation-title {
+    color: #ff2a00;
+
+    font-size:
+        clamp(
+            24px,
+            6vw,
+            44px
+        );
+
+    font-weight: 900;
+
+    text-shadow:
+        0 0 10px #ff0000,
+        0 0 25px #ff4500,
+        0 0 50px #ff0000;
+
+    animation:
+        anticipationText
+        .22s
+        infinite
+        alternate;
+}
+
+.anticipation-subtitle {
+    margin-top: 3px;
+
+    color: #ffd000;
+
+    font-size: 14px;
+
+    font-weight: 900;
+
+    letter-spacing:
+        .4em;
+
+    text-shadow:
+        0 0 12px #ff5000;
+}
+
+@keyframes anticipationText {
+
+    from {
+        transform: scale(.98);
+        opacity: .75;
+    }
+
+    to {
+        transform: scale(1.04);
+        opacity: 1;
+    }
+}
+
+.anticipation-particles {
+    position: absolute;
+
+    inset: 0;
+
+    overflow: hidden;
+}
+
+.anticipation-particle {
+    position: absolute;
+
+    bottom: -20px;
+
+    border-radius: 50%;
+
+    background:
+        #ffb000;
+
+    box-shadow:
+        0 0 8px #ff3000;
+
+    animation:
+        anticipationParticle
+        var(--duration)
+        linear
+        infinite;
+}
+
+@keyframes anticipationParticle {
+
+    from {
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            );
+
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    to {
+        transform:
+            translate3d(
+                var(--drift),
+                -110vh,
+                0
+            );
+
+        opacity: 0;
+    }
+}
+
+/* ==========================================================
+   HOLD
+========================================================== */
+
+.hold-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 120;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(
+            0,
+            25,
+            45,
+            .5
+        );
+
+    backdrop-filter:
+        blur(3px);
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    transition:
+        opacity .35s ease;
+}
+
+.hold-overlay.active {
+    opacity: 1;
+
+    pointer-events: auto;
+}
+
+.hold-card {
+    width: min(
+        360px,
+        90vw
+    );
+
+    padding: 25px;
+
+    text-align: center;
+
+    border:
+        3px solid #72dcff;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #122c3c,
+            #07131b
+        );
+
+    box-shadow:
+        0 0 25px #008cff,
+        0 0 70px rgba(0, 150, 255, .5);
+}
+
+.hold-icon {
+    font-size: 40px;
+
+    filter:
+        drop-shadow(
+            0 0 10px #55dfff
+        );
+}
+
+.hold-title {
+    margin-top: 5px;
+
+    color: #8feaff;
+
+    font-weight: 900;
+
+    letter-spacing:
+        .2em;
+}
+
+.hold-countdown {
+    margin-top: 12px;
+
+    color: #ffffff;
+
+    font-size: 70px;
+
+    line-height: .9;
+
+    font-weight: 900;
+
+    text-shadow:
+        0 0 15px #00bfff;
+}
+
+.hold-seconds {
+    margin-top: 6px;
+
+    color: #72dcff;
+
+    font-size: 11px;
+
+    letter-spacing:
+        .3em;
+}
+
+.hold-progress {
+    width: 100%;
+
+    height: 13px;
+
+    margin-top: 20px;
+
+    overflow: hidden;
+
+    border:
+        1px solid #6adfff;
+
+    border-radius: 10px;
+
+    background: #061018;
+}
+
+.hold-progress-fill {
+    width: 100%;
+
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #008cff,
+            #8fffff
+        );
+
+    box-shadow:
+        0 0 12px #00bfff;
+
+    transition:
+        width .1s linear;
+}
+
+.hold-status {
+    margin-top: 15px;
+
+    color: #ffffff;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    letter-spacing:
+        .15em;
+}
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (
+    max-width: 600px
+) {
+
+    .game-page {
+        padding:
+            8px
+            7px
+            30px;
+    }
+
+    .slot-machine {
+        padding:
+            10px
+            9px
+            15px;
+
+        border-radius:
+            18px;
+    }
+
+    .machine-header {
+        grid-template-columns:
+            36px
+            1fr
+            auto;
+
+        padding-bottom:
+            9px;
+    }
+
+    .brand-fire {
+        font-size: 25px;
+    }
+
+    .brand-name {
+        font-size: 25px;
+    }
+
+    .brand-subtitle {
+        font-size: 9px;
+    }
+
+    .jackpot-lamp {
+        padding:
+            6px
+            5px;
+
+        font-size: 8px;
+    }
+
+    .reel-frame {
+        grid-template-columns:
+            minmax(0, 1fr)
+            12px
+            minmax(0, 1fr)
+            12px
+            minmax(0, 1fr);
+
+        height:
+            270px;
+
+        border-width:
+            4px;
+    }
+
+    .reel-symbol {
+        height:
+            68px;
+
+        font-size:
+            43px;
+    }
+
+    .separator-bolt {
+        width: 7px;
+        height: 7px;
+    }
+
+    .lever-area {
+        right: -35px;
+
+        transform:
+            scale(.72);
+
+        transform-origin:
+            center;
+    }
+
+    .spin-button {
+        min-width: 150px;
+
+        padding:
+            12px
+            25px;
+    }
+}
+
+@media (
+    max-width: 420px
+) {
+
+    .lever-area {
+        display: none;
+    }
+
+    .reel-frame {
+        height:
+            245px;
+    }
+
+    .reel-symbol {
+        height:
+            61px;
+
+        font-size:
+            39px;
+    }
+
+}
