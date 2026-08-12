@@ -2,51 +2,433 @@
 <html lang="bg">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     >
 
     <meta
         name="theme-color"
-        content="#080808"
+        content="#050505"
     >
 
     <meta
         name="description"
-        content="AMAZE GAMING — Amaze Escape v7.1"
+        content="AMAZE GAMING — Escape Engine v8"
     >
 
     <title>
-        AMAZE GAMING — Escape Engine v7.1
+        AMAZE GAMING — Escape Engine v8
     </title>
 
     <!-- =====================================================
-         AMAZE GAMING v7.1
-         STYLE
+         AMAZE GAMING v8
+         CSS
     ====================================================== -->
 
     <link
         rel="stylesheet"
-        href="amaze-style-v7.1.css"
+        href="amaze-style-v8.css"
     >
-
 </head>
 
 <body>
 
-    <!-- ТУК Е СЪДЪРЖАНИЕТО НА ИГРАТА -->
+    <!-- =====================================================
+         CASINO BACKGROUND
+    ====================================================== -->
+
+    <div
+        id="casinoBackground"
+        class="casino-background"
+        aria-hidden="true"
+    ></div>
+
+    <div
+        id="snowContainer"
+        class="snow-container"
+        aria-hidden="true"
+    ></div>
 
     <!-- =====================================================
-         AMAZE GAMING v7.1
-         ENGINE
+         ANTICIPATION OVERLAY
+    ====================================================== -->
+
+    <div
+        id="anticipationOverlay"
+        class="anticipation-overlay"
+        aria-hidden="true"
+    >
+
+        <div class="anticipation-title">
+            🔥 FINAL REEL
+        </div>
+
+        <div class="anticipation-subtitle">
+            TWO MATCH
+        </div>
+
+        <div
+            id="anticipationParticles"
+            class="anticipation-particles"
+        ></div>
+
+    </div>
+
+    <!-- =====================================================
+         HOLD OVERLAY
+    ====================================================== -->
+
+    <div
+        id="holdOverlay"
+        class="hold-overlay"
+        aria-hidden="true"
+    >
+
+        <div class="hold-card">
+
+            <div class="hold-icon">
+                ❄
+            </div>
+
+            <div class="hold-title">
+                ICE HOLD
+            </div>
+
+            <div
+                id="holdCountdown"
+                class="hold-countdown"
+            >
+                30
+            </div>
+
+            <div class="hold-seconds">
+                SECONDS
+            </div>
+
+            <div
+                id="holdProgress"
+                class="hold-progress"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="30"
+                aria-valuenow="30"
+            >
+
+                <div
+                    id="holdProgressFill"
+                    class="hold-progress-fill"
+                ></div>
+
+            </div>
+
+            <div
+                id="holdStatus"
+                class="hold-status"
+            >
+                MACHINE FROZEN
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- =====================================================
+         MAIN GAME
+    ====================================================== -->
+
+    <main class="game-page">
+
+        <section
+            id="machine"
+            class="slot-machine"
+        >
+
+            <!-- =================================================
+                 HEADER
+            ================================================== -->
+
+            <header class="machine-header">
+
+                <div class="brand-fire">
+                    🔥
+                </div>
+
+                <div class="brand">
+
+                    <div class="brand-name">
+                        AMAZE
+                    </div>
+
+                    <div class="brand-subtitle">
+                        GAMING
+                    </div>
+
+                    <div class="brand-version">
+                        v8
+                    </div>
+
+                </div>
+
+                <div
+                    id="jackpotLamp"
+                    class="jackpot-lamp"
+                    aria-label="Jackpot lamp"
+                >
+                    JACKPOT
+                </div>
+
+            </header>
+
+            <!-- =================================================
+                 ROUND / PROGRESS
+            ================================================== -->
+
+            <div class="status-panel">
+
+                <div
+                    id="roundStatus"
+                    class="round-status"
+                >
+                    ROUND 1
+                </div>
+
+                <div
+                    id="message"
+                    class="game-message"
+                    aria-live="polite"
+                >
+                    READY
+                </div>
+
+                <div class="spin-counter">
+
+                    <span>
+                        SPINS
+                    </span>
+
+                    <strong id="counterValue">
+                        0 / 100
+                    </strong>
+
+                </div>
+
+                <div
+                    id="spinProgress"
+                    class="spin-progress"
+                    role="progressbar"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-valuenow="0"
+                >
+
+                    <div
+                        id="spinProgressFill"
+                        class="spin-progress-fill"
+                    ></div>
+
+                </div>
+
+            </div>
+
+            <!-- =================================================
+                 REEL WINDOW
+            ================================================== -->
+
+            <div class="reel-stage">
+
+                <div class="reel-frame">
+
+                    <!-- LEFT REEL -->
+
+                    <div
+                        id="reelWindow1"
+                        class="reel-window"
+                    >
+
+                        <div
+                            id="slot1"
+                            class="reel-drum"
+                        ></div>
+
+                    </div>
+
+                    <!-- METAL SEPARATOR -->
+
+                    <div
+                        class="metal-separator"
+                        aria-hidden="true"
+                    >
+
+                        <div class="separator-bolt top"></div>
+                        <div class="separator-bolt middle"></div>
+                        <div class="separator-bolt bottom"></div>
+
+                    </div>
+
+                    <!-- CENTER REEL -->
+
+                    <div
+                        id="reelWindow2"
+                        class="reel-window"
+                    >
+
+                        <div
+                            id="slot2"
+                            class="reel-drum"
+                        ></div>
+
+                    </div>
+
+                    <!-- METAL SEPARATOR -->
+
+                    <div
+                        class="metal-separator"
+                        aria-hidden="true"
+                    >
+
+                        <div class="separator-bolt top"></div>
+                        <div class="separator-bolt middle"></div>
+                        <div class="separator-bolt bottom"></div>
+
+                    </div>
+
+                    <!-- RIGHT REEL -->
+
+                    <div
+                        id="reelWindow3"
+                        class="reel-window"
+                    >
+
+                        <div
+                            id="slot3"
+                            class="reel-drum"
+                        ></div>
+
+                    </div>
+
+                    <!-- WIN LINE -->
+
+                    <div
+                        class="win-line"
+                        aria-hidden="true"
+                    >
+
+                        <span class="win-line-left"></span>
+
+                        <span class="win-line-center">
+                            ★
+                        </span>
+
+                        <span class="win-line-right"></span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- =================================================
+                 LEVER
+            ================================================== -->
+
+            <div class="lever-area">
+
+                <div
+                    class="real-lever"
+                    aria-hidden="true"
+                >
+
+                    <div class="lever-ball"></div>
+
+                    <div class="lever-arm"></div>
+
+                    <div class="lever-base"></div>
+
+                </div>
+
+            </div>
+
+            <!-- =================================================
+                 CONTROL
+            ================================================== -->
+
+            <div class="control-panel">
+
+                <button
+                    id="button"
+                    class="spin-button"
+                    type="button"
+                >
+                    SPIN
+                </button>
+
+            </div>
+
+            <!-- =================================================
+                 PERSISTENT REWARD
+            ================================================== -->
+
+            <section
+                class="persistent-panel"
+                aria-label="Persistent reward"
+            >
+
+                <div class="persistent-header">
+
+                    <span>
+                        PERSISTENT REWARD
+                    </span>
+
+                    <strong id="persistentValue">
+                        0 / 10
+                    </strong>
+
+                </div>
+
+                <div
+                    id="persistentBar"
+                    class="persistent-bar"
+                    role="progressbar"
+                    aria-valuemin="0"
+                    aria-valuemax="10"
+                    aria-valuenow="0"
+                >
+
+                    <div
+                        id="persistentFill"
+                        class="persistent-fill"
+                    ></div>
+
+                </div>
+
+            </section>
+
+            <!-- =================================================
+                 FOOTER
+            ================================================== -->
+
+            <footer class="machine-footer">
+
+                AMAZE GAMING
+                <span>•</span>
+                ESCAPE ENGINE v8
+
+            </footer>
+
+        </section>
+
+    </main>
+
+    <!-- =====================================================
+         AMAZE GAMING v8
+         JAVASCRIPT
     ====================================================== -->
 
     <script
-        src="amaze-engine-v7.1.js"
+        src="amaze-engine-v8.js"
         defer
     ></script>
 
