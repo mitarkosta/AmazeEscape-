@@ -21,7 +21,7 @@
 
 const AMAZE = {
 
-    version: "8.0",
+    version: "7.0",
 
     symbols: [
         "🍒",
