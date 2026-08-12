@@ -1,47 +1,45 @@
 /* ==========================================================
-   AMAZE ESCAPE v7.1
-   SLOT MACHINE REEL SYSTEM
-========================================================== */
+   AMAZE GAMING
+   AMAZE STYLE v7.1
+   ========================================================== */
 
 * {
     box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
 }
 
 html,
 body {
     margin: 0;
     padding: 0;
+    width: 100%;
     min-height: 100%;
 }
 
 body {
-    overflow-x: hidden;
     background:
         radial-gradient(
             circle at 50% 20%,
-            #3a0d0d 0%,
-            #160506 35%,
-            #050505 100%
+            #292929 0%,
+            #101010 42%,
+            #030303 100%
         );
 
-    color: white;
+    color: #fff;
 
     font-family:
         Arial,
         Helvetica,
         sans-serif;
 
-    user-select: none;
-    -webkit-user-select: none;
+    overflow-x: hidden;
 }
 
 
 /* ==========================================================
    BACKGROUND
-========================================================== */
+   ========================================================== */
 
-#casinoBackground {
+.casino-background {
     position: fixed;
     inset: 0;
 
@@ -51,8 +49,8 @@ body {
 
     background:
         radial-gradient(
-            circle at 50% 0%,
-            rgba(255, 50, 0, .16),
+            circle at 50% 40%,
+            rgba(255, 0, 0, .08),
             transparent 35%
         );
 }
@@ -60,22 +58,24 @@ body {
 .casino-particle {
     position: absolute;
 
-    top: 110%;
+    bottom: -20px;
 
     border-radius: 50%;
 
-    background: #ffb300;
-
-    opacity: var(--opacity);
+    background: #ffd700;
 
     box-shadow:
-        0 0 8px #ff5b00;
+        0 0 8px #ffd700;
+
+    opacity: var(--opacity);
 
     animation:
         casinoFloat
         var(--duration)
         linear
         infinite;
+
+    animation-delay: inherit;
 }
 
 @keyframes casinoFloat {
@@ -85,11 +85,20 @@ body {
             translate3d(0, 0, 0);
     }
 
-    100% {
+    50% {
         transform:
             translate3d(
                 var(--drift),
-                -125vh,
+                -50vh,
+                0
+            );
+    }
+
+    100% {
+        transform:
+            translate3d(
+                0,
+                -110vh,
                 0
             );
     }
@@ -98,25 +107,23 @@ body {
 
 /* ==========================================================
    SNOW
-========================================================== */
+   ========================================================== */
 
-#snowContainer {
+.snow-container {
     position: fixed;
     inset: 0;
 
     pointer-events: none;
 
-    overflow: hidden;
-
     opacity: 0;
+
+    z-index: 80;
 
     transition:
         opacity .4s ease;
-
-    z-index: 100;
 }
 
-#snowContainer.active {
+.snow-container.active {
     opacity: 1;
 }
 
@@ -136,17 +143,22 @@ body {
 
     filter:
         drop-shadow(
-            0 0 5px white
+            0 0 5px rgba(255,255,255,.8)
         );
 
     animation:
-        snowfall
+        snowFall
         var(--duration)
         linear
         infinite;
 }
 
-@keyframes snowfall {
+@keyframes snowFall {
+
+    from {
+        transform:
+            translate3d(0, -20px, 0);
+    }
 
     to {
         transform:
@@ -154,658 +166,505 @@ body {
                 var(--sway),
                 110vh,
                 0
-            )
-            rotate(360deg);
+            );
     }
 }
 
 
 /* ==========================================================
-   GAME
-========================================================== */
+   MAIN PAGE
+   ========================================================== */
 
-.game {
+.game-page {
+    position: relative;
+
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding:
+        30px 15px 50px;
+
+    z-index: 5;
+}
+
+
+/* ==========================================================
+   MACHINE
+   ========================================================== */
+
+.slot-machine {
     position: relative;
 
     width: min(
         94vw,
-        900px
+        700px
     );
 
-    margin:
-        0 auto;
-
     padding:
-        20px 0 40px;
+        24px 24px 30px;
 
-    z-index: 2;
+    border:
+        5px solid #292929;
+
+    border-radius: 28px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #343434,
+            #111111 48%,
+            #050505
+        );
+
+    box-shadow:
+        0 20px 70px rgba(0,0,0,.85),
+        inset 0 0 0 2px #666,
+        inset 0 0 30px rgba(0,0,0,.9);
+
+    transition:
+        box-shadow .35s ease,
+        transform .35s ease;
+}
+
+.slot-machine.playing {
+    box-shadow:
+        0 20px 70px rgba(0,0,0,.9),
+        0 0 30px rgba(255,30,0,.25),
+        inset 0 0 0 2px #777;
 }
 
 
 /* ==========================================================
    HEADER
-========================================================== */
+   ========================================================== */
 
-.game-header {
+.machine-header {
     display: flex;
 
     align-items: center;
 
     justify-content: space-between;
 
+    gap: 20px;
+
     margin-bottom: 15px;
 }
 
 .brand {
-    display: flex;
-
-    flex-direction: column;
-
-    line-height: .82;
-
-    text-shadow:
-        0 2px 0 #000,
-        0 0 15px rgba(255, 40, 0, .5);
+    line-height: .9;
 }
 
 .brand-small {
-    color: #ffd24a;
+    color: #aaa;
 
     font-size: 13px;
 
-    font-weight: 900;
+    font-weight: 800;
 
-    letter-spacing: 5px;
+    letter-spacing: 6px;
 }
 
-.brand-big {
+.brand-large {
     color: #fff;
 
-    font-size:
-        clamp(
-            24px,
-            6vw,
-            48px
-        );
+    font-size: clamp(
+        25px,
+        7vw,
+        44px
+    );
 
     font-weight: 1000;
 
     letter-spacing: 2px;
+
+    text-shadow:
+        0 0 12px rgba(255,255,255,.15);
 }
 
-.round-status {
-    padding:
-        8px 15px;
+.brand-version {
+    margin-top: 5px;
 
-    border:
-        2px solid #b68428;
+    color: #ff2400;
 
-    border-radius: 6px;
-
-    background:
-        linear-gradient(
-            #2d2110,
-            #0c0905
-        );
-
-    color: #ffd34e;
+    font-size: 10px;
 
     font-weight: 900;
 
-    letter-spacing: 1px;
-
-    box-shadow:
-        inset 0 0 10px #000,
-        0 0 8px rgba(255, 170, 0, .25);
+    letter-spacing: 3px;
 }
 
 
 /* ==========================================================
-   MACHINE
-========================================================== */
+   JACKPOT LAMP
+   ========================================================== */
 
-.slot-machine {
-    position: relative;
-
-    border:
-        8px solid #292929;
-
-    border-radius: 22px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #4b4b4b,
-            #151515 30%,
-            #363636 50%,
-            #111 75%,
-            #3e3e3e
-        );
-
-    box-shadow:
-        0 25px 60px rgba(0,0,0,.8),
-        inset 0 0 0 3px #777,
-        inset 0 0 35px #000,
-        0 0 35px rgba(255, 50, 0, .12);
-
-    overflow: visible;
-
-    transition:
-        box-shadow .3s ease,
-        filter .3s ease;
-}
-
-.slot-machine.playing {
-    box-shadow:
-        0 25px 60px rgba(0,0,0,.8),
-        inset 0 0 35px #000,
-        0 0 30px rgba(255, 180, 0, .22);
-}
-
-
-/* ==========================================================
-   TOP
-========================================================== */
-
-.machine-top {
-    height: 58px;
-
-    padding:
-        8px 22px;
-
-    background:
-        linear-gradient(
-            #2b2b2b,
-            #0b0b0b
-        );
-
-    border-bottom:
-        3px solid #777;
-}
-
-.chrome-line {
-    height: 4px;
-
-    border-radius: 10px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #444,
-            #eee,
-            #777,
-            #fff,
-            #444
-        );
-
-    box-shadow:
-        0 1px 2px #000;
-}
-
-.top-lamps {
-    height: 36px;
-
+.jackpot-lamp {
     display: flex;
 
     align-items: center;
 
-    justify-content: center;
+    gap: 8px;
 
-    gap: 22px;
+    color: #777;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: 2px;
+
+    transition:
+        color .2s ease;
 }
 
-.top-lamps span {
-    width: 10px;
-    height: 10px;
+.lamp-light {
+    width: 15px;
+    height: 15px;
 
     border-radius: 50%;
 
-    background: #5b0000;
+    background: #310000;
 
-    border:
-        2px solid #777;
-
-    box-shadow:
-        inset 0 0 4px #000;
-}
-
-.top-lamps .jackpot-lamp {
-    width: 16px;
-    height: 16px;
-
-    background: #ff1600;
-
-    box-shadow:
-        0 0 8px #ff0000;
-
-    opacity: .3;
-}
-
-.top-lamps .jackpot-lamp.on {
-    opacity: 1;
-
-    animation:
-        jackpotLamp
-        .18s
-        infinite
-        alternate;
-}
-
-@keyframes jackpotLamp {
-
-    from {
-        transform: scale(.8);
-
-        background: #ff1b00;
-
-        box-shadow:
-            0 0 8px #ff0000;
-    }
-
-    to {
-        transform: scale(1.3);
-
-        background: #fff;
-
-        box-shadow:
-            0 0 10px #fff,
-            0 0 30px #ff0000,
-            0 0 55px #ff0000;
-    }
-}
-
-
-/* ==========================================================
-   MACHINE BODY
-========================================================== */
-
-.machine-body {
-    position: relative;
-
-    padding:
-        20px 30px 24px;
-}
-
-
-/* ==========================================================
-   LEVER
-========================================================== */
-
-.lever-system {
-    position: absolute;
-
-    right: -30px;
-    top: 80px;
-
-    width: 70px;
-    height: 210px;
-
-    z-index: 30;
-}
-
-.lever-base {
-    position: absolute;
-
-    bottom: 0;
-    left: 10px;
-
-    width: 50px;
-    height: 30px;
-
-    border-radius: 8px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #333,
-            #aaa,
-            #444
-        );
-
-    border:
-        2px solid #111;
-
-    box-shadow:
-        0 5px 10px #000;
-}
-
-.real-lever {
-    position: absolute;
-
-    left: 29px;
-    top: 12px;
-
-    width: 14px;
-    height: 165px;
-
-    transform-origin:
-        50% 100%;
-
-    z-index: 3;
-}
-
-.lever-stick {
-    width: 14px;
-    height: 145px;
-
-    border-radius: 8px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #333,
-            #eee,
-            #777,
-            #222
-        );
-
-    border:
-        1px solid #111;
-
-    box-shadow:
-        2px 3px 6px #000;
-}
-
-.lever-ball {
-    position: absolute;
-
-    left: -13px;
-    top: -17px;
-
-    width: 40px;
-    height: 40px;
-
-    border-radius: 50%;
-
-    background:
-        radial-gradient(
-            circle at 35% 30%,
-            #ff8d68,
-            #d90000 35%,
-            #710000 75%,
-            #220000
-        );
-
-    border:
-        3px solid #360000;
-
-    box-shadow:
-        0 4px 8px #000,
-        0 0 10px rgba(255,0,0,.4);
-}
-
-.real-lever.pull-lever {
-    animation:
-        leverPull
-        .35s
-        cubic-bezier(.25,.8,.3,1);
-}
-
-@keyframes leverPull {
-
-    0% {
-        transform:
-            rotate(0deg);
-    }
-
-    45% {
-        transform:
-            rotate(30deg);
-    }
-
-    100% {
-        transform:
-            rotate(0deg);
-    }
-}
-
-
-/* ==========================================================
-   REEL AREA
-========================================================== */
-
-.reel-area {
-    width: 100%;
-
-    padding:
-        8px;
-
-    border-radius: 14px;
-
-    background:
-        linear-gradient(
-            #111,
-            #555 4%,
-            #242424 10%,
-            #080808 100%
-        );
-
-    border:
-        4px solid #111;
-
-    box-shadow:
-        inset 0 0 20px #000,
-        0 5px 12px rgba(0,0,0,.7);
-}
-
-
-/* ==========================================================
-   REEL FRAME
-========================================================== */
-
-.reel-frame {
-    position: relative;
-
-    width: 100%;
-
-    height:
-        clamp(
-            175px,
-            31vw,
-            255px
-        );
-
-    display: flex;
-
-    align-items: stretch;
-
-    overflow: hidden;
-
-    border:
-        5px solid #777;
-
-    border-radius: 9px;
-
-    background:
-        #777;
-
-    box-shadow:
-        inset 0 0 20px #111;
-}
-
-
-/* ==========================================================
-   SIDE METAL
-========================================================== */
-
-.side-metal {
-    width: 12px;
-
-    flex: 0 0 12px;
-
-    z-index: 15;
-
-    background:
-        linear-gradient(
-            90deg,
-            #222 0%,
-            #666 20%,
-            #eee 45%,
-            #888 60%,
-            #222 100%
-        );
+    border: 2px solid #5d0000;
 
     box-shadow:
         inset 0 0 5px #000;
 }
 
+.jackpot-lamp.on {
+    color: #ffd700;
 
-/* ==========================================================
-   REELS CONTAINER
-========================================================== */
+    text-shadow:
+        0 0 10px #ffd700;
+}
 
-.reels {
-    position: relative;
+.jackpot-lamp.on .lamp-light {
+    background: #ff1900;
 
-    display: flex;
+    border-color: #ff6a00;
 
-    flex: 1;
+    box-shadow:
+        0 0 8px #ff0000,
+        0 0 20px #ff4500,
+        0 0 35px #ff0000;
 
-    min-width: 0;
+    animation:
+        jackpotLamp
+        .18s
+        infinite alternate;
+}
 
-    height: 100%;
+@keyframes jackpotLamp {
 
-    background:
-        #707070;
+    from {
+        transform: scale(.85);
+    }
+
+    to {
+        transform: scale(1.2);
+    }
 }
 
 
 /* ==========================================================
-   REEL WINDOW
-========================================================== */
+   INFO
+   ========================================================== */
 
-.reel-window {
+.machine-info {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 8px;
+
+    color: #999;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+}
+
+.round-status {
+    color: #ff3c1a;
+
+    text-shadow:
+        0 0 8px rgba(255,30,0,.3);
+}
+
+.spin-counter {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.spin-counter strong {
+    color: #fff;
+}
+
+
+/* ==========================================================
+   PROGRESS
+   ========================================================== */
+
+.spin-progress {
     position: relative;
 
-    flex: 1;
+    width: 100%;
+    height: 7px;
 
-    min-width: 0;
-
-    height: 100%;
+    margin-bottom: 20px;
 
     overflow: hidden;
 
+    border-radius: 10px;
+
+    background: #080808;
+
+    border:
+        1px solid #4a4a4a;
+
+    box-shadow:
+        inset 0 2px 5px #000;
+}
+
+.spin-progress-fill {
+    width: 0;
+    height: 100%;
+
     background:
-        #303030;
+        linear-gradient(
+            90deg,
+            #a90000,
+            #ff1e00,
+            #ff7b00
+        );
+
+    box-shadow:
+        0 0 12px #ff2a00;
+
+    transition:
+        width .35s ease;
+}
+
+
+/* ==========================================================
+   REEL AREA
+   ========================================================== */
+
+.reel-area {
+    position: relative;
+
+    width: 100%;
+
+    /*
+     * Това е основната сива зона.
+     * Барабаните изпълват цялата ѝ височина.
+     */
+
+    padding:
+        12px 10px;
+
+    border:
+        3px solid #666;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #777 0%,
+            #555 10%,
+            #303030 50%,
+            #555 90%,
+            #777 100%
+        );
+
+    box-shadow:
+        inset 0 0 20px rgba(0,0,0,.9),
+        0 5px 20px rgba(0,0,0,.6);
+}
+
+
+/* ==========================================================
+   REEL FRAME
+   ========================================================== */
+
+.reel-frame {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        13px
+        minmax(0, 1fr)
+        13px
+        minmax(0, 1fr);
+
+    width: 100%;
+
+    height:
+        clamp(
+            245px,
+            48vw,
+            330px
+        );
+
+    overflow: hidden;
+
+    border-radius: 12px;
+
+    background:
+        #151515;
 
     box-shadow:
         inset 0 0 25px #000;
 }
 
 
-/*
- * TOP AND BOTTOM SHADOWS
- * make the partial symbols look
- * like they disappear behind the
- * physical reel window.
- */
-
-.reel-window::before,
-.reel-window::after {
-    content: "";
-
-    position: absolute;
-
-    left: 0;
-    right: 0;
-
-    height: 30%;
-
-    z-index: 10;
-
-    pointer-events: none;
-}
-
-.reel-window::before {
-    top: 0;
-
-    background:
-        linear-gradient(
-            to bottom,
-            rgba(0,0,0,.92),
-            rgba(0,0,0,.25),
-            transparent
-        );
-}
-
-.reel-window::after {
-    bottom: 0;
-
-    background:
-        linear-gradient(
-            to top,
-            rgba(0,0,0,.92),
-            rgba(0,0,0,.25),
-            transparent
-        );
-}
-
-
 /* ==========================================================
-   REEL
-========================================================== */
+   REEL COLUMN
+   ========================================================== */
 
-.reel {
-    position: absolute;
+.reel-column {
+    position: relative;
 
-    inset: 0;
+    min-width: 0;
+
+    height: 100%;
 
     overflow: hidden;
 
     background:
         linear-gradient(
             90deg,
-            #171717,
-            #464646 12%,
-            #262626 50%,
-            #464646 88%,
-            #111
+            #101010,
+            #383838 12%,
+            #686868 50%,
+            #383838 88%,
+            #101010
         );
-
-    perspective:
-        800px;
 }
 
 
 /* ==========================================================
-   REEL TRACK
-========================================================== */
+   REAL REEL
+   ========================================================== */
 
-.reel-track {
+.slot-reel {
     position: absolute;
 
     left: 0;
     right: 0;
 
-    top: 50%;
+    top: 0;
+    bottom: 0;
 
-    transform:
-        translateY(-50%);
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,0,0,.75),
+            rgba(255,255,255,.08) 12%,
+            rgba(255,255,255,.14) 50%,
+            rgba(255,255,255,.05) 88%,
+            rgba(0,0,0,.8)
+        );
+
+    border-left:
+        1px solid rgba(255,255,255,.18);
+
+    border-right:
+        1px solid rgba(0,0,0,.8);
+
+    box-shadow:
+        inset 8px 0 15px rgba(0,0,0,.5),
+        inset -8px 0 15px rgba(0,0,0,.5);
+}
+
+
+/* ==========================================================
+   REEL VIEWPORT
+   ========================================================== */
+
+.reel-viewport {
+    position: absolute;
+
+    inset: 0;
+
+    overflow: hidden;
+
+    /*
+     * Горният и долният символ
+     * остават частично видими.
+     */
+
+    mask-image:
+        linear-gradient(
+            180deg,
+            transparent 0%,
+            black 14%,
+            black 86%,
+            transparent 100%
+        );
+
+    -webkit-mask-image:
+        linear-gradient(
+            180deg,
+            transparent 0%,
+            black 14%,
+            black 86%,
+            transparent 100%
+        );
+}
+
+
+/* ==========================================================
+   REEL STRIP
+   ========================================================== */
+
+.reel-strip {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
 
     will-change:
         transform;
-
-    padding: 0;
-
-    margin: 0;
 }
 
 
 /* ==========================================================
    SYMBOL
-========================================================== */
+   ========================================================== */
 
 .reel-symbol {
-    position: relative;
-
-    width: 100%;
+    flex:
+        0 0
+        40%;
 
     height:
-        clamp(
-            78px,
-            13vw,
-            108px
-        );
+        40%;
+
+    min-height: 95px;
 
     display: flex;
 
@@ -813,38 +672,38 @@ body {
 
     justify-content: center;
 
-    flex-shrink: 0;
+    font-family:
+        "Arial Black",
+        Arial,
+        sans-serif;
 
     font-size:
         clamp(
-            48px,
-            9vw,
-            78px
+            58px,
+            11vw,
+            88px
         );
 
     line-height: 1;
 
-    text-shadow:
-        0 3px 2px #000,
-        0 0 8px rgba(255,255,255,.15);
+    user-select: none;
 
-    transform:
-        translateZ(0);
+    text-shadow:
+        0 3px 2px rgba(0,0,0,.9),
+        0 0 12px rgba(255,255,255,.1);
 
     filter:
         drop-shadow(
-            0 3px 2px rgba(0,0,0,.7)
+            0 4px 2px rgba(0,0,0,.65)
         );
 }
 
 
-/*
- * Slight cylindrical edge shading.
- */
+/* ==========================================================
+   REEL HIGHLIGHT
+   ========================================================== */
 
-.reel-symbol::after {
-    content: "";
-
+.reel-highlight {
     position: absolute;
 
     inset: 0;
@@ -854,19 +713,60 @@ body {
     background:
         linear-gradient(
             90deg,
-            rgba(0,0,0,.35),
-            transparent 25%,
-            transparent 75%,
-            rgba(0,0,0,.35)
+            rgba(0,0,0,.45),
+            transparent 18%,
+            transparent 78%,
+            rgba(0,0,0,.5)
         );
+
+    box-shadow:
+        inset 0 8px 12px rgba(255,255,255,.12),
+        inset 0 -8px 12px rgba(0,0,0,.55);
 }
 
 
 /* ==========================================================
-   PAYLINE
-========================================================== */
+   TOP / BOTTOM METAL
+   ========================================================== */
 
-.payline {
+.reel-top-metal,
+.reel-bottom-metal {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+
+    height: 10px;
+
+    z-index: 15;
+
+    background:
+        linear-gradient(
+            180deg,
+            #d9d9d9,
+            #777,
+            #292929,
+            #bdbdbd
+        );
+
+    box-shadow:
+        0 0 8px #000;
+}
+
+.reel-top-metal {
+    top: 0;
+}
+
+.reel-bottom-metal {
+    bottom: 0;
+}
+
+
+/* ==========================================================
+   CENTER PAYLINE
+   ========================================================== */
+
+.center-payline {
     position: absolute;
 
     left: 0;
@@ -874,12 +774,9 @@ body {
 
     top: 50%;
 
-    height: 4px;
+    height: 2px;
 
-    transform:
-        translateY(-50%);
-
-    z-index: 20;
+    z-index: 25;
 
     pointer-events: none;
 
@@ -887,210 +784,269 @@ body {
         linear-gradient(
             90deg,
             transparent,
-            rgba(255, 210, 70, .85) 10%,
-            rgba(255,255,255,.8) 50%,
-            rgba(255, 210, 70, .85) 90%,
+            rgba(255,215,0,.9),
             transparent
         );
 
     box-shadow:
-        0 0 8px rgba(255,190,0,.7);
+        0 0 8px rgba(255,215,0,.7);
+}
+
+.payline-light {
+    position: absolute;
+
+    left: 2px;
+    right: 2px;
+
+    top:
+        calc(50% - 22px);
+
+    height: 44px;
+
+    z-index: 24;
+
+    pointer-events: none;
+
+    border-top:
+        1px solid rgba(255,215,0,.18);
+
+    border-bottom:
+        1px solid rgba(255,215,0,.18);
 }
 
 
 /* ==========================================================
    METAL SEPARATORS
-========================================================== */
+   ========================================================== */
 
-.reel-separator {
+.metal-separator {
     position: relative;
 
-    flex:
-        0 0 12px;
-
-    width: 12px;
+    z-index: 40;
 
     height: 100%;
 
-    z-index: 25;
-
     background:
         linear-gradient(
             90deg,
-            #191919 0%,
-            #555 12%,
-            #ddd 32%,
-            #fff 45%,
-            #888 60%,
-            #333 82%,
-            #111 100%
+            #161616 0%,
+            #777 15%,
+            #e1e1e1 32%,
+            #666 50%,
+            #e9e9e9 68%,
+            #555 85%,
+            #151515 100%
         );
 
-    border-left:
-        1px solid #111;
-
-    border-right:
-        1px solid #111;
-
     box-shadow:
-        inset 0 0 5px #000,
-        0 0 5px #000;
+        0 0 8px #000,
+        inset 0 0 3px rgba(255,255,255,.8);
 }
 
-.reel-separator::before,
-.reel-separator::after {
-    content: "";
-
+.separator-core {
     position: absolute;
 
-    left: 1px;
-    right: 1px;
+    left: 3px;
+    right: 3px;
 
-    height: 5px;
+    top: 4px;
+    bottom: 4px;
+
+    border-radius: 4px;
 
     background:
         linear-gradient(
             90deg,
-            #333,
-            #fff,
-            #444
+            #222,
+            #bcbcbc 35%,
+            #444 55%,
+            #dedede 75%,
+            #222
         );
 
     box-shadow:
-        0 0 3px #fff;
+        inset 0 0 5px #000;
 }
 
-.reel-separator::before {
-    top: 12%;
-}
+.separator-shine {
+    position: absolute;
 
-.reel-separator::after {
-    bottom: 12%;
+    left: 4px;
+
+    top: 10px;
+    bottom: 10px;
+
+    width: 2px;
+
+    background:
+        rgba(255,255,255,.8);
+
+    filter:
+        blur(.5px);
 }
 
 
 /* ==========================================================
-   SPINNING
-========================================================== */
+   REEL SPIN
+   ========================================================== */
 
-.reel-spin .reel-track {
-    filter:
-        blur(.8px);
+.slot-reel.reel-spin {
+    box-shadow:
+        inset 0 0 30px rgba(0,0,0,.8);
 }
 
-.reel-spin .reel-symbol {
+.slot-reel.reel-spin .reel-strip {
+    animation:
+        realReelSpin
+        .13s
+        linear
+        infinite;
+}
+
+@keyframes realReelSpin {
+
+    from {
+        transform:
+            translateY(-120%);
+    }
+
+    to {
+        transform:
+            translateY(0%);
+    }
+}
+
+
+/*
+ * Motion blur while spinning.
+ */
+
+.slot-reel.reel-spin .reel-symbol {
     filter:
-        blur(.7px)
-        brightness(1.15);
+        blur(2px)
+        brightness(.8);
+
+    transform:
+        scaleY(1.15);
 }
 
 
 /* ==========================================================
    REEL STOP
-========================================================== */
+   ========================================================== */
 
-.reel-stop .reel-track {
+.slot-reel.reel-stop {
     animation:
-        reelSettle
-        .18s
+        reelStopImpact
+        .22s
         ease-out;
 }
 
-@keyframes reelSettle {
+@keyframes reelStopImpact {
 
     0% {
         transform:
-            translateY(
-                calc(-50% - 7px)
-            );
+            translateY(-5px);
     }
 
-    65% {
+    45% {
         transform:
-            translateY(
-                calc(-50% + 3px)
-            );
+            translateY(3px);
     }
 
     100% {
         transform:
-            translateY(-50%);
+            translateY(0);
     }
 }
 
 
 /* ==========================================================
-   FINAL REEL ANTICIPATION
-========================================================== */
+   ANTICIPATION
+   ========================================================== */
+
+.slot-machine.anticipation-mode {
+    box-shadow:
+        0 20px 70px rgba(0,0,0,.9),
+        0 0 30px #ff1600,
+        0 0 70px rgba(255,30,0,.35),
+        inset 0 0 0 2px #ff4000;
+}
 
 #slot3.final-reel-anticipation {
-    z-index: 30;
-
     border:
-        2px solid #ff2200;
+        2px solid #ff1900;
 
     box-shadow:
-        0 0 12px #ff0000,
-        0 0 30px #ff4000,
-        inset 0 0 25px rgba(255,0,0,.55);
+        0 0 10px #ff0000,
+        0 0 25px #ff3b00,
+        0 0 50px #ff0000,
+        inset 0 0 18px rgba(255,0,0,.65);
 
     animation:
         finalReelFireFrame
         .22s
-        infinite
-        alternate;
+        infinite alternate;
 }
 
 @keyframes finalReelFireFrame {
 
     from {
-        filter:
-            brightness(1.05);
-
         box-shadow:
-            0 0 10px #ff0000,
-            0 0 25px #ff3500,
-            inset 0 0 15px rgba(255,0,0,.5);
+            0 0 8px #ff0000,
+            0 0 20px #ff3b00,
+            0 0 35px rgba(255,0,0,.75);
     }
 
     to {
-        filter:
-            brightness(1.45);
-
         box-shadow:
-            0 0 18px #ff0000,
-            0 0 45px #ff4500,
-            0 0 70px #ff0000,
-            inset 0 0 28px rgba(255,40,0,.85);
+            0 0 15px #ff0000,
+            0 0 35px #ff4500,
+            0 0 70px #ff0000;
     }
+}
+
+#slot3.final-reel-anticipation.reel-spin {
+    animation:
+        finalReelFireFrame
+        .22s
+        infinite alternate;
+}
+
+#slot3.final-reel-anticipation.reel-spin .reel-strip {
+    animation:
+        realReelSpin
+        .10s
+        linear
+        infinite;
 }
 
 
 /* ==========================================================
    FIRE
-========================================================== */
+   ========================================================== */
 
 .final-reel-fire {
     position: absolute;
 
-    left: -18px;
-    right: -18px;
+    left: -20px;
+    right: -20px;
 
     top: -20px;
     bottom: -20px;
 
-    pointer-events: none;
+    z-index: 50;
 
-    z-index: 35;
+    pointer-events: none;
 
     border-radius: 20px;
 
     background:
         radial-gradient(
-            ellipse,
-            transparent 25%,
-            rgba(255,80,0,.12) 45%,
-            rgba(255,0,0,.38) 70%,
+            ellipse at center,
+            transparent 20%,
+            rgba(255,70,0,.15) 45%,
+            rgba(255,0,0,.4) 70%,
             transparent 82%
         );
 
@@ -1100,17 +1056,16 @@ body {
     animation:
         finalReelFireGlow
         .35s
-        infinite
-        alternate;
+        infinite alternate;
 }
 
 @keyframes finalReelFireGlow {
 
     from {
         transform:
-            scale(.95);
+            scale(.96);
 
-        opacity: .7;
+        opacity: .65;
     }
 
     to {
@@ -1136,25 +1091,18 @@ body {
     background:
         radial-gradient(
             circle at 50% 75%,
-            #fff7a0 0%,
+            #fff6a0 0%,
             #ffd000 20%,
             #ff6800 48%,
             #ff1800 70%,
             transparent 76%
         );
 
-    opacity:
-        var(--fire-opacity);
-
-    filter:
-        blur(1px);
-
     animation:
         finalReelFlame
         var(--fire-duration)
         ease-in-out
-        infinite
-        alternate;
+        infinite alternate;
 }
 
 @keyframes finalReelFlame {
@@ -1192,14 +1140,15 @@ body {
     background:
         radial-gradient(
             circle,
-            white,
+            white 0%,
             #ffd700 25%,
-            #ff5000 55%,
-            transparent 75%
+            #ff5a00 55%,
+            #ff0000 75%,
+            transparent 100%
         );
 
     box-shadow:
-        0 0 7px #ffcc00,
+        0 0 6px #ffcc00,
         0 0 14px #ff3000;
 
     animation:
@@ -1242,10 +1191,10 @@ body {
 
 /* ==========================================================
    MESSAGE
-========================================================== */
+   ========================================================== */
 
-.message {
-    min-height: 38px;
+.game-message {
+    min-height: 32px;
 
     display: flex;
 
@@ -1253,16 +1202,15 @@ body {
 
     justify-content: center;
 
-    margin:
-        15px 0 10px;
+    margin-top: 14px;
 
-    color: #ffd64a;
+    color: #fff;
 
     font-size:
         clamp(
-            16px,
+            14px,
             4vw,
-            25px
+            20px
         );
 
     font-weight: 1000;
@@ -1272,37 +1220,136 @@ body {
     text-align: center;
 
     text-shadow:
-        0 2px 2px #000,
-        0 0 12px rgba(255,180,0,.5);
+        0 0 10px rgba(255,255,255,.25);
+}
+
+
+/* ==========================================================
+   LEVER
+   ========================================================== */
+
+.lever-area {
+    position: absolute;
+
+    right: -42px;
+
+    top: 43%;
+
+    width: 50px;
+
+    height: 150px;
+
+    pointer-events: none;
+}
+
+.lever-base {
+    position: absolute;
+
+    bottom: 0;
+
+    width: 45px;
+    height: 45px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #999,
+            #333 60%,
+            #111
+        );
+
+    box-shadow:
+        0 5px 12px #000;
+}
+
+.real-lever {
+    position: absolute;
+
+    left: 18px;
+
+    bottom: 27px;
+
+    width: 12px;
+    height: 110px;
+
+    transform-origin:
+        50% 100%;
+
+    transition:
+        transform .18s ease;
+}
+
+.lever-arm {
+    width: 100%;
+    height: 100%;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #333,
+            #bbb,
+            #555
+        );
+
+    box-shadow:
+        2px 2px 5px #000;
+}
+
+.lever-ball {
+    position: absolute;
+
+    top: -17px;
+    left: -10px;
+
+    width: 32px;
+    height: 32px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #ff6b35,
+            #c80000 55%,
+            #550000
+        );
+
+    box-shadow:
+        0 3px 8px #000,
+        0 0 10px rgba(255,0,0,.3);
+}
+
+.real-lever.pull-lever {
+    transform:
+        rotate(-32deg);
 }
 
 
 /* ==========================================================
    SPIN BUTTON
-========================================================== */
+   ========================================================== */
 
 .spin-button {
-    display: flex;
+    position: relative;
 
-    flex-direction: column;
+    display: block;
 
-    align-items: center;
+    width: min(
+        270px,
+        70%
+    );
 
-    justify-content: center;
-
-    width:
-        min(
-            230px,
-            65vw
-        );
-
-    height: 70px;
+    height: 64px;
 
     margin:
-        8px auto 15px;
+        14px auto 20px;
 
     border:
-        4px solid #7d0000;
+        3px solid #8c0000;
 
     border-radius: 14px;
 
@@ -1310,184 +1357,143 @@ body {
 
     color: white;
 
+    font-size: 20px;
+
+    font-weight: 1000;
+
+    letter-spacing: 5px;
+
     background:
         linear-gradient(
-            #ff3b22,
-            #b00000 45%,
-            #640000
+            180deg,
+            #ff3b16,
+            #a00000
         );
 
     box-shadow:
-        inset 0 3px 0 rgba(255,255,255,.3),
-        inset 0 -5px 10px rgba(0,0,0,.45),
-        0 6px 0 #330000,
-        0 10px 20px rgba(0,0,0,.5);
-
-    text-shadow:
-        0 2px 2px #000;
+        0 7px 0 #450000,
+        0 12px 20px rgba(0,0,0,.6),
+        0 0 20px rgba(255,30,0,.15);
 
     transition:
-        transform .08s,
-        filter .15s;
+        transform .1s ease,
+        filter .2s ease;
 }
 
-.spin-button span {
-    font-size: 25px;
-    font-weight: 1000;
-    letter-spacing: 4px;
-}
-
-.spin-button small {
-    font-size: 9px;
-    opacity: .75;
-    letter-spacing: 3px;
-}
-
-.spin-button:hover {
+.spin-button:hover:not(:disabled) {
     filter:
         brightness(1.15);
 }
 
-.spin-button:active {
+.spin-button:active:not(:disabled) {
     transform:
-        translateY(5px);
+        translateY(6px);
 
     box-shadow:
-        inset 0 3px 0 rgba(255,255,255,.2),
-        inset 0 -2px 8px rgba(0,0,0,.5),
-        0 2px 0 #330000;
+        0 1px 0 #450000;
 }
 
 .spin-button:disabled {
     cursor: not-allowed;
 
     filter:
-        grayscale(.7)
-        brightness(.6);
+        grayscale(.5)
+        brightness(.55);
 }
 
+.spin-button-light {
+    position: absolute;
 
-/* ==========================================================
-   FOOTER LIGHT
-========================================================== */
+    top: 8px;
+    left: 15%;
 
-.machine-footer-light {
-    text-align: center;
-
-    color: #9b751e;
-
-    font-size: 13px;
-
-    letter-spacing: 10px;
-}
-
-
-/* ==========================================================
-   PROGRESS
-========================================================== */
-
-.progress-panel,
-.persistent-panel {
-    margin-top: 16px;
-
-    padding:
-        14px 18px;
-
-    border:
-        2px solid #333;
+    width: 70%;
+    height: 8px;
 
     border-radius: 10px;
 
     background:
-        linear-gradient(
-            #181818,
-            #080808
-        );
+        rgba(255,255,255,.35);
 
-    box-shadow:
-        inset 0 0 12px #000;
+    filter:
+        blur(2px);
 }
 
-.progress-heading,
-.persistent-heading {
-    display: flex;
 
-    justify-content: space-between;
+/* ==========================================================
+   PERSISTENT
+   ========================================================== */
 
-    margin-bottom: 9px;
-
-    color: #aaa;
-
-    font-size: 12px;
-
-    font-weight: 900;
-
-    letter-spacing: 2px;
-}
-
-.progress-heading strong,
-.persistent-heading strong {
-    color: #ffd34a;
-}
-
-.progress-bar,
-.persistent-bar {
-    position: relative;
-
-    width: 100%;
-
-    height: 13px;
-
-    overflow: hidden;
-
-    border-radius: 8px;
-
-    background:
-        #080808;
+.persistent-panel {
+    padding: 12px;
 
     border:
         1px solid #444;
 
-    box-shadow:
-        inset 0 2px 5px #000;
+    border-radius: 10px;
+
+    background:
+        rgba(0,0,0,.45);
 }
 
-.progress-fill,
+.persistent-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 7px;
+
+    color: #aaa;
+
+    font-size: 9px;
+
+    font-weight: 900;
+
+    letter-spacing: 1.5px;
+}
+
+.persistent-value {
+    color: #ffd700;
+}
+
+.persistent-bar {
+    position: relative;
+
+    height: 9px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: #090909;
+
+    border:
+        1px solid #555;
+}
+
 .persistent-fill {
     position: relative;
 
-    width: 0%;
-
+    width: 0;
     height: 100%;
 
-    border-radius: inherit;
+    overflow: visible;
+
+    background:
+        linear-gradient(
+            90deg,
+            #8c5800,
+            #ffd700,
+            #fff2a0
+        );
+
+    box-shadow:
+        0 0 10px #ffd700;
 
     transition:
-        width .35s ease;
-
-    background:
-        linear-gradient(
-            90deg,
-            #8d0000,
-            #ff1d00,
-            #ffd000
-        );
-
-    box-shadow:
-        0 0 10px rgba(255,80,0,.7);
-}
-
-.persistent-fill {
-    background:
-        linear-gradient(
-            90deg,
-            #725000,
-            #ffd000,
-            #fff3a0
-        );
-
-    box-shadow:
-        0 0 10px rgba(255,210,0,.6);
+        width .45s ease;
 }
 
 .mini-coin {
@@ -1500,365 +1506,72 @@ body {
 
     background:
         radial-gradient(
-            circle,
-            #fff6a0,
-            #ffd000,
-            #b26b00
+            circle at 30% 30%,
+            #fff7a0,
+            #ffd700,
+            #9b6400
         );
-
-    box-shadow:
-        0 0 7px #ffd000;
 
     animation:
         miniCoin
-        1s
+        1.2s
         ease-out
         forwards;
 }
 
 @keyframes miniCoin {
 
-    0% {
+    from {
         transform:
             translateY(0)
             scale(1);
-        opacity: 1;
     }
 
-    100% {
+    to {
         transform:
-            translateY(-35px)
-            scale(0);
+            translateY(-30px)
+            scale(.2);
+
         opacity: 0;
     }
 }
 
 
 /* ==========================================================
-   HOLD
-========================================================== */
+   FOOTER
+   ========================================================== */
 
-#holdOverlay {
-    position: fixed;
-
-    inset: 0;
-
+.machine-footer {
     display: flex;
-
-    align-items: center;
 
     justify-content: center;
 
-    background:
-        rgba(190,220,255,.13);
+    gap: 8px;
 
-    backdrop-filter:
-        blur(4px);
+    margin-top: 18px;
 
-    -webkit-backdrop-filter:
-        blur(4px);
+    color: #555;
 
-    opacity: 0;
+    font-size: 8px;
 
-    visibility: hidden;
-
-    transition:
-        opacity .3s;
-
-    z-index: 200;
-}
-
-#holdOverlay.active {
-    opacity: 1;
-
-    visibility: visible;
-}
-
-.hold-panel {
-    width:
-        min(
-            340px,
-            88vw
-        );
-
-    padding: 30px;
-
-    text-align: center;
-
-    border:
-        3px solid #cdeeff;
-
-    border-radius: 20px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(40,90,130,.95),
-            rgba(5,20,35,.96)
-        );
-
-    box-shadow:
-        0 0 40px rgba(100,200,255,.5),
-        inset 0 0 25px rgba(255,255,255,.08);
-}
-
-.hold-icon {
-    font-size: 50px;
-
-    animation:
-        icePulse
-        1s
-        infinite
-        alternate;
-}
-
-@keyframes icePulse {
-
-    to {
-        transform:
-            scale(1.15);
-
-        filter:
-            drop-shadow(
-                0 0 15px #aee8ff
-            );
-    }
-}
-
-.hold-title {
-    margin-top: 8px;
-
-    font-size: 24px;
-
-    font-weight: 1000;
-
-    color: #dff8ff;
-}
-
-.hold-countdown {
-    margin:
-        15px 0;
-
-    font-size: 70px;
-
-    font-weight: 1000;
-
-    color: white;
-
-    text-shadow:
-        0 0 20px #7ddcff;
-}
-
-.hold-label {
-    color: #a9ddf5;
-
-    letter-spacing: 2px;
-}
-
-.hold-progress {
-    height: 12px;
-
-    margin:
-        18px 0;
-
-    border-radius: 10px;
-
-    background: #061018;
-
-    overflow: hidden;
-}
-
-.hold-progress-fill {
-    width: 100%;
-
-    height: 100%;
-
-    background:
-        linear-gradient(
-            90deg,
-            #4dc9ff,
-            white,
-            #57aaff
-        );
-
-    box-shadow:
-        0 0 12px #5bcfff;
-
-    transition:
-        width .1s linear;
-}
-
-#holdStatus {
-    color: #dff8ff;
-
-    font-size: 12px;
-
-    font-weight: 900;
+    font-weight: 800;
 
     letter-spacing: 2px;
 }
 
 
 /* ==========================================================
-   ANTICIPATION
-========================================================== */
+   JACKPOT
+   ========================================================== */
 
-#anticipationOverlay {
-    position: fixed;
-
-    inset: 0;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    pointer-events: none;
-
-    z-index: 180;
-
-    opacity: 0;
-
-    visibility: hidden;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(255,40,0,.14),
-            transparent 50%
-        );
-
-    transition:
-        opacity .25s;
-}
-
-#anticipationOverlay.active {
-    opacity: 1;
-
-    visibility: visible;
-}
-
-.anticipation-content {
-    position: relative;
-
-    text-align: center;
-}
-
-.anticipation-title {
-    color: #ff3b00;
-
-    font-size:
-        clamp(
-            30px,
-            9vw,
-            80px
-        );
-
-    font-weight: 1000;
-
-    letter-spacing: 5px;
-
-    text-shadow:
-        0 0 10px #ff0000,
-        0 0 30px #ff4500,
-        0 0 60px #ff0000;
-
+.slot-reel.flash {
     animation:
-        anticipationText
-        .25s
-        infinite
-        alternate;
+        reelJackpotFlash
+        .18s
+        infinite alternate;
 }
 
-.anticipation-subtitle {
-    margin-top: 8px;
-
-    color: #ffd000;
-
-    font-size: 15px;
-
-    font-weight: 900;
-
-    letter-spacing: 7px;
-}
-
-@keyframes anticipationText {
-
-    from {
-        transform:
-            scale(.98);
-
-        filter:
-            brightness(1);
-    }
-
-    to {
-        transform:
-            scale(1.04);
-
-        filter:
-            brightness(1.5);
-    }
-}
-
-.anticipation-particle {
-    position: absolute;
-
-    bottom: 0;
-
-    border-radius: 50%;
-
-    background:
-        #ffd000;
-
-    box-shadow:
-        0 0 10px #ff3000;
-
-    animation:
-        anticipationParticle
-        var(--duration)
-        linear
-        infinite;
-}
-
-@keyframes anticipationParticle {
-
-    from {
-        transform:
-            translateY(0)
-            translateX(0);
-
-        opacity: 0;
-    }
-
-    15% {
-        opacity: 1;
-    }
-
-    to {
-        transform:
-            translateY(-100vh)
-            translateX(var(--drift));
-
-        opacity: 0;
-    }
-}
-
-
-/* ==========================================================
-   JACKPOT FLASH
-========================================================== */
-
-.reel.flash {
-    animation:
-        jackpotFlash
-        .2s
-        infinite
-        alternate;
-}
-
-@keyframes jackpotFlash {
+@keyframes reelJackpotFlash {
 
     from {
         filter:
@@ -1871,91 +1584,31 @@ body {
     }
 }
 
-
-/* ==========================================================
-   ROUND COMPLETE
-========================================================== */
-
-.slot-machine.round-complete {
-    animation:
-        roundComplete
-        .35s
-        infinite
-        alternate;
-}
-
-@keyframes roundComplete {
-
-    from {
-        transform:
-            scale(1);
-
-        box-shadow:
-            0 25px 60px rgba(0,0,0,.8),
-            0 0 20px #ff3000;
-    }
-
-    to {
-        transform:
-            scale(1.008);
-
-        box-shadow:
-            0 25px 60px rgba(0,0,0,.8),
-            0 0 60px #ffd000;
-    }
-}
-
-
-/* ==========================================================
-   ICE MODE
-========================================================== */
-
-.slot-machine.ice-mode {
-    filter:
-        saturate(.7)
-        brightness(.8);
-
-    box-shadow:
-        0 25px 60px rgba(0,0,0,.8),
-        0 0 45px rgba(100,210,255,.6),
-        inset 0 0 35px rgba(130,220,255,.25);
-}
-
-.slot-machine.ice-mode .reel-frame {
-    border-color:
-        #a8e8ff;
-}
-
-
-/* ==========================================================
-   COINS / CONFETTI
-========================================================== */
-
 .coin {
     position: fixed;
 
-    top: -30px;
+    top: -40px;
 
     width: 18px;
     height: 18px;
 
-    border-radius: 50%;
+    z-index: 200;
 
-    z-index: 300;
+    border-radius: 50%;
 
     background:
         radial-gradient(
-            circle at 30% 25%,
-            #fff6a0,
-            #ffd000 35%,
-            #a86c00 75%
+            circle at 30% 30%,
+            #fff5a0,
+            #ffd700 35%,
+            #a96d00
         );
 
     border:
-        2px solid #ffe46a;
+        2px solid #fff0a0;
 
     box-shadow:
-        0 0 8px #ffd000;
+        0 0 8px #ffd700;
 
     animation:
         coinFall
@@ -1968,10 +1621,8 @@ body {
 
     to {
         transform:
-            translateY(115vh)
+            translateY(110vh)
             rotate(720deg);
-
-        opacity: 0;
     }
 }
 
@@ -1981,9 +1632,9 @@ body {
     top: -20px;
 
     width: 10px;
-    height: 18px;
+    height: 16px;
 
-    z-index: 299;
+    z-index: 190;
 
     animation:
         confettiFall
@@ -1996,8 +1647,316 @@ body {
 
     to {
         transform:
-            translateY(115vh)
-            rotate(900deg);
+            translateY(110vh)
+            rotate(720deg);
+    }
+}
+
+
+/* ==========================================================
+   HOLD
+   ========================================================== */
+
+.slot-machine.ice-mode {
+    box-shadow:
+        0 20px 70px rgba(0,0,0,.9),
+        0 0 40px rgba(80,190,255,.7),
+        inset 0 0 30px rgba(80,190,255,.2);
+}
+
+.hold-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 100;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        rgba(0,15,35,.72);
+
+    backdrop-filter:
+        blur(4px);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transition:
+        opacity .3s ease;
+}
+
+.hold-overlay.active {
+    opacity: 1;
+
+    visibility: visible;
+}
+
+.hold-panel {
+    width: min(
+        88vw,
+        330px
+    );
+
+    padding: 30px;
+
+    text-align: center;
+
+    border:
+        2px solid #74d9ff;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #183c55,
+            #071421
+        );
+
+    box-shadow:
+        0 0 40px rgba(0,180,255,.4);
+}
+
+.hold-icon {
+    color: #9ce8ff;
+
+    font-size: 42px;
+}
+
+.hold-title {
+    margin-top: 8px;
+
+    color: #9ce8ff;
+
+    font-size: 18px;
+
+    font-weight: 1000;
+
+    letter-spacing: 4px;
+}
+
+.hold-countdown {
+    margin-top: 15px;
+
+    color: white;
+
+    font-size: 64px;
+
+    font-weight: 1000;
+
+    line-height: 1;
+
+    text-shadow:
+        0 0 20px #42cfff;
+}
+
+.hold-seconds {
+    margin: 5px 0 15px;
+
+    color: #72bad8;
+
+    font-size: 9px;
+
+    font-weight: 900;
+
+    letter-spacing: 3px;
+}
+
+.hold-progress {
+    height: 8px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: #03101a;
+}
+
+.hold-progress-fill {
+    width: 100%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #24aeea,
+            #b5f2ff
+        );
+
+    box-shadow:
+        0 0 10px #36caff;
+
+    transition:
+        width .1s linear;
+}
+
+.hold-status {
+    margin-top: 15px;
+
+    color: #8fdcff;
+
+    font-size: 9px;
+
+    font-weight: 900;
+
+    letter-spacing: 2px;
+}
+
+
+/* ==========================================================
+   ANTICIPATION OVERLAY
+   ========================================================== */
+
+.anticipation-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 90;
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    transition:
+        opacity .2s ease;
+
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(255,40,0,.18),
+            transparent 55%
+        );
+}
+
+.anticipation-overlay.active {
+    opacity: 1;
+}
+
+.anticipation-content {
+    position: absolute;
+
+    left: 50%;
+    top: 12%;
+
+    transform:
+        translateX(-50%);
+
+    text-align: center;
+
+    text-shadow:
+        0 0 15px #ff0000;
+}
+
+.anticipation-warning {
+    font-size: 32px;
+
+    animation:
+        anticipationPulse
+        .25s
+        infinite alternate;
+}
+
+.anticipation-title {
+    color: #ff3b00;
+
+    font-size:
+        clamp(
+            20px,
+            6vw,
+            36px
+        );
+
+    font-weight: 1000;
+
+    letter-spacing: 5px;
+}
+
+.anticipation-subtitle {
+    color: #ffd000;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: 4px;
+}
+
+@keyframes anticipationPulse {
+
+    from {
+        transform: scale(.85);
+    }
+
+    to {
+        transform: scale(1.15);
+    }
+}
+
+.anticipation-particles {
+    position: absolute;
+
+    inset: 0;
+
+    overflow: hidden;
+}
+
+.anticipation-particle {
+    position: absolute;
+
+    bottom: -10px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            white,
+            #ffd000 35%,
+            #ff3c00 65%,
+            transparent
+        );
+
+    box-shadow:
+        0 0 10px #ff3c00;
+
+    animation:
+        anticipationParticle
+        var(--duration)
+        linear
+        infinite;
+}
+
+@keyframes anticipationParticle {
+
+    from {
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            );
+
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    to {
+        transform:
+            translate3d(
+                var(--drift),
+                -110vh,
+                0
+            );
 
         opacity: 0;
     }
@@ -2005,146 +1964,124 @@ body {
 
 
 /* ==========================================================
-   RESPONSIVE
-========================================================== */
+   ROUND COMPLETE
+   ========================================================== */
 
-@media (max-width: 700px) {
-
-    .game {
-        width: 96vw;
-
-        padding-top: 12px;
-    }
-
-    .machine-body {
-        padding:
-            15px 10px 18px;
-    }
-
-    .lever-system {
-        display: none;
-    }
-
-    .machine-top {
-        height: 45px;
-
-        padding:
-            5px 12px;
-    }
-
-    .top-lamps {
-        gap: 12px;
-
-        height: 27px;
-    }
-
-    .top-lamps span {
-        width: 7px;
-        height: 7px;
-    }
-
-    .top-lamps .jackpot-lamp {
-        width: 12px;
-        height: 12px;
-    }
-
-    .reel-frame {
-        height:
-            clamp(
-                165px,
-                47vw,
-                215px
-            );
-    }
-
-    .reel-symbol {
-        height:
-            clamp(
-                74px,
-                21vw,
-                94px
-            );
-
-        font-size:
-            clamp(
-                45px,
-                12vw,
-                68px
-            );
-    }
-
-    .reel-separator {
-        flex-basis: 8px;
-
-        width: 8px;
-    }
-
-    .side-metal {
-        width: 7px;
-
-        flex-basis: 7px;
-    }
-
-    .slot-machine {
-        border-width: 5px;
-    }
-
-    .progress-panel,
-    .persistent-panel {
-        padding:
-            11px 13px;
-    }
+.slot-machine.round-complete {
+    animation:
+        roundComplete
+        .35s
+        infinite alternate;
 }
 
-@media (max-width: 420px) {
+@keyframes roundComplete {
 
-    .brand-big {
-        font-size: 25px;
+    from {
+        box-shadow:
+            0 20px 70px rgba(0,0,0,.9),
+            0 0 20px #ffd700;
     }
 
-    .round-status {
-        padding:
-            6px 9px;
-
-        font-size: 10px;
-    }
-
-    .reel-frame {
-        height: 158px;
-    }
-
-    .reel-symbol {
-        height: 72px;
-
-        font-size: 46px;
-    }
-
-    .reel-separator {
-        flex-basis: 6px;
-
-        width: 6px;
-    }
-
-    .message {
-        font-size: 15px;
-
-        letter-spacing: 1px;
+    to {
+        box-shadow:
+            0 20px 70px rgba(0,0,0,.9),
+            0 0 65px #ff2600,
+            0 0 100px #ffd700;
     }
 }
 
 
 /* ==========================================================
+   MOBILE
+   ========================================================== */
+
+@media (max-width: 600px) {
+
+    .game-page {
+        padding:
+            12px 8px 35px;
+    }
+
+    .slot-machine {
+        padding:
+            18px 12px 22px;
+
+        border-radius: 20px;
+    }
+
+    .reel-area {
+        padding:
+            8px 6px;
+    }
+
+    .reel-frame {
+        height:
+            clamp(
+                225px,
+                65vw,
+                290px
+            );
+
+        grid-template-columns:
+            minmax(0, 1fr)
+            10px
+            minmax(0, 1fr)
+            10px
+            minmax(0, 1fr);
+    }
+
+    .reel-symbol {
+        font-size:
+            clamp(
+                48px,
+                15vw,
+                70px
+            );
+
+        min-height: 80px;
+    }
+
+    .lever-area {
+        display: none;
+    }
+
+    .machine-header {
+        margin-bottom: 10px;
+    }
+
+    .brand-small {
+        font-size: 9px;
+        letter-spacing: 4px;
+    }
+
+    .brand-large {
+        font-size: 28px;
+    }
+
+    .machine-info {
+        font-size: 9px;
+    }
+
+}
+
+
+/* ==========================================================
    REDUCED MOTION
-========================================================== */
+   ========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
 
     *,
     *::before,
     *::after {
-        animation-duration: .001ms !important;
-        animation-iteration-count: 1 !important;
+        animation-duration:
+            .01ms !important;
 
-        scroll-behavior: auto !important;
+        animation-iteration-count:
+            1 !important;
+
+        scroll-behavior:
+            auto !important;
     }
+
 }
