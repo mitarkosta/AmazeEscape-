@@ -1,0 +1,2804 @@
+/* ==========================================================
+   AMAZE ESCAPE v8
+   STYLE
+========================================================== */
+
+:root {
+
+    --gold: #ffd21a;
+    --gold-bright: #fff3a0;
+
+    --red: #ff1800;
+    --red-dark: #650000;
+
+    --orange: #ff6500;
+
+    --black: #030303;
+    --black-2: #0b0b0b;
+    --black-3: #171717;
+
+    --metal-dark: #242424;
+    --metal: #777;
+    --metal-light: #eeeeee;
+
+    --blue: #40cfff;
+    --ice: #aeeaff;
+
+    --reel-height: 360px;
+    --symbol-height: 120px;
+
+}
+
+
+/* ==========================================================
+   RESET
+========================================================== */
+
+* {
+
+    box-sizing: border-box;
+
+    margin: 0;
+
+    padding: 0;
+
+}
+
+
+html {
+
+    min-height: 100%;
+
+    background: #000;
+
+}
+
+
+body {
+
+    min-height: 100vh;
+
+    overflow-x: hidden;
+
+    color: white;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+
+        radial-gradient(
+            circle at 50% 20%,
+            #2a0707 0%,
+            #100202 28%,
+            #030303 65%,
+            #000 100%
+        );
+
+}
+
+
+/* ==========================================================
+   BACKGROUND
+========================================================== */
+
+.casino-background {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 0;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    background:
+
+        radial-gradient(
+            circle at 20% 30%,
+            rgba(255,0,0,.10),
+            transparent 22%
+        ),
+
+        radial-gradient(
+            circle at 80% 65%,
+            rgba(255,180,0,.08),
+            transparent 25%
+        );
+
+}
+
+
+.casino-particle {
+
+    position: absolute;
+
+    bottom: -20px;
+
+    border-radius: 50%;
+
+    background: #ffd000;
+
+    opacity: var(--opacity);
+
+    box-shadow:
+        0 0 8px #ff6a00;
+
+    animation:
+        casinoFloat
+        var(--duration)
+        linear
+        infinite;
+
+}
+
+
+@keyframes casinoFloat {
+
+    from {
+
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            );
+
+    }
+
+    to {
+
+        transform:
+            translate3d(
+                var(--drift),
+                -110vh,
+                0
+            );
+
+    }
+
+}
+
+
+/* ==========================================================
+   SNOW
+========================================================== */
+
+.snow-container {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 50;
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    transition:
+        opacity .4s ease;
+
+}
+
+
+.snow-container.active {
+
+    opacity: 1;
+
+}
+
+
+.snowflake {
+
+    position: absolute;
+
+    top: -20px;
+
+    width: var(--size);
+
+    height: var(--size);
+
+    border-radius: 50%;
+
+    background: white;
+
+    opacity: var(--opacity);
+
+    box-shadow:
+        0 0 8px rgba(150,230,255,.8);
+
+    animation:
+        snowFall
+        var(--duration)
+        linear
+        infinite;
+
+}
+
+
+@keyframes snowFall {
+
+    from {
+
+        transform:
+            translate3d(
+                0,
+                -30px,
+                0
+            )
+            rotate(0deg);
+
+    }
+
+    to {
+
+        transform:
+            translate3d(
+                var(--sway),
+                110vh,
+                0
+            )
+            rotate(360deg);
+
+    }
+
+}
+
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
+.game-page {
+
+    position: relative;
+
+    z-index: 10;
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding:
+        30px
+        16px
+        50px;
+
+}
+
+
+/* ==========================================================
+   MACHINE
+========================================================== */
+
+.machine {
+
+    position: relative;
+
+    width: min(
+        920px,
+        96vw
+    );
+
+    padding: 24px;
+
+    border-radius: 30px;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            #410707 0%,
+            #190202 35%,
+            #090909 65%,
+            #270505 100%
+        );
+
+    border:
+        5px solid #8f6a20;
+
+    box-shadow:
+
+        0 30px 80px rgba(0,0,0,.85),
+
+        0 0 25px rgba(255,30,0,.18),
+
+        inset 0 0 40px rgba(0,0,0,.9),
+
+        inset 0 0 8px rgba(255,220,100,.4);
+
+    transition:
+        filter .4s ease,
+        transform .3s ease;
+
+}
+
+
+.machine.playing {
+
+    filter:
+        drop-shadow(
+            0 0 15px
+            rgba(255,70,0,.25)
+        );
+
+}
+
+
+.machine.anticipation-mode {
+
+    filter:
+        drop-shadow(
+            0 0 25px
+            rgba(255,20,0,.7)
+        );
+
+}
+
+
+.machine.ice-mode {
+
+    filter:
+        drop-shadow(
+            0 0 30px
+            rgba(60,200,255,.8)
+        );
+
+}
+
+
+.machine.round-complete {
+
+    animation:
+        roundCompletePulse
+        .3s
+        infinite
+        alternate;
+
+}
+
+
+@keyframes roundCompletePulse {
+
+    from {
+
+        box-shadow:
+            0 0 30px rgba(255,0,0,.35),
+            inset 0 0 40px #000;
+
+    }
+
+    to {
+
+        box-shadow:
+            0 0 70px rgba(255,210,0,.9),
+            inset 0 0 40px #000;
+
+    }
+
+}
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.machine-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding:
+        4px
+        12px
+        18px;
+
+}
+
+
+.brand {
+
+    text-align: left;
+
+    line-height: .9;
+
+}
+
+
+.brand-small {
+
+    font-size: 13px;
+
+    letter-spacing: 7px;
+
+    color: #ffb000;
+
+}
+
+
+.brand-main {
+
+    margin-top: 5px;
+
+    font-size:
+        clamp(
+            28px,
+            6vw,
+            48px
+        );
+
+    font-weight: 1000;
+
+    letter-spacing: 4px;
+
+    color: #fff;
+
+    text-shadow:
+
+        0 2px 0 #6e0000,
+
+        0 0 10px #ff1800,
+
+        0 0 30px rgba(255,50,0,.5);
+
+}
+
+
+.brand-version {
+
+    margin-top: 8px;
+
+    font-size: 9px;
+
+    letter-spacing: 5px;
+
+    color: #777;
+
+}
+
+
+/* ==========================================================
+   JACKPOT LAMP
+========================================================== */
+
+.jackpot-lamp {
+
+    width: 52px;
+
+    height: 52px;
+
+    padding: 6px;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #333,
+            #090909
+        );
+
+    border: 2px solid #777;
+
+    box-shadow:
+        inset 0 0 10px #000;
+
+}
+
+
+.jackpot-lamp span {
+
+    display: block;
+
+    width: 100%;
+
+    height: 100%;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #ff7b7b,
+            #7b0000 45%,
+            #210000 80%
+        );
+
+    box-shadow:
+        0 0 5px #ff0000;
+
+}
+
+
+.jackpot-lamp.on span {
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            white,
+            #fff000 18%,
+            #ff6a00 45%,
+            #ff0000 75%
+        );
+
+    box-shadow:
+
+        0 0 10px #fff,
+
+        0 0 25px #ffcc00,
+
+        0 0 60px #ff1800;
+
+    animation:
+        lampFlash
+        .15s
+        infinite
+        alternate;
+
+}
+
+
+@keyframes lampFlash {
+
+    from {
+        transform: scale(.9);
+    }
+
+    to {
+        transform: scale(1.1);
+    }
+
+}
+
+
+/* ==========================================================
+   STATUS
+========================================================== */
+
+.status-panel {
+
+    margin:
+        0
+        4px
+        18px;
+
+}
+
+
+.status-row {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 8px;
+
+}
+
+
+.round-status {
+
+    color: #ffd52a;
+
+    font-size: 13px;
+
+    font-weight: 900;
+
+    letter-spacing: 3px;
+
+}
+
+
+.counter-value {
+
+    color: #aaa;
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+}
+
+
+.progress-bar {
+
+    height: 8px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #050505;
+
+    border: 1px solid #333;
+
+    box-shadow:
+        inset 0 2px 4px #000;
+
+}
+
+
+.progress-fill {
+
+    width: 0%;
+
+    height: 100%;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #7b0000,
+            #ff2200,
+            #ffd000
+        );
+
+    box-shadow:
+        0 0 10px #ff3200;
+
+    transition:
+        width .25s ease;
+
+}
+
+
+/* ==========================================================
+   SLOT FRAME
+========================================================== */
+
+.slot-frame {
+
+    position: relative;
+
+    padding: 13px;
+
+    border-radius: 22px;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            #d6d6d6,
+            #404040 12%,
+            #090909 28%,
+            #3d3d3d 50%,
+            #080808 72%,
+            #d0d0d0
+        );
+
+    border: 3px solid #999;
+
+    box-shadow:
+
+        0 0 0 3px #111,
+
+        0 15px 30px rgba(0,0,0,.75),
+
+        inset 0 0 20px #000;
+
+}
+
+
+/* ==========================================================
+   GLASS
+========================================================== */
+
+.slot-glass {
+
+    position: relative;
+
+    overflow: hidden;
+
+    border-radius: 12px;
+
+    background: #000;
+
+    border: 5px solid #181818;
+
+    box-shadow:
+
+        inset 0 0 30px #000,
+
+        0 0 20px rgba(0,0,0,.9);
+
+}
+
+
+/* ==========================================================
+   REELS CONTAINER
+========================================================== */
+
+.slots-container {
+
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    width: 100%;
+
+    height: var(--reel-height);
+
+    overflow: hidden;
+
+    background: #050505;
+
+}
+
+
+/* ==========================================================
+   REEL
+========================================================== */
+
+.slot {
+
+    position: relative;
+
+    height: var(--reel-height);
+
+    overflow: hidden;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #050505 0%,
+            #161616 18%,
+            #080808 50%,
+            #151515 82%,
+            #030303 100%
+        );
+
+    border-right: 1px solid #222;
+
+}
+
+
+/* ==========================================================
+   REEL STRIP
+========================================================== */
+
+.reel-strip {
+
+    position: absolute;
+
+    top: 50%;
+
+    left: 0;
+
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+    will-change:
+        transform;
+
+    transform:
+        translateY(
+            calc(
+                -1 *
+                var(--symbol-height)
+            )
+        );
+
+}
+
+
+.reel-symbol {
+
+    flex: 0 0 var(--symbol-height);
+
+    width: 100%;
+
+    height: var(--symbol-height);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    font-size:
+        clamp(
+            55px,
+            8vw,
+            92px
+        );
+
+    line-height: 1;
+
+    user-select: none;
+
+    filter:
+        drop-shadow(
+            0 5px 4px rgba(0,0,0,.8)
+        );
+
+}
+
+
+.reel-symbol::selection {
+    background: transparent;
+}
+
+
+/* ==========================================================
+   REAL SPIN
+========================================================== */
+
+.reel-strip-spinning {
+
+    animation:
+        reelSpinLoop
+        .13s
+        linear
+        infinite;
+
+}
+
+
+@keyframes reelSpinLoop {
+
+    from {
+
+        transform:
+            translateY(
+                calc(
+                    -1 *
+                    var(--symbol-height)
+                )
+            );
+
+    }
+
+    to {
+
+        transform:
+            translateY(
+                calc(
+                    -2 *
+                    var(--symbol-height)
+                )
+            );
+
+    }
+
+}
+
+
+/* ==========================================================
+   REEL MOTION BLUR
+========================================================== */
+
+.reel.reel-anticipation-spin
+.reel-symbol {
+
+    filter:
+        blur(
+            .65px
+        )
+        drop-shadow(
+            0 6px 5px rgba(0,0,0,.85)
+        );
+
+}
+
+
+.reel.reel-stop
+.reel-symbol {
+
+    filter:
+        drop-shadow(
+            0 4px 4px rgba(0,0,0,.8)
+        );
+
+}
+
+
+/* ==========================================================
+   PAYLINE
+========================================================== */
+
+.payline {
+
+    position: absolute;
+
+    z-index: 20;
+
+    left: 0;
+
+    right: 0;
+
+    top: 50%;
+
+    height: var(--symbol-height);
+
+    transform:
+        translateY(-50%);
+
+    pointer-events: none;
+
+    border-top:
+        2px solid
+        rgba(255,210,30,.38);
+
+    border-bottom:
+        2px solid
+        rgba(255,210,30,.38);
+
+    box-shadow:
+
+        inset 0 0 18px
+        rgba(255,210,0,.05),
+
+        0 0 8px
+        rgba(255,190,0,.18);
+
+}
+
+
+/* ==========================================================
+   PAYLINE CORNERS
+========================================================== */
+
+.payline::before,
+.payline::after {
+
+    content: "";
+
+    position: absolute;
+
+    top: 50%;
+
+    width: 12px;
+
+    height: 12px;
+
+    transform:
+        translateY(-50%)
+        rotate(45deg);
+
+    background: #ffd000;
+
+    box-shadow:
+        0 0 12px #ff5500;
+
+}
+
+
+.payline::before {
+
+    left: 5px;
+
+}
+
+
+.payline::after {
+
+    right: 5px;
+
+}
+
+
+/* ==========================================================
+   REEL SEPARATORS
+========================================================== */
+
+.slots-container::before,
+.slots-container::after {
+
+    content: "";
+
+    position: absolute;
+
+    z-index: 40;
+
+    top: -3px;
+
+    bottom: -3px;
+
+    width: 10px;
+
+    pointer-events: none;
+
+    border-radius: 5px;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #161616 0%,
+            #666 18%,
+            #eee 43%,
+            #777 62%,
+            #222 100%
+        );
+
+    box-shadow:
+
+        0 0 10px #000,
+
+        inset 1px 0
+        rgba(255,255,255,.6),
+
+        inset -2px 0
+        rgba(0,0,0,.9);
+
+}
+
+
+.slots-container::before {
+
+    left:
+        calc(
+            33.333% - 5px
+        );
+
+}
+
+
+.slots-container::after {
+
+    left:
+        calc(
+            66.666% - 5px
+        );
+
+}
+
+
+/* ==========================================================
+   TOP / BOTTOM REEL MASK
+========================================================== */
+
+.slot::after {
+
+    content: "";
+
+    position: absolute;
+
+    z-index: 10;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+
+        linear-gradient(
+            to bottom,
+
+            rgba(0,0,0,.96) 0%,
+
+            rgba(0,0,0,.72) 7%,
+
+            rgba(0,0,0,.25) 17%,
+
+            transparent 30%,
+
+            transparent 70%,
+
+            rgba(0,0,0,.25) 83%,
+
+            rgba(0,0,0,.72) 93%,
+
+            rgba(0,0,0,.96) 100%
+        );
+
+}
+
+
+/* ==========================================================
+   CENTER GLASS SHINE
+========================================================== */
+
+.glass-reflection {
+
+    position: absolute;
+
+    z-index: 25;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+
+        linear-gradient(
+            112deg,
+            rgba(255,255,255,.12),
+            transparent 18%,
+            transparent 70%,
+            rgba(255,255,255,.04)
+        );
+
+    opacity: .5;
+
+}
+
+
+/* ==========================================================
+   REEL STOP
+========================================================== */
+
+.reel-stop {
+
+    animation:
+        reelStopBounce
+        .38s
+        cubic-bezier(.2,.8,.2,1);
+
+}
+
+
+@keyframes reelStopBounce {
+
+    0% {
+        transform: scaleY(1.015);
+    }
+
+    45% {
+        transform: scaleY(.985);
+    }
+
+    100% {
+        transform: scaleY(1);
+    }
+
+}
+
+
+/* ==========================================================
+   FLASH
+========================================================== */
+
+.slot.flash {
+
+    animation:
+        jackpotFlash
+        .17s
+        infinite
+        alternate;
+
+}
+
+
+@keyframes jackpotFlash {
+
+    from {
+
+        background: #130000;
+
+        box-shadow:
+            inset 0 0 30px #000;
+
+    }
+
+    to {
+
+        background: #5a1800;
+
+        box-shadow:
+
+            inset 0 0 35px #ff0000,
+
+            0 0 35px #ffbb00;
+
+    }
+
+}
+
+
+/* ==========================================================
+   MESSAGE
+========================================================== */
+
+.message {
+
+    min-height: 44px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin:
+        12px
+        0
+        8px;
+
+    font-size:
+        clamp(
+            16px,
+            3vw,
+            24px
+        );
+
+    font-weight: 1000;
+
+    letter-spacing: 3px;
+
+    text-align: center;
+
+    color: #fff;
+
+    text-shadow:
+        0 0 8px #ff2800;
+
+}
+
+
+/* ==========================================================
+   PERSISTENT
+========================================================== */
+
+.persistent-panel {
+
+    padding:
+        10px
+        12px
+        15px;
+
+}
+
+
+.persistent-heading {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 7px;
+
+    font-size: 10px;
+
+    letter-spacing: 2px;
+
+    color: #aaa;
+
+}
+
+
+.persistent-heading strong {
+
+    color: #ffd000;
+
+    font-size: 13px;
+
+}
+
+
+.persistent-bar {
+
+    position: relative;
+
+    height: 13px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #030303;
+
+    border: 1px solid #333;
+
+    box-shadow:
+        inset 0 2px 5px #000;
+
+}
+
+
+.persistent-fill {
+
+    position: relative;
+
+    width: 0%;
+
+    height: 100%;
+
+    overflow: visible;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #ff5b00,
+            #ffd000
+        );
+
+    box-shadow:
+        0 0 12px #ff7300;
+
+    transition:
+        width .45s
+        cubic-bezier(.2,.8,.2,1);
+
+}
+
+
+/* ==========================================================
+   MINI COINS
+========================================================== */
+
+.mini-coin {
+
+    position: absolute;
+
+    width: 8px;
+
+    height: 8px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 30% 30%,
+            white,
+            #ffe900 25%,
+            #ff9d00 65%,
+            #9c4200
+        );
+
+    box-shadow:
+        0 0 8px #ffb000;
+
+    pointer-events: none;
+
+    animation:
+        miniCoin .9s
+        ease-out
+        forwards;
+
+}
+
+
+@keyframes miniCoin {
+
+    from {
+
+        transform:
+            translateY(0)
+            scale(.4);
+
+        opacity: 1;
+
+    }
+
+    to {
+
+        transform:
+            translateY(-45px)
+            scale(1.3);
+
+        opacity: 0;
+
+    }
+
+}
+
+
+/* ==========================================================
+   CONTROLS
+========================================================== */
+
+.controls {
+
+    position: relative;
+
+    min-height: 125px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+}
+
+
+/* ==========================================================
+   SPIN BUTTON
+========================================================== */
+
+.spin-button {
+
+    position: relative;
+
+    width:
+        clamp(
+            145px,
+            35vw,
+            210px
+        );
+
+    height:
+        clamp(
+            60px,
+            14vw,
+            78px
+        );
+
+    border: 4px solid #7e0b00;
+
+    border-radius: 18px;
+
+    cursor: pointer;
+
+    color: white;
+
+    font-size:
+        clamp(
+            20px,
+            5vw,
+            30px
+        );
+
+    font-weight: 1000;
+
+    letter-spacing: 5px;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            #ff4a18,
+            #b30900 45%,
+            #570000
+        );
+
+    box-shadow:
+
+        0 8px 0 #260000,
+
+        0 15px 25px rgba(0,0,0,.8),
+
+        0 0 25px rgba(255,50,0,.4),
+
+        inset 0 3px 5px rgba(255,255,255,.3);
+
+    transition:
+        transform .08s ease,
+        filter .2s ease;
+
+}
+
+
+.spin-button:hover:not(:disabled) {
+
+    filter:
+        brightness(1.18);
+
+}
+
+
+.spin-button:active:not(:disabled) {
+
+    transform:
+        translateY(6px);
+
+    box-shadow:
+
+        0 2px 0 #260000,
+
+        0 8px 15px rgba(0,0,0,.8),
+
+        inset 0 3px 5px rgba(255,255,255,.2);
+
+}
+
+
+.spin-button:disabled {
+
+    cursor: not-allowed;
+
+    filter:
+        grayscale(.5)
+        brightness(.55);
+
+}
+
+
+.button-light {
+
+    position: absolute;
+
+    top: 8px;
+
+    left: 14px;
+
+    width: 24px;
+
+    height: 8px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.55);
+
+    filter:
+        blur(2px);
+
+}
+
+
+/* ==========================================================
+   LEVER
+========================================================== */
+
+.real-lever {
+
+    position: absolute;
+
+    right: 20px;
+
+    top: 8px;
+
+    width: 65px;
+
+    height: 115px;
+
+}
+
+
+.lever-base {
+
+    position: absolute;
+
+    bottom: 0;
+
+    left: 8px;
+
+    width: 50px;
+
+    height: 22px;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            #999,
+            #222
+        );
+
+    border: 2px solid #aaa;
+
+    box-shadow:
+        0 4px 10px #000;
+
+}
+
+
+.lever-arm {
+
+    position: absolute;
+
+    left: 30px;
+
+    top: 20px;
+
+    width: 10px;
+
+    height: 75px;
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #333,
+            #eee,
+            #555
+        );
+
+    transform-origin:
+        50% 90%;
+
+    box-shadow:
+        2px 2px 5px #000;
+
+}
+
+
+.lever-top {
+
+    position: absolute;
+
+    z-index: 2;
+
+    left: 17px;
+
+    top: 2px;
+
+    width: 37px;
+
+    height: 37px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #ff5b3d,
+            #9e0900 50%,
+            #320000
+        );
+
+    border: 3px solid #a5a5a5;
+
+    box-shadow:
+        0 0 10px rgba(255,0,0,.4),
+        0 4px 7px #000;
+
+}
+
+
+.real-lever.pull-lever
+.lever-arm {
+
+    animation:
+        pullLever
+        .35s
+        cubic-bezier(.2,.8,.3,1);
+
+}
+
+
+.real-lever.pull-lever
+.lever-top {
+
+    animation:
+        pullLeverTop
+        .35s
+        cubic-bezier(.2,.8,.3,1);
+
+}
+
+
+@keyframes pullLever {
+
+    0%,
+    100% {
+        transform:
+            rotate(0deg);
+    }
+
+    50% {
+        transform:
+            rotate(28deg);
+    }
+
+}
+
+
+@keyframes pullLeverTop {
+
+    0%,
+    100% {
+        transform:
+            translateY(0);
+    }
+
+    50% {
+        transform:
+            translateY(28px);
+    }
+
+}
+
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+.machine-footer {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    padding:
+        5px
+        10px
+        0;
+
+    color: #555;
+
+    font-size: 8px;
+
+    letter-spacing: 3px;
+
+}
+
+
+/* ==========================================================
+   ANTICIPATION OVERLAY
+========================================================== */
+
+.anticipation-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 100;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    background:
+
+        radial-gradient(
+            circle at center,
+            rgba(255,40,0,.14),
+            rgba(120,0,0,.04) 35%,
+            rgba(0,0,0,.7) 100%
+        );
+
+    transition:
+        opacity .15s ease;
+
+}
+
+
+.anticipation-overlay.active {
+
+    opacity: 1;
+
+    visibility: visible;
+
+}
+
+
+.anticipation-content {
+
+    position: relative;
+
+    z-index: 2;
+
+    text-align: center;
+
+    padding: 30px;
+
+}
+
+
+.anticipation-warning {
+
+    font-size:
+        clamp(
+            45px,
+            12vw,
+            90px
+        );
+
+    animation:
+        anticipationFire
+        .18s
+        infinite
+        alternate;
+
+}
+
+
+@keyframes anticipationFire {
+
+    from {
+        transform:
+            scale(.9)
+            rotate(-3deg);
+    }
+
+    to {
+        transform:
+            scale(1.12)
+            rotate(3deg);
+    }
+
+}
+
+
+.anticipation-title {
+
+    font-size:
+        clamp(
+            28px,
+            8vw,
+            70px
+        );
+
+    font-weight: 1000;
+
+    letter-spacing: 5px;
+
+    color: #fff;
+
+    text-shadow:
+
+        0 0 5px white,
+
+        0 0 20px #ff5000,
+
+        0 0 50px #ff0000;
+
+}
+
+
+.anticipation-subtitle {
+
+    margin-top: 5px;
+
+    font-size:
+        clamp(
+            18px,
+            5vw,
+            35px
+        );
+
+    font-weight: 900;
+
+    letter-spacing: 8px;
+
+    color: #ffd000;
+
+    text-shadow:
+        0 0 20px #ff0000;
+
+}
+
+
+.anticipation-line {
+
+    width: min(400px, 75vw);
+
+    height: 4px;
+
+    margin: 20px auto;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #ff0000,
+            #ffd000,
+            #ff0000,
+            transparent
+        );
+
+    box-shadow:
+        0 0 15px #ff3000;
+
+}
+
+
+.anticipation-pulse {
+
+    color: #ff2600;
+
+    font-size: 20px;
+
+    letter-spacing: 12px;
+
+    animation:
+        pulseStars
+        .25s
+        infinite
+        alternate;
+
+}
+
+
+@keyframes pulseStars {
+
+    from {
+        opacity: .4;
+    }
+
+    to {
+        opacity: 1;
+    }
+
+}
+
+
+/* ==========================================================
+   ANTICIPATION PARTICLES
+========================================================== */
+
+.anticipation-particles {
+
+    position: absolute;
+
+    inset: 0;
+
+    overflow: hidden;
+
+}
+
+
+.anticipation-particle {
+
+    position: absolute;
+
+    bottom: -20px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            white,
+            #ffd000 30%,
+            #ff3100 70%,
+            transparent
+        );
+
+    box-shadow:
+        0 0 10px #ff5100;
+
+    animation:
+        anticipationParticle
+        var(--duration)
+        linear
+        infinite;
+
+}
+
+
+@keyframes anticipationParticle {
+
+    from {
+
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            )
+            scale(.4);
+
+        opacity: 0;
+
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    to {
+
+        transform:
+            translate3d(
+                var(--drift),
+                -110vh,
+                0
+            )
+            scale(0);
+
+        opacity: 0;
+
+    }
+
+}
+
+
+/* ==========================================================
+   FINAL REEL FIRE
+========================================================== */
+
+#slot3.final-reel-anticipation {
+
+    z-index: 20;
+
+    border-color: #ff1800;
+
+    box-shadow:
+
+        inset 0 0 25px
+        rgba(255,0,0,.5),
+
+        0 0 12px #ff0000,
+
+        0 0 35px #ff3000,
+
+        0 0 75px #ff0000;
+
+    animation:
+        finalReelFireFrame
+        .22s
+        infinite
+        alternate;
+
+}
+
+
+@keyframes finalReelFireFrame {
+
+    from {
+
+        filter:
+            brightness(1);
+
+    }
+
+    to {
+
+        filter:
+            brightness(1.35);
+
+    }
+
+}
+
+
+.final-reel-fire {
+
+    position: absolute;
+
+    z-index: 30;
+
+    inset: -20px;
+
+    pointer-events: none;
+
+    border-radius: 20px;
+
+    background:
+
+        radial-gradient(
+            ellipse at center,
+            transparent 25%,
+            rgba(255,50,0,.12) 45%,
+            rgba(255,0,0,.35) 70%,
+            transparent 80%
+        );
+
+    filter:
+        blur(5px);
+
+    animation:
+        finalFireGlow
+        .3s
+        infinite
+        alternate;
+
+}
+
+
+@keyframes finalFireGlow {
+
+    from {
+
+        transform:
+            scale(.95);
+
+        opacity: .7;
+
+    }
+
+    to {
+
+        transform:
+            scale(1.08);
+
+        opacity: 1;
+
+    }
+
+}
+
+
+.final-reel-flame {
+
+    position: absolute;
+
+    width: var(--fire-size);
+
+    height: var(--fire-size);
+
+    left: var(--fire-left);
+
+    bottom: var(--fire-bottom);
+
+    border-radius:
+        50% 50% 45% 45%;
+
+    background:
+
+        radial-gradient(
+            circle at 50% 75%,
+            #fff8a0,
+            #ffd000 20%,
+            #ff6500 48%,
+            #ff1800 70%,
+            transparent 76%
+        );
+
+    filter:
+        blur(1px);
+
+    opacity:
+        var(--fire-opacity);
+
+    animation:
+        finalReelFlame
+        var(--fire-duration)
+        ease-in-out
+        infinite
+        alternate;
+
+}
+
+
+@keyframes finalReelFlame {
+
+    from {
+
+        transform:
+            translateY(5px)
+            scale(.75)
+            rotate(var(--fire-rotate));
+
+    }
+
+    to {
+
+        transform:
+            translateY(-15px)
+            scale(1.25)
+            rotate(
+                calc(
+                    var(--fire-rotate) * -1
+                )
+            );
+
+    }
+
+}
+
+
+.final-reel-particle {
+
+    position: absolute;
+
+    width: var(--particle-size);
+
+    height: var(--particle-size);
+
+    left: var(--particle-left);
+
+    bottom: var(--particle-bottom);
+
+    border-radius: 50%;
+
+    background:
+
+        radial-gradient(
+            circle,
+            white,
+            #ffd700 25%,
+            #ff5a00 55%,
+            #ff0000 75%,
+            transparent
+        );
+
+    box-shadow:
+
+        0 0 6px #ffcc00,
+
+        0 0 14px #ff3000;
+
+    animation:
+        finalReelParticle
+        var(--particle-duration)
+        linear
+        infinite;
+
+    animation-delay:
+        var(--particle-delay);
+
+}
+
+
+@keyframes finalReelParticle {
+
+    0% {
+
+        transform:
+            translate3d(0,0,0)
+            scale(.4);
+
+        opacity: 0;
+
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    100% {
+
+        transform:
+            translate3d(
+                var(--particle-drift),
+                var(--particle-rise),
+                0
+            )
+            scale(0);
+
+        opacity: 0;
+
+    }
+
+}
+
+
+/* ==========================================================
+   HOLD
+========================================================== */
+
+.hold-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 200;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    pointer-events: none;
+
+    background:
+        rgba(0,20,35,.72);
+
+    backdrop-filter:
+        blur(7px);
+
+    transition:
+        opacity .35s ease;
+
+}
+
+
+.hold-overlay.active {
+
+    opacity: 1;
+
+    visibility: visible;
+
+}
+
+
+.hold-card {
+
+    width:
+        min(
+            380px,
+            88vw
+        );
+
+    padding: 35px 25px;
+
+    text-align: center;
+
+    border-radius: 25px;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            #dff8ff,
+            #428da8 25%,
+            #0a2531 60%,
+            #02080b
+        );
+
+    border:
+        3px solid #b8efff;
+
+    box-shadow:
+
+        0 0 35px
+        rgba(60,220,255,.7),
+
+        inset 0 0 30px
+        rgba(0,0,0,.7);
+
+}
+
+
+.hold-icon {
+
+    font-size: 70px;
+
+    color: white;
+
+    text-shadow:
+        0 0 20px #80eaff;
+
+    animation:
+        icePulse
+        .7s
+        infinite
+        alternate;
+
+}
+
+
+@keyframes icePulse {
+
+    from {
+        transform: scale(.9);
+    }
+
+    to {
+        transform: scale(1.1);
+    }
+
+}
+
+
+.hold-title {
+
+    margin-top: 8px;
+
+    font-size: 34px;
+
+    font-weight: 1000;
+
+    letter-spacing: 5px;
+
+    color: white;
+
+    text-shadow:
+        0 0 15px #39d9ff;
+
+}
+
+
+.hold-status {
+
+    margin-top: 8px;
+
+    color: #9eeeff;
+
+    font-size: 11px;
+
+    letter-spacing: 3px;
+
+}
+
+
+.hold-countdown {
+
+    margin-top: 15px;
+
+    font-size: 80px;
+
+    font-weight: 1000;
+
+    color: white;
+
+    text-shadow:
+        0 0 25px #00d9ff;
+
+}
+
+
+.hold-seconds {
+
+    margin-top: -8px;
+
+    color: #80dcf5;
+
+    letter-spacing: 5px;
+
+    font-size: 10px;
+
+}
+
+
+.hold-progress {
+
+    height: 12px;
+
+    margin-top: 25px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #031017;
+
+    border: 1px solid #72d9ef;
+
+}
+
+
+.hold-progress-fill {
+
+    width: 100%;
+
+    height: 100%;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #3bcfff,
+            white,
+            #3bcfff
+        );
+
+    box-shadow:
+        0 0 15px #3bcfff;
+
+    transition:
+        width .1s linear;
+
+}
+
+
+/* ==========================================================
+   COINS
+========================================================== */
+
+.coin {
+
+    position: fixed;
+
+    z-index: 500;
+
+    top: -30px;
+
+    width: 20px;
+
+    height: 20px;
+
+    border-radius: 50%;
+
+    background:
+
+        radial-gradient(
+            circle at 30% 25%,
+            #fff,
+            #ffd900 25%,
+            #ff9d00 65%,
+            #8a3d00
+        );
+
+    border: 2px solid #fff0a0;
+
+    box-shadow:
+        0 0 12px #ffc400;
+
+    pointer-events: none;
+
+    animation:
+        coinFall
+        3.5s
+        cubic-bezier(.2,.7,.5,1)
+        forwards;
+
+}
+
+
+@keyframes coinFall {
+
+    0% {
+
+        transform:
+            translateY(-50px)
+            rotate(0deg)
+            scale(.7);
+
+        opacity: 0;
+
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    100% {
+
+        transform:
+            translateY(110vh)
+            rotate(900deg)
+            scale(1);
+
+        opacity: 0;
+
+    }
+
+}
+
+
+/* ==========================================================
+   CONFETTI
+========================================================== */
+
+.confetti {
+
+    position: fixed;
+
+    z-index: 490;
+
+    top: -20px;
+
+    width: 10px;
+
+    height: 16px;
+
+    pointer-events: none;
+
+    animation:
+        confettiFall
+        4s
+        ease-in
+        forwards;
+
+}
+
+
+@keyframes confettiFall {
+
+    from {
+
+        transform:
+            translateY(-30px)
+            rotate(0deg);
+
+        opacity: 1;
+
+    }
+
+    to {
+
+        transform:
+            translateY(110vh)
+            rotate(900deg);
+
+        opacity: 0;
+
+    }
+
+}
+
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (max-width: 650px) {
+
+    :root {
+
+        --reel-height: 285px;
+
+        --symbol-height: 95px;
+
+    }
+
+
+    .game-page {
+
+        padding:
+            12px
+            7px
+            25px;
+
+        align-items: flex-start;
+
+    }
+
+
+    .machine {
+
+        width: 100%;
+
+        padding: 13px;
+
+        border-radius: 20px;
+
+        border-width: 3px;
+
+    }
+
+
+    .machine-header {
+
+        padding-bottom: 12px;
+
+    }
+
+
+    .brand-main {
+
+        font-size: 29px;
+
+    }
+
+
+    .brand-small {
+
+        font-size: 9px;
+
+        letter-spacing: 4px;
+
+    }
+
+
+    .brand-version {
+
+        font-size: 7px;
+
+    }
+
+
+    .jackpot-lamp {
+
+        width: 42px;
+
+        height: 42px;
+
+    }
+
+
+    .slot-frame {
+
+        padding: 7px;
+
+        border-width: 2px;
+
+    }
+
+
+    .reel-symbol {
+
+        font-size:
+            clamp(
+                45px,
+                15vw,
+                70px
+            );
+
+    }
+
+
+    .real-lever {
+
+        right: 2px;
+
+        transform:
+            scale(.72);
+
+        transform-origin:
+            center right;
+
+    }
+
+
+    .spin-button {
+
+        width: 145px;
+
+    }
+
+
+    .controls {
+
+        min-height: 110px;
+
+    }
+
+
+    .message {
+
+        font-size: 15px;
+
+        letter-spacing: 2px;
+
+    }
+
+}
+
+
+/* ==========================================================
+   VERY SMALL
+========================================================== */
+
+@media (max-width: 390px) {
+
+    :root {
+
+        --reel-height: 255px;
+
+        --symbol-height: 85px;
+
+    }
+
+
+    .machine {
+
+        padding: 9px;
+
+    }
+
+
+    .machine-footer {
+
+        font-size: 6px;
+
+    }
+
+
+    .persistent-heading {
+
+        font-size: 8px;
+
+    }
+
+}
+
+
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    * {
+
+        animation-duration:
+            .001ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            .001ms !important;
+
+    }
+
+}
