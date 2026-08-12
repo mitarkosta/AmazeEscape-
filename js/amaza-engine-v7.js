@@ -114,7 +114,7 @@ const AMAZE = {
 
     persistentTarget: 10,
 
-    storageKey: "AmazeEscape_v8_State",
+    storageKey: "AmazeEscape_v7_State",
 
     reelState: [
 
