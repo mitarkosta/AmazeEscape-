@@ -1,40 +1,44 @@
 <!DOCTYPE html>
 <html lang="bg">
-
 <head>
+
     <meta charset="UTF-8">
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+        content="width=device-width, initial-scale=1.0"
     >
 
     <meta
         name="theme-color"
-        content="#050505"
+        content="#080808"
     >
 
     <meta
         name="description"
-        content="AMAZE GAMING — Escape Engine v8"
+        content="Amaze Gaming — Escape Engine v8"
     >
 
     <title>
-        AMAZE GAMING — Escape Engine v8
+        Amaze Gaming — Escape Engine v8
     </title>
+
 
     <!-- =====================================================
          AMAZE GAMING v8
-         CSS
+         MAIN STYLE
     ====================================================== -->
 
     <link
         rel="stylesheet"
         href="amaze-style-v8.css"
     >
+
 </head>
 
+
 <body>
+
 
     <!-- =====================================================
          CASINO BACKGROUND
@@ -46,178 +50,416 @@
         aria-hidden="true"
     ></div>
 
+
+    <!-- =====================================================
+         SNOW / ICE EFFECT
+    ====================================================== -->
+
     <div
         id="snowContainer"
         class="snow-container"
         aria-hidden="true"
     ></div>
 
-    <!-- =====================================================
-         ANTICIPATION OVERLAY
-    ====================================================== -->
-
-    <div
-        id="anticipationOverlay"
-        class="anticipation-overlay"
-        aria-hidden="true"
-    >
-
-        <div class="anticipation-title">
-            🔥 FINAL REEL
-        </div>
-
-        <div class="anticipation-subtitle">
-            TWO MATCH
-        </div>
-
-        <div
-            id="anticipationParticles"
-            class="anticipation-particles"
-        ></div>
-
-    </div>
-
-    <!-- =====================================================
-         HOLD OVERLAY
-    ====================================================== -->
-
-    <div
-        id="holdOverlay"
-        class="hold-overlay"
-        aria-hidden="true"
-    >
-
-        <div class="hold-card">
-
-            <div class="hold-icon">
-                ❄
-            </div>
-
-            <div class="hold-title">
-                ICE HOLD
-            </div>
-
-            <div
-                id="holdCountdown"
-                class="hold-countdown"
-            >
-                30
-            </div>
-
-            <div class="hold-seconds">
-                SECONDS
-            </div>
-
-            <div
-                id="holdProgress"
-                class="hold-progress"
-                role="progressbar"
-                aria-valuemin="0"
-                aria-valuemax="30"
-                aria-valuenow="30"
-            >
-
-                <div
-                    id="holdProgressFill"
-                    class="hold-progress-fill"
-                ></div>
-
-            </div>
-
-            <div
-                id="holdStatus"
-                class="hold-status"
-            >
-                MACHINE FROZEN
-            </div>
-
-        </div>
-
-    </div>
 
     <!-- =====================================================
          MAIN GAME
     ====================================================== -->
 
-    <main class="game-page">
+    <main
+        id="game"
+        class="game"
+    >
+
+
+        <!-- ================================================
+             HEADER
+        ================================================= -->
+
+        <header class="game-header">
+
+            <div class="brand">
+
+                <div class="brand-title">
+                    AMAZE
+                </div>
+
+                <div class="brand-subtitle">
+                    GAMING
+                </div>
+
+            </div>
+
+
+            <div
+                id="roundStatus"
+                class="round-status"
+            >
+                ROUND 1
+            </div>
+
+        </header>
+
+
+
+        <!-- ================================================
+             MACHINE
+        ================================================= -->
 
         <section
             id="machine"
-            class="slot-machine"
+            class="machine"
+            aria-label="Amaze Gaming slot machine"
         >
 
-            <!-- =================================================
-                 HEADER
-            ================================================== -->
 
-            <header class="machine-header">
+            <!-- ============================================
+                 JACKPOT LAMP
+            ============================================= -->
 
-                <div class="brand-fire">
-                    🔥
+            <div
+                id="jackpotLamp"
+                class="jackpot-lamp"
+                aria-hidden="true"
+            ></div>
+
+
+
+            <!-- ============================================
+                 MACHINE TOP
+            ============================================= -->
+
+            <div class="machine-top">
+
+                <div class="machine-title">
+                    AMAZE GAMING
                 </div>
 
-                <div class="brand">
-
-                    <div class="brand-name">
-                        AMAZE
-                    </div>
-
-                    <div class="brand-subtitle">
-                        GAMING
-                    </div>
-
-                    <div class="brand-version">
-                        v8
-                    </div>
-
+                <div class="machine-version">
+                    ESCAPE ENGINE v8
                 </div>
+
+            </div>
+
+
+
+            <!-- ============================================
+                 REEL WINDOW
+            ============================================= -->
+
+            <div
+                class="reel-window"
+                aria-label="Slot reels"
+            >
+
+
+                <!-- ========================================
+                     REEL 1
+                ========================================= -->
 
                 <div
-                    id="jackpotLamp"
-                    class="jackpot-lamp"
-                    aria-label="Jackpot lamp"
+                    class="reel-column"
+                    data-reel="1"
                 >
-                    JACKPOT
+
+                    <div
+                        id="slot1"
+                        class="slot-reel"
+                        aria-label="First reel"
+                    >
+
+                        <div class="reel-strip">
+
+                            <div class="reel-symbol">
+                                🍒
+                            </div>
+
+                            <div class="reel-symbol">
+                                🍋
+                            </div>
+
+                            <div class="reel-symbol">
+                                ⭐
+                            </div>
+
+                            <div class="reel-symbol">
+                                💎
+                            </div>
+
+                            <div class="reel-symbol">
+                                🔔
+                            </div>
+
+                            <div class="reel-symbol">
+                                7️⃣
+                            </div>
+
+                        </div>
+
+                    </div>
+
                 </div>
 
-            </header>
 
-            <!-- =================================================
-                 ROUND / PROGRESS
-            ================================================== -->
 
-            <div class="status-panel">
+                <!-- ========================================
+                     METAL SEPARATOR 1
+                ========================================= -->
 
                 <div
-                    id="roundStatus"
-                    class="round-status"
+                    class="reel-separator"
+                    aria-hidden="true"
                 >
-                    ROUND 1
+
+                    <div class="separator-metal"></div>
+
                 </div>
+
+
+
+                <!-- ========================================
+                     REEL 2
+                ========================================= -->
 
                 <div
-                    id="message"
-                    class="game-message"
-                    aria-live="polite"
+                    class="reel-column"
+                    data-reel="2"
                 >
-                    READY
+
+                    <div
+                        id="slot2"
+                        class="slot-reel"
+                        aria-label="Second reel"
+                    >
+
+                        <div class="reel-strip">
+
+                            <div class="reel-symbol">
+                                🍒
+                            </div>
+
+                            <div class="reel-symbol">
+                                🍋
+                            </div>
+
+                            <div class="reel-symbol">
+                                ⭐
+                            </div>
+
+                            <div class="reel-symbol">
+                                💎
+                            </div>
+
+                            <div class="reel-symbol">
+                                🔔
+                            </div>
+
+                            <div class="reel-symbol">
+                                7️⃣
+                            </div>
+
+                        </div>
+
+                    </div>
+
                 </div>
 
-                <div class="spin-counter">
+
+
+                <!-- ========================================
+                     METAL SEPARATOR 2
+                ========================================= -->
+
+                <div
+                    class="reel-separator"
+                    aria-hidden="true"
+                >
+
+                    <div class="separator-metal"></div>
+
+                </div>
+
+
+
+                <!-- ========================================
+                     REEL 3
+                ========================================= -->
+
+                <div
+                    class="reel-column"
+                    data-reel="3"
+                >
+
+                    <div
+                        id="slot3"
+                        class="slot-reel"
+                        aria-label="Third reel"
+                    >
+
+                        <div class="reel-strip">
+
+                            <div class="reel-symbol">
+                                🍒
+                            </div>
+
+                            <div class="reel-symbol">
+                                🍋
+                            </div>
+
+                            <div class="reel-symbol">
+                                ⭐
+                            </div>
+
+                            <div class="reel-symbol">
+                                💎
+                            </div>
+
+                            <div class="reel-symbol">
+                                🔔
+                            </div>
+
+                            <div class="reel-symbol">
+                                7️⃣
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- ============================================
+                 REEL CENTER LINE
+            ============================================= -->
+
+            <div
+                class="reel-center-line"
+                aria-hidden="true"
+            ></div>
+
+
+
+            <!-- ============================================
+                 ANTICIPATION OVERLAY
+            ============================================= -->
+
+            <div
+                id="anticipationOverlay"
+                class="anticipation-overlay"
+                aria-hidden="true"
+            >
+
+                <div class="anticipation-content">
+
+                    <div class="anticipation-title">
+                        🔥 FINAL REEL 🔥
+                    </div>
+
+                    <div class="anticipation-subtitle">
+                        TWO MATCH
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="anticipationParticles"
+                    class="anticipation-particles"
+                ></div>
+
+            </div>
+
+
+
+            <!-- ============================================
+                 MACHINE MESSAGE
+            ============================================= -->
+
+            <div
+                id="message"
+                class="machine-message"
+                aria-live="polite"
+            >
+                READY
+            </div>
+
+
+
+            <!-- ============================================
+                 LEVER
+            ============================================= -->
+
+            <div class="lever-area">
+
+                <div class="lever-base">
+
+                    <div
+                        class="real-lever"
+                        role="button"
+                        aria-label="Slot lever"
+                    >
+
+                        <div class="lever-arm"></div>
+
+                        <div class="lever-ball"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ============================================
+                 SPIN BUTTON
+            ============================================= -->
+
+            <button
+                id="button"
+                class="spin-button"
+                type="button"
+            >
+
+                <span class="button-main">
+                    SPIN
+                </span>
+
+                <span class="button-sub">
+                    PLAY
+                </span>
+
+            </button>
+
+
+
+            <!-- ============================================
+                 SPIN PROGRESS
+            ============================================= -->
+
+            <div class="progress-section">
+
+                <div class="progress-header">
 
                     <span>
                         SPINS
                     </span>
 
-                    <strong id="counterValue">
+                    <span id="counterValue">
                         0 / 100
-                    </strong>
+                    </span>
 
                 </div>
 
+
                 <div
                     id="spinProgress"
-                    class="spin-progress"
+                    class="progress-bar"
                     role="progressbar"
                     aria-valuemin="0"
                     aria-valuemax="100"
@@ -226,155 +468,20 @@
 
                     <div
                         id="spinProgressFill"
-                        class="spin-progress-fill"
+                        class="progress-fill"
                     ></div>
 
                 </div>
 
             </div>
 
-            <!-- =================================================
-                 REEL WINDOW
-            ================================================== -->
 
-            <div class="reel-stage">
 
-                <div class="reel-frame">
-
-                    <!-- LEFT REEL -->
-
-                    <div
-                        id="reelWindow1"
-                        class="reel-window"
-                    >
-
-                        <div
-                            id="slot1"
-                            class="reel-drum"
-                        ></div>
-
-                    </div>
-
-                    <!-- METAL SEPARATOR -->
-
-                    <div
-                        class="metal-separator"
-                        aria-hidden="true"
-                    >
-
-                        <div class="separator-bolt top"></div>
-                        <div class="separator-bolt middle"></div>
-                        <div class="separator-bolt bottom"></div>
-
-                    </div>
-
-                    <!-- CENTER REEL -->
-
-                    <div
-                        id="reelWindow2"
-                        class="reel-window"
-                    >
-
-                        <div
-                            id="slot2"
-                            class="reel-drum"
-                        ></div>
-
-                    </div>
-
-                    <!-- METAL SEPARATOR -->
-
-                    <div
-                        class="metal-separator"
-                        aria-hidden="true"
-                    >
-
-                        <div class="separator-bolt top"></div>
-                        <div class="separator-bolt middle"></div>
-                        <div class="separator-bolt bottom"></div>
-
-                    </div>
-
-                    <!-- RIGHT REEL -->
-
-                    <div
-                        id="reelWindow3"
-                        class="reel-window"
-                    >
-
-                        <div
-                            id="slot3"
-                            class="reel-drum"
-                        ></div>
-
-                    </div>
-
-                    <!-- WIN LINE -->
-
-                    <div
-                        class="win-line"
-                        aria-hidden="true"
-                    >
-
-                        <span class="win-line-left"></span>
-
-                        <span class="win-line-center">
-                            ★
-                        </span>
-
-                        <span class="win-line-right"></span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- =================================================
-                 LEVER
-            ================================================== -->
-
-            <div class="lever-area">
-
-                <div
-                    class="real-lever"
-                    aria-hidden="true"
-                >
-
-                    <div class="lever-ball"></div>
-
-                    <div class="lever-arm"></div>
-
-                    <div class="lever-base"></div>
-
-                </div>
-
-            </div>
-
-            <!-- =================================================
-                 CONTROL
-            ================================================== -->
-
-            <div class="control-panel">
-
-                <button
-                    id="button"
-                    class="spin-button"
-                    type="button"
-                >
-                    SPIN
-                </button>
-
-            </div>
-
-            <!-- =================================================
+            <!-- ============================================
                  PERSISTENT REWARD
-            ================================================== -->
+            ============================================= -->
 
-            <section
-                class="persistent-panel"
-                aria-label="Persistent reward"
-            >
+            <div class="persistent-section">
 
                 <div class="persistent-header">
 
@@ -382,11 +489,12 @@
                         PERSISTENT REWARD
                     </span>
 
-                    <strong id="persistentValue">
+                    <span id="persistentValue">
                         0 / 10
-                    </strong>
+                    </span>
 
                 </div>
+
 
                 <div
                     id="persistentBar"
@@ -404,27 +512,96 @@
 
                 </div>
 
-            </section>
+            </div>
 
-            <!-- =================================================
-                 FOOTER
-            ================================================== -->
-
-            <footer class="machine-footer">
-
-                AMAZE GAMING
-                <span>•</span>
-                ESCAPE ENGINE v8
-
-            </footer>
 
         </section>
 
+
+
+        <!-- =================================================
+             HOLD / ICE OVERLAY
+        ================================================== -->
+
+        <section
+            id="holdOverlay"
+            class="hold-overlay"
+            aria-hidden="true"
+        >
+
+            <div class="hold-panel">
+
+                <div class="hold-icon">
+                    ❄
+                </div>
+
+                <div class="hold-title">
+                    ICE HOLD
+                </div>
+
+                <div
+                    id="holdCountdown"
+                    class="hold-countdown"
+                >
+                    30
+                </div>
+
+                <div class="hold-label">
+                    SECONDS
+                </div>
+
+
+                <div
+                    class="hold-progress"
+                    role="progressbar"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                >
+
+                    <div
+                        id="holdProgressFill"
+                        class="hold-progress-fill"
+                    ></div>
+
+                </div>
+
+
+                <div
+                    id="holdStatus"
+                    class="hold-status"
+                >
+                    MACHINE FROZEN
+                </div>
+
+            </div>
+
+        </section>
+
+
     </main>
 
+
+
     <!-- =====================================================
-         AMAZE GAMING v8
-         JAVASCRIPT
+         FOOTER
+    ====================================================== -->
+
+    <footer class="game-footer">
+
+        <span>
+            AMAZE GAMING
+        </span>
+
+        <span>
+            ENGINE v8.0
+        </span>
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         AMAZE GAMING v8 ENGINE
     ====================================================== -->
 
     <script
@@ -432,6 +609,6 @@
         defer
     ></script>
 
-</body>
 
+</body>
 </html>
