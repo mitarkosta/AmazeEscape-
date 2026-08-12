@@ -1,19 +1,10 @@
 /* ==========================================================
    AMAZE GAMING
-   ESCAPE ENGINE v7.1
-
-   REAL VERTICAL REELS
-   PROGRESS
-   PERSISTENCE
-   ANTICIPATION 2.5 SEC
-   FINAL REEL FIRE
-   HOLD
-   MOBILE VIBRATION
-   AUDIO SAFE
+   ESCAPE ENGINE v8
+   ENGINE
 ========================================================== */
 
 "use strict";
-
 
 /* ==========================================================
    CONFIG
@@ -21,7 +12,7 @@
 
 const AMAZE = {
 
-    version: "7.1",
+    version: "8.0",
 
     symbols: [
         "🍒",
@@ -40,6 +31,8 @@ const AMAZE = {
 
     anticipationDuration: 2500,
 
+    reelHeight: 0,
+
     attempts: 0,
 
     round: 1,
@@ -54,9 +47,7 @@ const AMAZE = {
 
     slots: [],
 
-    windows: [],
-
-    strips: [],
+    reels: [],
 
     button: null,
 
@@ -108,18 +99,9 @@ const AMAZE = {
 
     persistentTarget: 10,
 
-    storageKey: "AmazeEscape_v7_1_State",
-
-    reelTimers: [],
-
-    reelPositions: [0, 0, 0],
-
-    reelValues: [null, null, null],
-
-    reelCellHeight: 100
-
+    storageKey:
+        "AmazeEscape_v8_State"
 };
-
 
 /* ==========================================================
    DOM READY
@@ -130,24 +112,31 @@ document.addEventListener(
     initializeGame
 );
 
-
 /* ==========================================================
-   INITIALIZATION
+   INITIALIZE
 ========================================================== */
 
 function initializeGame() {
 
     AMAZE.machine =
-        document.getElementById("machine");
+        document.getElementById(
+            "machine"
+        );
 
     AMAZE.button =
-        document.getElementById("button");
+        document.getElementById(
+            "button"
+        );
 
     AMAZE.message =
-        document.getElementById("message");
+        document.getElementById(
+            "message"
+        );
 
     AMAZE.counterValue =
-        document.getElementById("counterValue");
+        document.getElementById(
+            "counterValue"
+        );
 
     AMAZE.progressFill =
         document.getElementById(
@@ -164,28 +153,21 @@ function initializeGame() {
             "roundStatus"
         );
 
-
     AMAZE.slots = [
 
-        document.getElementById("slot1"),
+        document.getElementById(
+            "slot1"
+        ),
 
-        document.getElementById("slot2"),
+        document.getElementById(
+            "slot2"
+        ),
 
-        document.getElementById("slot3")
-
-    ];
-
-
-    AMAZE.windows = [
-
-        document.getElementById("reel1"),
-
-        document.getElementById("reel2"),
-
-        document.getElementById("reel3")
+        document.getElementById(
+            "slot3"
+        )
 
     ];
-
 
     AMAZE.lever =
         document.querySelector(
@@ -252,13 +234,20 @@ function initializeGame() {
             "persistentBar"
         );
 
+    if (
+        AMAZE.slots.length !== 3 ||
+        AMAZE.slots.some(
+            slot => !slot
+        )
+    ) {
 
-    /*
-     * Build the real vertical reels.
-     */
+        console.error(
+            "AMAZE v8: Reel elements missing."
+        );
 
-    buildReels();
+        return;
 
+    }
 
     if (AMAZE.button) {
 
@@ -269,12 +258,13 @@ function initializeGame() {
 
     }
 
-
     createCasinoParticles();
 
     createSnowParticles();
 
     loadGameState();
+
+    createReelDrums();
 
     updateProgress();
 
@@ -282,21 +272,18 @@ function initializeGame() {
 
     updateRoundStatus();
 
-
     console.log(
-        "🎰 AmazeEscape v7.1 loaded"
+        "🎰 AMAZE GAMING v8 loaded"
     );
 }
 
-
 /* ==========================================================
-   BUILD REAL REELS
+   CREATE REAL REEL DRUMS
 ========================================================== */
 
-function buildReels() {
+function createReelDrums() {
 
-    AMAZE.strips = [];
-
+    AMAZE.reels = [];
 
     AMAZE.slots.forEach(
         (slot, reelIndex) => {
@@ -305,126 +292,136 @@ function buildReels() {
                 return;
             }
 
-
             slot.innerHTML = "";
 
+            const reelData = {
 
-            const strip =
-                document.createElement(
-                    "div"
-                );
+                slot,
 
+                index:
+                    reelIndex,
 
-            strip.className =
-                "reel-strip";
+                symbols: [],
 
+                position: 0,
+
+                offset: 0,
+
+                spinning: false,
+
+                animationFrame: null,
+
+                targetIndex: 0,
+
+                cellHeight: 70
+
+            };
 
             /*
-             * Long enough strip for realistic
-             * continuous vertical movement.
+             * Long repeated strip.
+             * This creates the visual impression
+             * of a continuous casino drum.
              */
 
-            const count = 36;
+            const stripLength = 80;
 
+            const fragment =
+                document.createDocumentFragment();
 
             for (
                 let i = 0;
-                i < count;
+                i < stripLength;
                 i++
             ) {
+
+                const symbol =
+                    AMAZE.symbols[
+                        i %
+                        AMAZE.symbols.length
+                    ];
+
+                reelData.symbols.push(
+                    symbol
+                );
 
                 const cell =
                     document.createElement(
                         "div"
                     );
 
-
                 cell.className =
                     "reel-symbol";
 
-
                 cell.textContent =
-                    randomSymbol();
+                    symbol;
 
-
-                strip.appendChild(
+                fragment.appendChild(
                     cell
                 );
-
             }
 
-
             slot.appendChild(
-                strip
+                fragment
             );
-
-
-            AMAZE.strips[
-                reelIndex
-            ] = strip;
-
 
             /*
-             * Start on a valid middle position.
+             * Start with the center position
+             * around the middle of the strip.
              */
 
-            const start =
-                12;
+            reelData.position = 30;
 
+            reelData.offset =
+                reelData.position *
+                reelData.cellHeight;
 
-            AMAZE.reelPositions[
-                reelIndex
-            ] = start;
+            slot.style.transform =
+                `translate3d(0, -${reelData.offset}px, 0)`;
 
-
-            setReelPosition(
-                reelIndex,
-                start,
-                false
+            AMAZE.reels.push(
+                reelData
             );
 
         }
     );
-
 
     requestAnimationFrame(
-        measureReel
+        updateReelGeometry
     );
 }
-
 
 /* ==========================================================
-   MEASURE REEL
+   REEL GEOMETRY
 ========================================================== */
 
-function measureReel() {
+function updateReelGeometry() {
 
-    const first =
-        AMAZE.strips[0]?.firstElementChild;
+    AMAZE.reels.forEach(
+        reel => {
 
+            const cell =
+                reel.slot.querySelector(
+                    ".reel-symbol"
+                );
 
-    if (!first) {
-        return;
-    }
+            if (!cell) {
+                return;
+            }
 
+            reel.cellHeight =
+                cell.getBoundingClientRect()
+                    .height;
 
-    AMAZE.reelCellHeight =
-        first.getBoundingClientRect().height;
+            reel.offset =
+                reel.position *
+                reel.cellHeight;
 
-
-    AMAZE.strips.forEach(
-        (_, index) => {
-
-            setReelPosition(
-                index,
-                AMAZE.reelPositions[index],
-                false
-            );
-
+            reel.slot.style.transform =
+                `translate3d(0, -${reel.offset}px, 0)`;
         }
     );
-}
 
+}
 
 /* ==========================================================
    RANDOM SYMBOL
@@ -440,7 +437,6 @@ function randomSymbol() {
     ];
 }
 
-
 /* ==========================================================
    MESSAGE
 ========================================================== */
@@ -449,15 +445,13 @@ function setMessage(text) {
 
     if (AMAZE.message) {
 
-        AMAZE.message.innerHTML =
+        AMAZE.message.textContent =
             text;
-
     }
 }
 
-
 /* ==========================================================
-   SAFE AUDIO
+   AUDIO
 ========================================================== */
 
 function getAudio() {
@@ -468,33 +462,28 @@ function getAudio() {
             window.AudioContext ||
             window.webkitAudioContext;
 
-
         if (!AudioContext) {
+
             return null;
         }
 
-
         AMAZE.audio =
             new AudioContext();
-
     }
-
 
     if (
         AMAZE.audio.state ===
         "suspended"
     ) {
 
-        AMAZE.audio.resume().catch(
-            () => {}
-        );
-
+        AMAZE.audio.resume()
+            .catch(
+                () => {}
+            );
     }
-
 
     return AMAZE.audio;
 }
-
 
 /* ==========================================================
    SOUND
@@ -512,11 +501,9 @@ function playSound(
         const ctx =
             getAudio();
 
-
         if (!ctx) {
             return;
         }
-
 
         const osc =
             ctx.createOscillator();
@@ -524,38 +511,33 @@ function playSound(
         const gain =
             ctx.createGain();
 
-
         osc.type =
             type;
 
         osc.frequency.value =
             frequency;
 
-
         gain.gain.setValueAtTime(
-            0.0001,
+            .0001,
             ctx.currentTime
         );
-
 
         gain.gain.exponentialRampToValueAtTime(
             volume,
             ctx.currentTime + .01
         );
 
-
         gain.gain.exponentialRampToValueAtTime(
-            0.0001,
-            ctx.currentTime + duration
+            .0001,
+            ctx.currentTime +
+            duration
         );
-
 
         osc.connect(gain);
 
         gain.connect(
             ctx.destination
         );
-
 
         osc.start();
 
@@ -566,7 +548,6 @@ function playSound(
         );
 
     }
-
     catch (error) {
 
         console.warn(
@@ -576,7 +557,6 @@ function playSound(
 
     }
 }
-
 
 /* ==========================================================
    VIBRATION
@@ -588,9 +568,9 @@ function vibrate(pattern) {
         typeof navigator.vibrate !==
         "function"
     ) {
+
         return;
     }
-
 
     try {
 
@@ -599,17 +579,16 @@ function vibrate(pattern) {
         );
 
     }
-
     catch (error) {
+
         /* optional */
     }
 }
 
-
 function vibrationSpin() {
+
     vibrate(35);
 }
-
 
 function vibrationAnticipation() {
 
@@ -622,9 +601,7 @@ function vibrationAnticipation() {
         35,
         180
     ]);
-
 }
-
 
 function vibrationWin() {
 
@@ -637,9 +614,7 @@ function vibrationWin() {
         50,
         220
     ]);
-
 }
-
 
 function vibrationHoldEnter() {
 
@@ -648,9 +623,7 @@ function vibrationHoldEnter() {
         50,
         180
     ]);
-
 }
-
 
 function vibrationHoldExit() {
 
@@ -659,108 +632,7 @@ function vibrationHoldExit() {
         60,
         100
     ]);
-
 }
-
-
-/* ==========================================================
-   SET REEL POSITION
-========================================================== */
-
-function setReelPosition(
-    index,
-    position,
-    animate = true
-) {
-
-    const strip =
-        AMAZE.strips[index];
-
-
-    if (!strip) {
-        return;
-    }
-
-
-    const y =
-        -position *
-        AMAZE.reelCellHeight;
-
-
-    if (!animate) {
-
-        strip.style.transition =
-            "none";
-
-    }
-
-    else {
-
-        strip.style.transition =
-            "transform .18s cubic-bezier(.15,.8,.25,1)";
-
-    }
-
-
-    strip.style.transform =
-        `translate3d(0, ${y}px, 0)`;
-
-    AMAZE.reelPositions[index] =
-        position;
-
-
-    if (!animate) {
-
-        requestAnimationFrame(
-            () => {
-
-                strip.style.transition =
-                    "";
-
-            }
-        );
-
-    }
-}
-
-
-/* ==========================================================
-   CURRENT SYMBOL
-========================================================== */
-
-function getSymbolAt(
-    index,
-    position
-) {
-
-    const strip =
-        AMAZE.strips[index];
-
-
-    if (!strip) {
-        return randomSymbol();
-    }
-
-
-    const cells =
-        strip.children;
-
-
-    const normalized =
-        (
-            position %
-            cells.length +
-            cells.length
-        ) %
-        cells.length;
-
-
-    return cells[
-        normalized
-    ]?.textContent ||
-        randomSymbol();
-}
-
 
 /* ==========================================================
    SPIN
@@ -768,51 +640,43 @@ function getSymbolAt(
 
 function spinGame() {
 
-    if (AMAZE.playing)
+    if (AMAZE.playing) {
         return;
+    }
 
-
-    if (AMAZE.hold)
+    if (AMAZE.hold) {
         return;
-
+    }
 
     if (
         AMAZE.attempts >=
         AMAZE.maxSpins
     ) {
+
         return;
     }
 
-
     getAudio();
 
-
-    AMAZE.playing =
-        true;
+    AMAZE.playing = true;
 
     AMAZE.attempts++;
-
 
     updateProgress();
 
     saveGameState();
 
-
     if (AMAZE.button) {
 
         AMAZE.button.disabled =
             true;
-
     }
-
 
     setMessage(
         "🎰 SPINNING..."
     );
 
-
     vibrationSpin();
-
 
     playSound(
         120,
@@ -821,397 +685,439 @@ function spinGame() {
         .08
     );
 
-
     leverPull();
-
 
     if (AMAZE.machine) {
 
         AMAZE.machine.classList.add(
             "playing"
         );
-
     }
 
-
-    startReels();
+    spinAllReels();
 }
 
-
 /* ==========================================================
-   START REELS
+   SPIN ALL REELS
 ========================================================== */
 
-function startReels() {
+function spinAllReels() {
 
-    AMAZE.reelTimers.forEach(
-        timer =>
-            clearInterval(timer)
-    );
+    AMAZE.reels.forEach(
+        (reel, index) => {
 
+            reel.spinning = true;
 
-    AMAZE.reelTimers = [];
-
-
-    AMAZE.windows.forEach(
-        windowElement => {
-
-            if (windowElement) {
-
-                windowElement.classList.add(
-                    "spinning"
-                );
-
-            }
-
+            spinReelVisual(
+                reel,
+                1500 +
+                index * 180
+            );
         }
     );
 
-
     /*
-     * Each reel rotates independently.
+     * Reel 1 stops first.
      */
 
-    AMAZE.strips.forEach(
-        (strip, index) => {
+    setTimeout(
+        () => {
 
-            if (!strip) {
-                return;
-            }
+            const first =
+                stopReel(
+                    0
+                );
 
+            /*
+             * Reel 2 stops second.
+             */
 
-            let position =
-                AMAZE.reelPositions[index];
+            setTimeout(
+                () => {
 
-
-            const timer =
-                setInterval(
-                    () => {
-
-                        position += 1;
-
-
-                        /*
-                         * Recycle the strip
-                         * so it can spin forever.
-                         */
-
-                        if (
-                            position >
-                            strip.children.length - 8
-                        ) {
-
-                            position = 10;
-
-                            randomizeStrip(
-                                index
-                            );
-
-                        }
-
-
-                        setReelPosition(
-                            index,
-                            position,
-                            false
+                    const second =
+                        stopReel(
+                            1
                         );
 
-                    },
-                    65 - index * 4
-                );
+                    /*
+                     * If first and second match,
+                     * activate the full 2.5 sec
+                     * final reel anticipation.
+                     */
 
+                    setTimeout(
+                        () => {
 
-            AMAZE.reelTimers[index] =
-                timer;
+                            if (
+                                first ===
+                                second
+                            ) {
 
-        }
-    );
+                                startAnticipation(
+                                    () => {
 
+                                        stopReel(
+                                            2
+                                        );
 
-    /*
-     * Stop sequence.
-     */
+                                    }
+                                );
 
-    setTimeout(
-        () => {
+                            }
+                            else {
 
-            stopReels();
+                                stopReel(
+                                    2
+                                );
 
-        },
-        1700
-    );
-}
+                            }
 
+                        },
+                        350
+                    );
 
-/* ==========================================================
-   RANDOMIZE STRIP
-========================================================== */
-
-function randomizeStrip(index) {
-
-    const strip =
-        AMAZE.strips[index];
-
-
-    if (!strip) {
-        return;
-    }
-
-
-    Array.from(
-        strip.children
-    ).forEach(
-        cell => {
-
-            cell.textContent =
-                randomSymbol();
-
-        }
-    );
-}
-
-
-/* ==========================================================
-   STOP REELS
-========================================================== */
-
-function stopReels() {
-
-    AMAZE.reelTimers.forEach(
-        timer =>
-            clearInterval(timer)
-    );
-
-
-    AMAZE.reelTimers = [];
-
-
-    const result = [];
-
-
-    /*
-     * Reel 1
-     */
-
-    setTimeout(
-        () => {
-
-            stopSingleReel(
-                0,
-                result
+                },
+                550
             );
 
         },
-        100
-    );
-
-
-    /*
-     * Reel 2
-     */
-
-    setTimeout(
-        () => {
-
-            stopSingleReel(
-                1,
-                result
-            );
-
-        },
-        650
-    );
-
-
-    /*
-     * Reel 3
-     */
-
-    setTimeout(
-        () => {
-
-            if (
-                result[0] &&
-                result[1] &&
-                result[0] === result[1]
-            ) {
-
-                startAnticipation(
-                    () => {
-
-                        stopSingleReel(
-                            2,
-                            result
-                        );
-
-                    }
-                );
-
-            }
-
-            else {
-
-                stopSingleReel(
-                    2,
-                    result
-                );
-
-            }
-
-        },
-        1200
+        1000
     );
 }
 
-
 /* ==========================================================
-   STOP SINGLE REEL
+   CONTINUOUS REEL VISUAL MOTION
 ========================================================== */
 
-function stopSingleReel(
-    index,
-    result
+function spinReelVisual(
+    reel,
+    duration
 ) {
 
-    const strip =
-        AMAZE.strips[index];
+    reel.spinning = true;
 
+    reel.slot.classList.add(
+        "reel-spin"
+    );
 
-    const windowElement =
-        AMAZE.windows[index];
+    const start =
+        performance.now();
 
+    const startPosition =
+        reel.position;
 
-    if (!strip) {
-        return;
-    }
-
-
-    if (windowElement) {
-
-        windowElement.classList.remove(
-            "spinning"
-        );
-
-    }
-
-
-    /*
-     * Select a random final symbol.
-     */
+    const rotations =
+        22 +
+        reel.index * 3;
 
     const target =
-        Math.floor(
-            Math.random() *
-            AMAZE.symbols.length
-        );
+        startPosition +
+        rotations;
 
-
-    /*
-     * Current strip position.
-     */
-
-    let current =
-        Math.round(
-            AMAZE.reelPositions[index]
-        );
-
-
-    /*
-     * Find a position further down
-     * that contains the desired symbol.
-     */
-
-    let finalPosition =
-        current + 7;
-
-
-    let found = false;
-
-
-    for (
-        let i = current + 7;
-        i < current + 25;
-        i++
+    function animate(
+        now
     ) {
 
-        const symbol =
-            getSymbolAt(
-                index,
-                i
-            );
-
-
-        if (
-            symbol ===
-            AMAZE.symbols[target]
-        ) {
-
-            finalPosition =
-                i;
-
-            found = true;
-
-            break;
-
+        if (!reel.spinning) {
+            return;
         }
 
+        const elapsed =
+            now - start;
+
+        const progress =
+            Math.min(
+                elapsed /
+                duration,
+                1
+            );
+
+        /*
+         * Continuous fast motion.
+         * Slight acceleration/deceleration
+         * gives a mechanical slot feel.
+         */
+
+        const eased =
+            progress < .15
+                ? progress / .15 * .15
+                : progress > .8
+                    ? .8 +
+                      (
+                          progress - .8
+                      ) /
+                      .2 *
+                      .2
+                    : progress;
+
+        reel.offset =
+            (
+                startPosition +
+                (
+                    target -
+                    startPosition
+                ) *
+                eased
+            ) *
+            reel.cellHeight;
+
+        reel.slot.style.transform =
+            `translate3d(0, -${reel.offset}px, 0)`;
+
+        if (
+            progress < 1
+        ) {
+
+            reel.animationFrame =
+                requestAnimationFrame(
+                    animate
+                );
+
+        }
+        else {
+
+            reel.position =
+                target;
+        }
     }
 
-
-    if (!found) {
-
-        strip.children[
-            finalPosition %
-            strip.children.length
-        ].textContent =
-            AMAZE.symbols[target];
-
-    }
-
-
-    setReelPosition(
-        index,
-        finalPosition,
-        true
-    );
-
-
-    result[index] =
-        AMAZE.symbols[target];
-
-
-    AMAZE.reelValues[index] =
-        result[index];
-
-
-    playSound(
-        700 - index * 120,
-        .08,
-        "square",
-        .04
-    );
-
-
-    /*
-     * Final reel finishes the spin.
-     */
-
-    if (index === 2) {
-
-        setTimeout(
-            () => {
-
-                stopFinalReelEffects();
-
-                finishSpin(result);
-
-            },
-            220
+    reel.animationFrame =
+        requestAnimationFrame(
+            animate
         );
-
-    }
 }
 
+/* ==========================================================
+   STOP ONE REEL
+========================================================== */
+
+function stopReel(index) {
+
+    const reel =
+        AMAZE.reels[index];
+
+    if (!reel) {
+        return null;
+    }
+
+    reel.spinning = false;
+
+    if (
+        reel.animationFrame
+    ) {
+
+        cancelAnimationFrame(
+            reel.animationFrame
+        );
+    }
+
+    /*
+     * Pick the final symbol.
+     */
+
+    const symbol =
+        randomSymbol();
+
+    const symbolIndex =
+        AMAZE.symbols.indexOf(
+            symbol
+        );
+
+    /*
+     * Keep the reel away from the
+     * end of the strip.
+     */
+
+    let base =
+        Math.floor(
+            reel.position
+        );
+
+    if (
+        base >
+        55
+    ) {
+
+        base =
+            30;
+    }
+
+    /*
+     * We align the selected symbol
+     * exactly on the center line.
+     */
+
+    const targetPosition =
+        base +
+        (
+            symbolIndex -
+            (
+                base %
+                AMAZE.symbols.length
+            )
+        );
+
+    /*
+     * Add a few physical rotations
+     * before final alignment.
+     */
+
+    const finalPosition =
+        targetPosition +
+        (
+            Math.ceil(
+                (
+                    reel.position -
+                    targetPosition
+                ) / 6
+            ) * 6
+        );
+
+    const startOffset =
+        reel.offset;
+
+    const endOffset =
+        finalPosition *
+        reel.cellHeight;
+
+    const startTime =
+        performance.now();
+
+    const stopDuration =
+        420 +
+        index * 90;
+
+    reel.slot.classList.remove(
+        "reel-spin"
+    );
+
+    reel.slot.classList.add(
+        "reel-stop"
+    );
+
+    function settle(now) {
+
+        const elapsed =
+            now -
+            startTime;
+
+        const progress =
+            Math.min(
+                elapsed /
+                stopDuration,
+                1
+            );
+
+        /*
+         * Cubic ease-out.
+         */
+
+        const eased =
+            1 -
+            Math.pow(
+                1 - progress,
+                3
+            );
+
+        const offset =
+            startOffset +
+            (
+                endOffset -
+                startOffset
+            ) *
+            eased;
+
+        reel.offset =
+            offset;
+
+        reel.slot.style.transform =
+            `translate3d(0, -${offset}px, 0)`;
+
+        if (
+            progress < 1
+        ) {
+
+            requestAnimationFrame(
+                settle
+            );
+
+        }
+        else {
+
+            reel.position =
+                finalPosition;
+
+            /*
+             * Snap exactly to the selected
+             * symbol position.
+             */
+
+            reel.offset =
+                finalPosition *
+                reel.cellHeight;
+
+            reel.slot.style.transform =
+                `translate3d(0, -${reel.offset}px, 0)`;
+
+            playSound(
+                700 -
+                index * 120,
+                .08,
+                "square",
+                .04
+            );
+
+            markCenterSymbol(
+                reel
+            );
+        }
+    }
+
+    requestAnimationFrame(
+        settle
+    );
+
+    return symbol;
+}
+
+/* ==========================================================
+   CENTER SYMBOL
+========================================================== */
+
+function markCenterSymbol(
+    reel
+) {
+
+    const cells =
+        reel.slot.querySelectorAll(
+            ".reel-symbol"
+        );
+
+    cells.forEach(
+        cell => {
+
+            cell.classList.remove(
+                "center-symbol"
+            );
+
+        }
+    );
+
+    const index =
+        Math.round(
+            reel.position
+        );
+
+    if (
+        cells[index]
+    ) {
+
+        cells[index].classList.add(
+            "center-symbol"
+        );
+    }
+}
 
 /* ==========================================================
    ANTICIPATION
@@ -1224,21 +1130,18 @@ function startAnticipation(
     if (
         AMAZE.anticipationActive
     ) {
+
         return;
     }
 
-
     AMAZE.anticipationActive =
         true;
-
 
     setMessage(
         "🔥 TWO MATCH... FINAL REEL!"
     );
 
-
     vibrationAnticipation();
-
 
     playSound(
         180,
@@ -1246,7 +1149,6 @@ function startAnticipation(
         "sawtooth",
         .07
     );
-
 
     setTimeout(
         () => {
@@ -1261,13 +1163,11 @@ function startAnticipation(
                     "square",
                     .06
                 );
-
             }
 
         },
         350
     );
-
 
     setTimeout(
         () => {
@@ -1282,24 +1182,22 @@ function startAnticipation(
                     "sawtooth",
                     .05
                 );
-
             }
 
         },
         1200
     );
 
-
     if (AMAZE.machine) {
 
         AMAZE.machine.classList.add(
             "anticipation-mode"
         );
-
     }
 
-
-    if (AMAZE.anticipationOverlay) {
+    if (
+        AMAZE.anticipationOverlay
+    ) {
 
         AMAZE.anticipationOverlay.classList.add(
             "active"
@@ -1309,32 +1207,47 @@ function startAnticipation(
             "aria-hidden",
             "false"
         );
-
     }
-
 
     const finalReel =
         AMAZE.slots[2];
-
 
     if (finalReel) {
 
         finalReel.classList.add(
             "final-reel-anticipation"
         );
-
     }
-
 
     createAnticipationParticles();
 
     createFinalReelFire();
 
+    /*
+     * Final reel continues to spin
+     * during the entire anticipation.
+     */
+
+    const reel =
+        AMAZE.reels[2];
+
+    if (reel) {
+
+        if (
+            !reel.spinning
+        ) {
+
+            spinReelVisual(
+                reel,
+                999999
+            );
+        }
+
+    }
 
     clearTimeout(
         AMAZE.anticipationTimer
     );
-
 
     AMAZE.anticipationTimer =
         setTimeout(
@@ -1345,21 +1258,18 @@ function startAnticipation(
 
                 stopAnticipation();
 
-
                 if (
                     typeof callback ===
                     "function"
                 ) {
 
                     callback();
-
                 }
 
             },
             AMAZE.anticipationDuration
         );
 }
-
 
 /* ==========================================================
    STOP ANTICIPATION
@@ -1371,25 +1281,22 @@ function stopAnticipation() {
         AMAZE.anticipationTimer
     );
 
-
     AMAZE.anticipationTimer =
         null;
 
-
     AMAZE.anticipationActive =
         false;
-
 
     if (AMAZE.machine) {
 
         AMAZE.machine.classList.remove(
             "anticipation-mode"
         );
-
     }
 
-
-    if (AMAZE.anticipationOverlay) {
+    if (
+        AMAZE.anticipationOverlay
+    ) {
 
         AMAZE.anticipationOverlay.classList.remove(
             "active"
@@ -1399,26 +1306,20 @@ function stopAnticipation() {
             "aria-hidden",
             "true"
         );
-
     }
-
 
     const finalReel =
         AMAZE.slots[2];
-
 
     if (finalReel) {
 
         finalReel.classList.remove(
             "final-reel-anticipation"
         );
-
     }
-
 
     removeFinalReelFire();
 }
-
 
 /* ==========================================================
    FINAL REEL FIRE
@@ -1429,31 +1330,33 @@ function createFinalReelFire() {
     const slot =
         AMAZE.slots[2];
 
-
     if (!slot) {
         return;
     }
 
-
     removeFinalReelFire();
 
+    const parent =
+        slot.parentElement;
+
+    if (!parent) {
+        return;
+    }
+
+    parent.style.position =
+        "relative";
 
     const fire =
-        document.createElement("div");
-
+        document.createElement(
+            "div"
+        );
 
     fire.className =
         "final-reel-fire";
 
-
-    slot.parentElement.style.position =
-        "relative";
-
-
-    slot.parentElement.appendChild(
+    parent.appendChild(
         fire
     );
-
 
     for (
         let i = 0;
@@ -1462,39 +1365,39 @@ function createFinalReelFire() {
     ) {
 
         const flame =
-            document.createElement("div");
-
+            document.createElement(
+                "div"
+            );
 
         flame.className =
             "final-reel-flame";
-
 
         flame.style.setProperty(
             "--fire-size",
             (
                 15 +
                 Math.random() * 30
-            ) + "px"
+            ) +
+            "px"
         );
-
 
         flame.style.setProperty(
             "--fire-left",
             (
                 8 +
                 Math.random() * 84
-            ) + "%"
+            ) +
+            "%"
         );
-
 
         flame.style.setProperty(
             "--fire-bottom",
             (
                 -12 +
                 Math.random() * 25
-            ) + "px"
+            ) +
+            "px"
         );
-
 
         flame.style.setProperty(
             "--fire-opacity",
@@ -1504,31 +1407,28 @@ function createFinalReelFire() {
             )
         );
 
-
         flame.style.setProperty(
             "--fire-rotate",
             (
                 -35 +
                 Math.random() * 70
-            ) + "deg"
+            ) +
+            "deg"
         );
-
 
         flame.style.setProperty(
             "--fire-duration",
             (
                 .18 +
                 Math.random() * .3
-            ) + "s"
+            ) +
+            "s"
         );
-
 
         fire.appendChild(
             flame
         );
-
     }
-
 
     for (
         let i = 0;
@@ -1537,76 +1437,75 @@ function createFinalReelFire() {
     ) {
 
         const particle =
-            document.createElement("div");
-
+            document.createElement(
+                "div"
+            );
 
         particle.className =
             "final-reel-particle";
-
 
         particle.style.setProperty(
             "--particle-size",
             (
                 3 +
                 Math.random() * 7
-            ) + "px"
+            ) +
+            "px"
         );
-
 
         particle.style.setProperty(
             "--particle-left",
-            Math.random() * 100 + "%"
+            Math.random() *
+            100 +
+            "%"
         );
-
 
         particle.style.setProperty(
             "--particle-bottom",
-            Math.random() * 50 + "%"
+            Math.random() *
+            50 +
+            "%"
         );
-
 
         particle.style.setProperty(
             "--particle-drift",
             (
                 -70 +
                 Math.random() * 140
-            ) + "px"
+            ) +
+            "px"
         );
-
 
         particle.style.setProperty(
             "--particle-rise",
             (
                 -80 -
                 Math.random() * 130
-            ) + "px"
+            ) +
+            "px"
         );
-
 
         particle.style.setProperty(
             "--particle-duration",
             (
                 .5 +
                 Math.random() * .9
-            ) + "s"
+            ) +
+            "s"
         );
-
 
         particle.style.setProperty(
             "--particle-delay",
-            (
-                -Math.random() * 1.2
-            ) + "s"
+            -Math.random() *
+            1.2 +
+            "s"
         );
-
 
         fire.appendChild(
             particle
         );
-
     }
 }
-
 
 /* ==========================================================
    REMOVE FIRE
@@ -1619,34 +1518,12 @@ function removeFinalReelFire() {
             ".final-reel-fire"
         )
         .forEach(
-            element =>
-                element.remove()
+            element => {
+
+                element.remove();
+            }
         );
 }
-
-
-/* ==========================================================
-   FINAL EFFECTS
-========================================================== */
-
-function stopFinalReelEffects() {
-
-    const finalReel =
-        AMAZE.slots[2];
-
-
-    if (finalReel) {
-
-        finalReel.classList.remove(
-            "final-reel-anticipation"
-        );
-
-    }
-
-
-    removeFinalReelFire();
-}
-
 
 /* ==========================================================
    ANTICIPATION PARTICLES
@@ -1657,20 +1534,17 @@ function createAnticipationParticles() {
     if (
         !AMAZE.anticipationParticles
     ) {
+
         return;
     }
 
-
-    AMAZE
-        .anticipationParticles
+    AMAZE.anticipationParticles
         .innerHTML = "";
-
 
     const count =
         window.innerWidth < 600
             ? 25
             : 45;
-
 
     for (
         let i = 0;
@@ -1683,15 +1557,12 @@ function createAnticipationParticles() {
                 "div"
             );
 
-
         particle.className =
             "anticipation-particle";
-
 
         const size =
             3 +
             Math.random() * 8;
-
 
         particle.style.width =
             size + "px";
@@ -1699,80 +1570,72 @@ function createAnticipationParticles() {
         particle.style.height =
             size + "px";
 
-
         particle.style.left =
-            Math.random() * 100 +
+            Math.random() *
+            100 +
             "%";
-
 
         particle.style.setProperty(
             "--drift",
             (
                 -150 +
                 Math.random() * 300
-            ) + "px"
+            ) +
+            "px"
         );
-
 
         particle.style.setProperty(
             "--duration",
             (
                 1 +
                 Math.random() * 1.5
-            ) + "s"
+            ) +
+            "s"
         );
 
-
         particle.style.animationDelay =
-            Math.random() * .8 +
+            Math.random() *
+            .8 +
             "s";
 
-
-        AMAZE
-            .anticipationParticles
+        AMAZE.anticipationParticles
             .appendChild(
                 particle
             );
-
     }
 }
-
 
 /* ==========================================================
    FINISH SPIN
 ========================================================== */
 
-function finishSpin(result) {
+function finishSpin(
+    result
+) {
 
     stopAnticipation();
 
-
     AMAZE.playing =
         false;
-
 
     if (AMAZE.button) {
 
         AMAZE.button.disabled =
             false;
-
     }
-
 
     if (AMAZE.machine) {
 
         AMAZE.machine.classList.remove(
             "playing"
         );
-
     }
 
-
-    checkResult(result);
-
+    checkResult(
+        result
+    );
 
     saveGameState();
-
 
     setTimeout(
         checkGameMilestone,
@@ -1780,19 +1643,67 @@ function finishSpin(result) {
     );
 }
 
+/* ==========================================================
+   GET CURRENT RESULT
+========================================================== */
+
+function getReelResult(
+    reel
+) {
+
+    const position =
+        Math.round(
+            reel.position
+        );
+
+    const symbolIndex =
+        (
+            (
+                position %
+                AMAZE.symbols.length
+            ) +
+            AMAZE.symbols.length
+        ) %
+        AMAZE.symbols.length;
+
+    return AMAZE.symbols[
+        symbolIndex
+    ];
+}
 
 /* ==========================================================
    RESULT
 ========================================================== */
 
-function checkResult(result) {
+function checkResult(
+    result
+) {
 
-    const a = result[0];
+    /*
+     * Safety fallback:
+     * derive actual center symbols
+     * from the drums.
+     */
 
-    const b = result[1];
+    if (
+        !result ||
+        result.length !== 3
+    ) {
 
-    const c = result[2];
+        result =
+            AMAZE.reels.map(
+                getReelResult
+            );
+    }
 
+    const a =
+        result[0];
+
+    const b =
+        result[1];
+
+    const c =
+        result[2];
 
     if (
         a === b &&
@@ -1803,14 +1714,12 @@ function checkResult(result) {
             "🎉 JACKPOT 🎉"
         );
 
-
         collectPersistentReward();
 
         jackpot();
 
         return;
     }
-
 
     if (
         a === b ||
@@ -1822,7 +1731,6 @@ function checkResult(result) {
             "🔥 ALMOST WIN"
         );
 
-
         playSound(
             500,
             .25,
@@ -1830,16 +1738,65 @@ function checkResult(result) {
             .06
         );
 
-
         return;
     }
-
 
     setMessage(
         "❌ TRY AGAIN"
     );
 }
 
+/* ==========================================================
+   IMPORTANT FINALIZATION
+========================================================== */
+
+function finalizeCurrentSpin() {
+
+    const result =
+        AMAZE.reels.map(
+            getReelResult
+        );
+
+    finishSpin(
+        result
+    );
+}
+
+/*
+ * The third reel is the final reel.
+ * Patch stopReel completion so the game
+ * ends only after reel 3 has physically settled.
+ */
+
+const originalStopReel =
+    stopReel;
+
+/*
+ * Replace with wrapped version.
+ */
+
+stopReel =
+    function(index) {
+
+        const result =
+            originalStopReel(
+                index
+            );
+
+        if (index === 2) {
+
+            /*
+             * Wait for final settling.
+             */
+
+            setTimeout(
+                finalizeCurrentSpin,
+                500
+            );
+        }
+
+        return result;
+    };
 
 /* ==========================================================
    PERSISTENT REWARD
@@ -1849,7 +1806,6 @@ function collectPersistentReward() {
 
     AMAZE.persistentCoins++;
 
-
     if (
         AMAZE.persistentCoins >=
         AMAZE.persistentTarget
@@ -1858,14 +1814,11 @@ function collectPersistentReward() {
         AMAZE.persistentCoins =
             0;
 
-
         setMessage(
             "💰 PERSISTENT PRIZE! 💰"
         );
 
-
         vibrationWin();
-
 
         playSound(
             1000,
@@ -1873,7 +1826,6 @@ function collectPersistentReward() {
             "square",
             .08
         );
-
 
         setTimeout(
             () => {
@@ -1889,27 +1841,22 @@ function collectPersistentReward() {
             180
         );
 
-
         createPersistentCoins(
             true
         );
 
     }
-
     else {
 
         createPersistentCoins(
             false
         );
-
     }
-
 
     updatePersistentProgress();
 
     saveGameState();
 }
-
 
 /* ==========================================================
    PERSISTENT PROGRESS
@@ -1926,35 +1873,34 @@ function updatePersistentProgress() {
             100
         );
 
-
-    if (AMAZE.persistentFill) {
+    if (
+        AMAZE.persistentFill
+    ) {
 
         AMAZE.persistentFill.style.width =
             percentage + "%";
-
     }
 
+    if (
+        AMAZE.persistentValue
+    ) {
 
-    if (AMAZE.persistentValue) {
-
-        AMAZE.persistentValue.innerHTML =
+        AMAZE.persistentValue.textContent =
             AMAZE.persistentCoins +
             " / " +
             AMAZE.persistentTarget;
-
     }
 
-
-    if (AMAZE.persistentBar) {
+    if (
+        AMAZE.persistentBar
+    ) {
 
         AMAZE.persistentBar.setAttribute(
             "aria-valuenow",
             AMAZE.persistentCoins
         );
-
     }
 }
-
 
 /* ==========================================================
    PERSISTENT COINS
@@ -1964,25 +1910,24 @@ function createPersistentCoins(
     jackpotReward
 ) {
 
-    if (!AMAZE.persistentFill) {
+    if (
+        !AMAZE.persistentFill
+    ) {
+
         return;
     }
 
-
     const parent =
         AMAZE.persistentFill.parentElement;
-
 
     if (!parent) {
         return;
     }
 
-
     const count =
         jackpotReward
             ? 15
             : 5;
-
 
     for (
         let i = 0;
@@ -1995,32 +1940,29 @@ function createPersistentCoins(
                 "div"
             );
 
-
         coin.className =
             "mini-coin";
-
 
         coin.style.left =
             (
                 10 +
                 Math.random() * 80
-            ) + "%";
-
-
-        coin.style.top =
-            Math.random() * 100 +
+            ) +
             "%";
 
+        coin.style.top =
+            Math.random() *
+            100 +
+            "%";
 
         coin.style.animationDelay =
-            Math.random() * .35 +
+            Math.random() *
+            .35 +
             "s";
-
 
         parent.appendChild(
             coin
         );
-
 
         setTimeout(
             () => {
@@ -2030,10 +1972,8 @@ function createPersistentCoins(
             },
             1200
         );
-
     }
 }
-
 
 /* ==========================================================
    PROGRESS
@@ -2050,35 +1990,34 @@ function updateProgress() {
             100
         );
 
+    if (
+        AMAZE.counterValue
+    ) {
 
-    if (AMAZE.counterValue) {
-
-        AMAZE.counterValue.innerHTML =
+        AMAZE.counterValue.textContent =
             AMAZE.attempts +
             " / " +
             AMAZE.maxSpins;
-
     }
 
-
-    if (AMAZE.progressFill) {
+    if (
+        AMAZE.progressFill
+    ) {
 
         AMAZE.progressFill.style.width =
             percentage + "%";
-
     }
 
-
-    if (AMAZE.progressBar) {
+    if (
+        AMAZE.progressBar
+    ) {
 
         AMAZE.progressBar.setAttribute(
             "aria-valuenow",
             AMAZE.attempts
         );
-
     }
 }
-
 
 /* ==========================================================
    MILESTONE
@@ -2096,7 +2035,6 @@ function checkGameMilestone() {
         return;
     }
 
-
     if (
         AMAZE.attempts > 0 &&
         AMAZE.attempts %
@@ -2105,10 +2043,8 @@ function checkGameMilestone() {
     ) {
 
         startHold();
-
     }
 }
-
 
 /* ==========================================================
    ROUND STATUS
@@ -2116,15 +2052,15 @@ function checkGameMilestone() {
 
 function updateRoundStatus() {
 
-    if (AMAZE.roundStatus) {
+    if (
+        AMAZE.roundStatus
+    ) {
 
-        AMAZE.roundStatus.innerHTML =
+        AMAZE.roundStatus.textContent =
             "ROUND " +
             AMAZE.round;
-
     }
 }
-
 
 /* ==========================================================
    SAVE
@@ -2153,9 +2089,7 @@ function saveGameState() {
 
             persistentCoins:
                 AMAZE.persistentCoins
-
         };
-
 
         localStorage.setItem(
             AMAZE.storageKey,
@@ -2163,17 +2097,14 @@ function saveGameState() {
         );
 
     }
-
     catch (error) {
 
         console.warn(
-            "Could not save game state",
+            "AMAZE v8 save error",
             error
         );
-
     }
 }
-
 
 /* ==========================================================
    LOAD
@@ -2188,15 +2119,14 @@ function loadGameState() {
                 AMAZE.storageKey
             );
 
-
         if (!saved) {
             return;
         }
 
-
         const state =
-            JSON.parse(saved);
-
+            JSON.parse(
+                saved
+            );
 
         if (
             !state ||
@@ -2207,14 +2137,12 @@ function loadGameState() {
             return;
         }
 
-
         AMAZE.attempts =
             Number.isFinite(
                 state.attempts
             )
                 ? state.attempts
                 : 0;
-
 
         AMAZE.round =
             Number.isFinite(
@@ -2223,7 +2151,6 @@ function loadGameState() {
                 ? state.round
                 : 1;
 
-
         AMAZE.persistentCoins =
             Number.isFinite(
                 state.persistentCoins
@@ -2231,10 +2158,8 @@ function loadGameState() {
                 ? state.persistentCoins
                 : 0;
 
-
         AMAZE.hold =
             state.hold === true;
-
 
         AMAZE.holdUntil =
             Number.isFinite(
@@ -2242,7 +2167,6 @@ function loadGameState() {
             )
                 ? state.holdUntil
                 : null;
-
 
         if (
             AMAZE.attempts >=
@@ -2256,9 +2180,7 @@ function loadGameState() {
             AMAZE.hold = false;
 
             AMAZE.holdUntil = null;
-
         }
-
 
         if (AMAZE.hold) {
 
@@ -2271,24 +2193,19 @@ function loadGameState() {
                 resumeSavedHold();
 
             }
-
             else {
 
                 releaseHold();
-
             }
-
         }
 
     }
-
     catch (error) {
 
         console.warn(
-            "Could not load saved state",
+            "AMAZE v8 load error",
             error
         );
-
 
         AMAZE.attempts = 0;
 
@@ -2299,10 +2216,8 @@ function loadGameState() {
         AMAZE.holdUntil = null;
 
         AMAZE.persistentCoins = 0;
-
     }
 }
-
 
 /* ==========================================================
    HOLD START
@@ -2314,18 +2229,15 @@ function startHold() {
         return;
     }
 
-
-    AMAZE.hold = true;
-
+    AMAZE.hold =
+        true;
 
     AMAZE.holdUntil =
         Date.now() +
         AMAZE.holdDuration *
         1000;
 
-
     vibrationHoldEnter();
-
 
     playSound(
         300,
@@ -2334,9 +2246,7 @@ function startHold() {
         .06
     );
 
-
     saveGameState();
-
 
     freezeMachine();
 
@@ -2344,7 +2254,6 @@ function startHold() {
 
     runHoldTimer();
 }
-
 
 /* ==========================================================
    RESUME HOLD
@@ -2359,7 +2268,6 @@ function resumeSavedHold() {
     runHoldTimer();
 }
 
-
 /* ==========================================================
    HOLD TIMER
 ========================================================== */
@@ -2370,9 +2278,7 @@ function runHoldTimer() {
         AMAZE.holdTimer
     );
 
-
     updateHoldTimer();
-
 
     AMAZE.holdTimer =
         setInterval(
@@ -2380,7 +2286,6 @@ function runHoldTimer() {
             100
         );
 }
-
 
 /* ==========================================================
    UPDATE HOLD TIMER
@@ -2397,7 +2302,6 @@ function updateHoldTimer() {
         return;
     }
 
-
     const remaining =
         Math.max(
             0,
@@ -2405,12 +2309,11 @@ function updateHoldTimer() {
             Date.now()
         );
 
-
     const seconds =
         Math.ceil(
-            remaining / 1000
+            remaining /
+            1000
         );
-
 
     const percentage =
         Math.max(
@@ -2423,91 +2326,95 @@ function updateHoldTimer() {
                         AMAZE.holdDuration *
                         1000
                     )
-                ) * 100
+                ) *
+                100
             )
         );
 
+    if (
+        AMAZE.holdCountdown
+    ) {
 
-    if (AMAZE.holdCountdown) {
-
-        AMAZE.holdCountdown.innerHTML =
+        AMAZE.holdCountdown.textContent =
             seconds;
-
     }
 
-
-    if (AMAZE.holdProgressFill) {
+    if (
+        AMAZE.holdProgressFill
+    ) {
 
         AMAZE.holdProgressFill.style.width =
             percentage + "%";
-
     }
 
-
-    if (remaining <= 0) {
+    if (
+        remaining <= 0
+    ) {
 
         clearInterval(
             AMAZE.holdTimer
         );
 
-
         releaseHold();
-
     }
 }
 
-
 /* ==========================================================
-   FREEZE MACHINE
+   FREEZE
 ========================================================== */
 
 function freezeMachine() {
 
-    if (AMAZE.machine) {
+    if (
+        AMAZE.machine
+    ) {
 
         AMAZE.machine.classList.add(
             "ice-mode"
         );
-
     }
 
-
-    if (AMAZE.button) {
+    if (
+        AMAZE.button
+    ) {
 
         AMAZE.button.disabled =
             true;
-
     }
 
+    AMAZE.reels.forEach(
+        reel => {
 
-    AMAZE.windows.forEach(
-        windowElement => {
+            reel.spinning =
+                false;
 
-            if (windowElement) {
+            if (
+                reel.animationFrame
+            ) {
 
-                windowElement.classList.remove(
-                    "spinning"
+                cancelAnimationFrame(
+                    reel.animationFrame
                 );
-
             }
 
+            reel.slot.classList.remove(
+                "reel-spin"
+            );
         }
     );
 
+    if (
+        AMAZE.holdStatus
+    ) {
 
-    if (AMAZE.holdStatus) {
-
-        AMAZE.holdStatus.innerHTML =
+        AMAZE.holdStatus.textContent =
             "MACHINE FROZEN";
-
     }
-
 
     setMessage(
         "❄ ICE HOLD ❄"
     );
 }
-
 
 /* ==========================================================
    SHOW HOLD
@@ -2515,31 +2422,31 @@ function freezeMachine() {
 
 function showHoldOverlay() {
 
-    if (!AMAZE.holdOverlay) {
+    if (
+        !AMAZE.holdOverlay
+    ) {
+
         return;
     }
-
 
     AMAZE.holdOverlay.classList.add(
         "active"
     );
-
 
     AMAZE.holdOverlay.setAttribute(
         "aria-hidden",
         "false"
     );
 
-
-    if (AMAZE.snowContainer) {
+    if (
+        AMAZE.snowContainer
+    ) {
 
         AMAZE.snowContainer.classList.add(
             "active"
         );
-
     }
 }
-
 
 /* ==========================================================
    RELEASE HOLD
@@ -2547,18 +2454,17 @@ function showHoldOverlay() {
 
 function releaseHold() {
 
-    AMAZE.hold = false;
+    AMAZE.hold =
+        false;
 
-    AMAZE.holdUntil = null;
-
+    AMAZE.holdUntil =
+        null;
 
     clearInterval(
         AMAZE.holdTimer
     );
 
-
     vibrationHoldExit();
-
 
     playSound(
         600,
@@ -2567,17 +2473,18 @@ function releaseHold() {
         .04
     );
 
-
-    if (AMAZE.machine) {
+    if (
+        AMAZE.machine
+    ) {
 
         AMAZE.machine.classList.remove(
             "ice-mode"
         );
-
     }
 
-
-    if (AMAZE.holdOverlay) {
+    if (
+        AMAZE.holdOverlay
+    ) {
 
         AMAZE.holdOverlay.classList.remove(
             "active"
@@ -2587,43 +2494,39 @@ function releaseHold() {
             "aria-hidden",
             "true"
         );
-
     }
 
-
-    if (AMAZE.snowContainer) {
+    if (
+        AMAZE.snowContainer
+    ) {
 
         AMAZE.snowContainer.classList.remove(
             "active"
         );
-
     }
 
+    if (
+        AMAZE.holdStatus
+    ) {
 
-    if (AMAZE.holdStatus) {
-
-        AMAZE.holdStatus.innerHTML =
+        AMAZE.holdStatus.textContent =
             "ICE MODE COMPLETE";
-
     }
 
-
-    if (AMAZE.button) {
+    if (
+        AMAZE.button
+    ) {
 
         AMAZE.button.disabled =
             false;
-
     }
-
 
     setMessage(
         "🔥 BACK TO THE GAME"
     );
 
-
     saveGameState();
 }
-
 
 /* ==========================================================
    JACKPOT
@@ -2633,14 +2536,12 @@ function jackpot() {
 
     vibrationWin();
 
-
     playSound(
         900,
         .3,
         "square",
         .08
     );
-
 
     setTimeout(
         () => {
@@ -2656,35 +2557,27 @@ function jackpot() {
         200
     );
 
-
-    if (AMAZE.lamp) {
+    if (
+        AMAZE.lamp
+    ) {
 
         AMAZE.lamp.classList.add(
             "on"
         );
-
     }
-
 
     createCoins();
 
     createConfetti();
 
-
     AMAZE.slots.forEach(
         slot => {
 
-            if (slot) {
-
-                slot.classList.add(
-                    "flash"
-                );
-
-            }
-
+            slot.classList.add(
+                "flash"
+            );
         }
     );
-
 
     setTimeout(
         resetEffects,
@@ -2692,21 +2585,20 @@ function jackpot() {
     );
 }
 
-
 /* ==========================================================
    RESET EFFECTS
 ========================================================== */
 
 function resetEffects() {
 
-    if (AMAZE.lamp) {
+    if (
+        AMAZE.lamp
+    ) {
 
         AMAZE.lamp.classList.remove(
             "on"
         );
-
     }
-
 
     AMAZE.slots.forEach(
         slot => {
@@ -2716,13 +2608,10 @@ function resetEffects() {
                 slot.classList.remove(
                     "flash"
                 );
-
             }
-
         }
     );
 }
-
 
 /* ==========================================================
    COINS
@@ -2741,25 +2630,22 @@ function createCoins() {
                 "div"
             );
 
-
         coin.className =
             "coin";
 
-
         coin.style.left =
-            Math.random() * 100 +
+            Math.random() *
+            100 +
             "vw";
 
-
         coin.style.animationDelay =
-            Math.random() * 1.5 +
+            Math.random() *
+            1.5 +
             "s";
-
 
         document.body.appendChild(
             coin
         );
-
 
         setTimeout(
             () => {
@@ -2769,10 +2655,8 @@ function createCoins() {
             },
             4000
         );
-
     }
 }
-
 
 /* ==========================================================
    CONFETTI
@@ -2788,7 +2672,6 @@ function createConfetti() {
         "purple"
     ];
 
-
     for (
         let i = 0;
         i < 100;
@@ -2800,15 +2683,13 @@ function createConfetti() {
                 "div"
             );
 
-
         piece.className =
             "confetti";
 
-
         piece.style.left =
-            Math.random() * 100 +
+            Math.random() *
+            100 +
             "vw";
-
 
         piece.style.background =
             colors[
@@ -2818,16 +2699,14 @@ function createConfetti() {
                 )
             ];
 
-
         piece.style.animationDelay =
-            Math.random() * 1.5 +
+            Math.random() *
+            1.5 +
             "s";
-
 
         document.body.appendChild(
             piece
         );
-
 
         setTimeout(
             () => {
@@ -2837,10 +2716,8 @@ function createConfetti() {
             },
             4500
         );
-
     }
 }
-
 
 /* ==========================================================
    CASINO PARTICLES
@@ -2848,16 +2725,17 @@ function createConfetti() {
 
 function createCasinoParticles() {
 
-    if (!AMAZE.casinoBackground) {
+    if (
+        !AMAZE.casinoBackground
+    ) {
+
         return;
     }
-
 
     const count =
         window.innerWidth < 600
             ? 35
             : 65;
-
 
     for (
         let i = 0;
@@ -2870,24 +2748,22 @@ function createCasinoParticles() {
                 "div"
             );
 
-
         particle.className =
             "casino-particle";
 
-
         particle.style.left =
-            Math.random() * 100 +
+            Math.random() *
+            100 +
             "%";
-
 
         particle.style.setProperty(
             "--duration",
             (
                 8 +
                 Math.random() * 14
-            ) + "s"
+            ) +
+            "s"
         );
-
 
         particle.style.setProperty(
             "--opacity",
@@ -2895,43 +2771,36 @@ function createCasinoParticles() {
             Math.random() * .7
         );
 
-
         particle.style.setProperty(
             "--drift",
             (
                 -100 +
                 Math.random() * 200
-            ) + "px"
+            ) +
+            "px"
         );
-
 
         const size =
             2 +
             Math.random() * 5;
 
-
         particle.style.width =
             size + "px";
-
 
         particle.style.height =
             size + "px";
 
-
         particle.style.animationDelay =
-            -Math.random() * 15 +
+            -Math.random() *
+            15 +
             "s";
 
-
-        AMAZE
-            .casinoBackground
+        AMAZE.casinoBackground
             .appendChild(
                 particle
             );
-
     }
 }
-
 
 /* ==========================================================
    SNOW
@@ -2939,16 +2808,17 @@ function createCasinoParticles() {
 
 function createSnowParticles() {
 
-    if (!AMAZE.snowContainer) {
+    if (
+        !AMAZE.snowContainer
+    ) {
+
         return;
     }
-
 
     const count =
         window.innerWidth < 600
             ? 45
             : 80;
-
 
     for (
         let i = 0;
@@ -2961,33 +2831,31 @@ function createSnowParticles() {
                 "div"
             );
 
-
         snow.className =
             "snowflake";
 
-
         snow.style.left =
-            Math.random() * 100 +
+            Math.random() *
+            100 +
             "%";
-
 
         snow.style.setProperty(
             "--size",
             (
                 3 +
                 Math.random() * 9
-            ) + "px"
+            ) +
+            "px"
         );
-
 
         snow.style.setProperty(
             "--duration",
             (
                 5 +
                 Math.random() * 8
-            ) + "s"
+            ) +
+            "s"
         );
-
 
         snow.style.setProperty(
             "--opacity",
@@ -2997,30 +2865,26 @@ function createSnowParticles() {
             )
         );
 
-
         snow.style.setProperty(
             "--sway",
             (
                 -100 +
                 Math.random() * 200
-            ) + "px"
+            ) +
+            "px"
         );
 
-
         snow.style.animationDelay =
-            -Math.random() * 10 +
+            -Math.random() *
+            10 +
             "s";
 
-
-        AMAZE
-            .snowContainer
+        AMAZE.snowContainer
             .appendChild(
                 snow
             );
-
     }
 }
-
 
 /* ==========================================================
    LEVER
@@ -3028,23 +2892,22 @@ function createSnowParticles() {
 
 function leverPull() {
 
-    if (!AMAZE.lever) {
+    if (
+        !AMAZE.lever
+    ) {
+
         return;
     }
-
 
     AMAZE.lever.classList.remove(
         "pull-lever"
     );
 
-
     void AMAZE.lever.offsetWidth;
-
 
     AMAZE.lever.classList.add(
         "pull-lever"
     );
-
 
     playSound(
         90,
@@ -3054,9 +2917,8 @@ function leverPull() {
     );
 }
 
-
 /* ==========================================================
-   ROUND COMPLETE
+   COMPLETE ROUND
 ========================================================== */
 
 function completeRound() {
@@ -3064,31 +2926,28 @@ function completeRound() {
     AMAZE.playing =
         true;
 
-
-    if (AMAZE.button) {
+    if (
+        AMAZE.button
+    ) {
 
         AMAZE.button.disabled =
             true;
-
     }
 
-
-    if (AMAZE.machine) {
+    if (
+        AMAZE.machine
+    ) {
 
         AMAZE.machine.classList.add(
             "round-complete"
         );
-
     }
-
 
     setMessage(
         "🏆 ROUND COMPLETE 🏆"
     );
 
-
     vibrationWin();
-
 
     playSound(
         700,
@@ -3096,7 +2955,6 @@ function completeRound() {
         "square",
         .07
     );
-
 
     setTimeout(
         () => {
@@ -3112,7 +2970,6 @@ function completeRound() {
         180
     );
 
-
     setTimeout(
         () => {
 
@@ -3123,7 +2980,6 @@ function completeRound() {
                 .08
             );
 
-
             createCoins();
 
             createConfetti();
@@ -3132,13 +2988,11 @@ function completeRound() {
         350
     );
 
-
     setTimeout(
         resetRound,
         3000
     );
 }
-
 
 /* ==========================================================
    RESET ROUND
@@ -3160,39 +3014,34 @@ function resetRound() {
     AMAZE.holdUntil =
         null;
 
-
     resetEffects();
-
 
     updateProgress();
 
     updateRoundStatus();
 
-
     setMessage(
         "🎰 NEW ROUND"
     );
 
-
-    if (AMAZE.machine) {
+    if (
+        AMAZE.machine
+    ) {
 
         AMAZE.machine.classList.remove(
             "round-complete"
         );
-
     }
 
-
-    if (AMAZE.button) {
+    if (
+        AMAZE.button
+    ) {
 
         AMAZE.button.disabled =
             false;
-
     }
 
-
     saveGameState();
-
 
     setTimeout(
         () => {
@@ -3205,7 +3054,6 @@ function resetRound() {
         1500
     );
 }
-
 
 /* ==========================================================
    VISIBILITY
@@ -3221,12 +3069,27 @@ document.addEventListener(
         ) {
 
             updateHoldTimer();
-
         }
-
     }
 );
 
+/* ==========================================================
+   RESIZE
+========================================================== */
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        if (
+            !AMAZE.playing &&
+            !AMAZE.hold
+        ) {
+
+            updateReelGeometry();
+        }
+    }
+);
 
 /* ==========================================================
    BEFORE UNLOAD
@@ -3241,7 +3104,6 @@ window.addEventListener(
     }
 );
 
-
 /* ==========================================================
    ERROR MONITOR
 ========================================================== */
@@ -3251,18 +3113,17 @@ window.addEventListener(
     event => {
 
         console.warn(
-            "AmazeEscape v7.1:",
+            "AMAZE GAMING v8:",
             event.message
         );
 
     }
 );
 
-
 /* ==========================================================
    READY
 ========================================================== */
 
 console.log(
-    "🎰 AmazeEscape v7.1 READY"
+    "🎰 AMAZE GAMING v8 READY"
 );
