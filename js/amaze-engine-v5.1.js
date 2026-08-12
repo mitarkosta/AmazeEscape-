@@ -1,26 +1,27 @@
 /* ==========================================================
    AMAZE ESCAPE
-   ENGINE v5.1
+   ENGINE v7 OPTIMIZED
 
    CORE
    PROGRESS
    PERSISTENCE
-   ICE HOLD
    ANTICIPATION
-   MOBILE HAPTICS
-   AUDIO SAFE MODE
-   ========================================================== */
+   HOLD
+   MOBILE VIBRATION
+   AUDIO SAFE
+   DOM SAFE
+   PERFORMANCE OPTIMIZED
+========================================================== */
 
 "use strict";
 
-
 /* ==========================================================
-   CONFIGURATION
-   ========================================================== */
+   CONFIG
+========================================================== */
 
 const AMAZE = {
 
-    version: "5.1",
+    version: "7.0",
 
     symbols: [
         "🍒",
@@ -37,6 +38,12 @@ const AMAZE = {
 
     holdDuration: 30,
 
+    anticipationDelay: 650,
+
+    reelSpinDuration: 1700,
+
+    reelStopDelay: 550,
+
     attempts: 0,
 
     round: 1,
@@ -49,27 +56,25 @@ const AMAZE = {
 
     audio: null,
 
-    audioUnlocked: false,
-
-    machine: null,
+    slots: [],
 
     button: null,
 
-    slots: [],
+    machine: null,
 
     message: null,
 
-    counterValue: null,
+    lever: null,
+
+    lamp: null,
 
     progressFill: null,
 
     progressBar: null,
 
+    counterValue: null,
+
     roundStatus: null,
-
-    lever: null,
-
-    lamp: null,
 
     holdOverlay: null,
 
@@ -83,7 +88,7 @@ const AMAZE = {
 
     snowContainer: null,
 
-    anticipationLayer: null,
+    anticipationOverlay: null,
 
     anticipationParticles: null,
 
@@ -91,33 +96,28 @@ const AMAZE = {
 
     persistentFill: null,
 
-    persistentProgress: null,
-
-    persistentCoins: null,
+    persistentBar: null,
 
     holdTimer: null,
 
     anticipationTimer: null,
 
-    lastResult: [],
+    reelTimer: null,
 
-    storageKey:
-        "AmazeEscape_v5_1_State",
+    persistentCoins: 0,
 
-    persistentKey:
-        "AmazeEscape_v5_1_Persistent",
+    persistentTarget: 10,
 
-    persistentValue:
-        0,
+    anticipationActive: false,
 
-    persistentTarget:
-        10
+    storageKey: "AmazeEscape_v6_State"
+
 };
 
 
 /* ==========================================================
    DOM READY
-   ========================================================== */
+========================================================== */
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -127,110 +127,90 @@ document.addEventListener(
 
 /* ==========================================================
    INITIALIZATION
-   ========================================================== */
+========================================================== */
 
 function initializeGame() {
 
     AMAZE.machine =
-        document.getElementById(
-            "machine"
-        );
+        document.getElementById("machine");
 
     AMAZE.button =
-        document.getElementById(
-            "button"
-        );
+        document.getElementById("button");
 
     AMAZE.message =
-        document.getElementById(
-            "message"
-        );
+        document.getElementById("message");
 
     AMAZE.counterValue =
-        document.getElementById(
-            "counterValue"
-        );
+        document.getElementById("counterValue");
 
     AMAZE.progressFill =
-        document.getElementById(
-            "spinProgressFill"
-        );
+        document.getElementById("spinProgressFill");
 
     AMAZE.progressBar =
-        document.getElementById(
-            "spinProgress"
-        );
+        document.getElementById("spinProgress");
 
     AMAZE.roundStatus =
-        document.getElementById(
-            "roundStatus"
-        );
+        document.getElementById("roundStatus");
+
 
     AMAZE.slots = [
-
-        document.getElementById(
-            "slot1"
-        ),
-
-        document.getElementById(
-            "slot2"
-        ),
-
-        document.getElementById(
-            "slot3"
-        )
-
+        document.getElementById("slot1"),
+        document.getElementById("slot2"),
+        document.getElementById("slot3")
     ];
 
+
     AMAZE.lever =
-        document.querySelector(
-            ".real-lever"
-        );
+        document.querySelector(".real-lever");
+
+
+    /*
+     * HTML няма id="jackpotLamp",
+     * затова използваме class selector.
+     */
 
     AMAZE.lamp =
-        document.querySelector(
-            ".jackpot-lamp"
-        );
+        document.querySelector(".jackpot-lamp");
+
 
     AMAZE.holdOverlay =
-        document.getElementById(
-            "holdOverlay"
-        );
+        document.getElementById("holdOverlay");
 
     AMAZE.holdCountdown =
-        document.getElementById(
-            "holdCountdown"
-        );
+        document.getElementById("holdCountdown");
 
     AMAZE.holdProgressFill =
-        document.getElementById(
-            "holdProgressFill"
-        );
+        document.getElementById("holdProgressFill");
 
     AMAZE.holdStatus =
-        document.getElementById(
-            "holdStatus"
-        );
+        document.getElementById("holdStatus");
 
     AMAZE.casinoBackground =
-        document.getElementById(
-            "casinoBackground"
-        );
+        document.getElementById("casinoBackground");
 
     AMAZE.snowContainer =
-        document.getElementById(
-            "snowContainer"
-        );
+        document.getElementById("snowContainer");
 
-    AMAZE.anticipationLayer =
+
+    /*
+     * Existing HTML uses:
+     *
+     * anticipation-layer
+     *
+     * NOT anticipationOverlay.
+     */
+
+    AMAZE.anticipationOverlay =
         document.getElementById(
             "anticipationLayer"
         );
+
 
     AMAZE.anticipationParticles =
         document.querySelector(
             ".anticipation-particles"
         );
+
 
     AMAZE.persistentValue =
         document.getElementById(
@@ -242,24 +222,15 @@ function initializeGame() {
             "persistentFill"
         );
 
-    AMAZE.persistentProgress =
+    AMAZE.persistentBar =
         document.getElementById(
             "persistentProgress"
         );
 
-    AMAZE.persistentCoins =
-        document.getElementById(
-            "persistentCoins"
-        );
 
-
-    /* ======================================================
-       IMPORTANT:
-       NO AudioContext HERE.
-       It is created only after a user gesture.
-       ====================================================== */
-
-    if (AMAZE.button) {
+    if (
+        AMAZE.button
+    ) {
 
         AMAZE.button.addEventListener(
             "click",
@@ -275,8 +246,6 @@ function initializeGame() {
 
     loadGameState();
 
-    loadPersistentState();
-
     updateProgress();
 
     updatePersistentProgress();
@@ -285,69 +254,108 @@ function initializeGame() {
 
 
     console.log(
-        "🎰 AmazeEscape v5.1 loaded"
+        "🎰 AmazeEscape v7 Optimized loaded"
     );
 }
 
 
 /* ==========================================================
-   AUDIO
-   ========================================================== */
+   RANDOM SYMBOL
+========================================================== */
 
-function unlockAudio() {
+function randomSymbol() {
 
-    try {
+    return AMAZE.symbols[
+        Math.floor(
+            Math.random() *
+            AMAZE.symbols.length
+        )
+    ];
 
-        if (!AMAZE.audio) {
-
-            const AudioCtx =
-                window.AudioContext ||
-                window.webkitAudioContext;
-
-            if (!AudioCtx) {
-
-                return null;
-            }
-
-            AMAZE.audio =
-                new AudioCtx();
-        }
-
-
-        if (
-            AMAZE.audio.state ===
-            "suspended"
-        ) {
-
-            AMAZE.audio.resume();
-        }
-
-
-        AMAZE.audioUnlocked =
-            true;
-
-
-        return AMAZE.audio;
-
-    }
-
-    catch (error) {
-
-        console.warn(
-            "Audio unavailable",
-            error
-        );
-
-        return null;
-    }
 }
 
+
+/* ==========================================================
+   MESSAGE
+========================================================== */
+
+function setMessage(text) {
+
+    if (
+        AMAZE.message
+    ) {
+
+        AMAZE.message.textContent =
+            text;
+
+    }
+
+}
+
+
+/* ==========================================================
+   AUDIO
+   Created only after real user interaction.
+========================================================== */
 
 function getAudio() {
 
-    return unlockAudio();
+    if (
+        !AMAZE.audio
+    ) {
+
+        const AudioContext =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+        if (
+            !AudioContext
+        ) {
+
+            return null;
+
+        }
+
+        try {
+
+            AMAZE.audio =
+                new AudioContext();
+
+        }
+
+        catch (
+            error
+        ) {
+
+            return null;
+
+        }
+
+    }
+
+
+    if (
+        AMAZE.audio.state ===
+        "suspended"
+    ) {
+
+        AMAZE.audio
+            .resume()
+            .catch(
+                () => {}
+            );
+
+    }
+
+
+    return AMAZE.audio;
+
 }
 
+
+/* ==========================================================
+   SOUND
+========================================================== */
 
 function playSound(
     frequency,
@@ -356,14 +364,20 @@ function playSound(
     volume = .05
 ) {
 
-    const ctx =
-        getAudio();
-
-    if (!ctx)
-        return;
-
-
     try {
+
+        const ctx =
+            getAudio();
+
+        if (
+            !ctx ||
+            ctx.state === "closed"
+        ) {
+
+            return;
+
+        }
+
 
         const osc =
             ctx.createOscillator();
@@ -379,156 +393,250 @@ function playSound(
             frequency;
 
 
-        gain.gain.setValueAtTime(
-            0,
-            ctx.currentTime
-        );
+        const now =
+            ctx.currentTime;
 
-        gain.gain.linearRampToValueAtTime(
-            volume,
-            ctx.currentTime + .01
+
+        gain.gain.setValueAtTime(
+            0.0001,
+            now
         );
 
         gain.gain.exponentialRampToValueAtTime(
-            .001,
-            ctx.currentTime + duration
+            Math.max(volume, .0002),
+            now + .01
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            now + duration
         );
 
 
-        osc.connect(gain);
+        osc.connect(
+            gain
+        );
 
         gain.connect(
             ctx.destination
         );
 
 
-        osc.start();
+        osc.start(
+            now
+        );
 
         osc.stop(
-            ctx.currentTime +
+            now +
             duration +
             .02
         );
 
     }
 
-    catch (error) {
+    catch (
+        error
+    ) {
 
-        console.warn(
-            "Sound error",
-            error
-        );
+        /*
+         * Audio is optional.
+         * Never allow sound to break gameplay.
+         */
+
     }
+
 }
 
 
 /* ==========================================================
-   MOBILE HAPTICS
-   ========================================================== */
+   MOBILE VIBRATION
+========================================================== */
 
-function vibrate(
-    pattern
-) {
+function vibrate(pattern) {
+
+    if (
+        typeof navigator.vibrate !==
+        "function"
+    ) {
+
+        return;
+
+    }
+
 
     try {
 
-        if (
-            "vibrate" in navigator
-        ) {
-
-            navigator.vibrate(
-                pattern
-            );
-        }
+        navigator.vibrate(
+            pattern
+        );
 
     }
 
-    catch (error) {
+    catch (
+        error
+    ) {
 
-        /* vibration unsupported */
+        /*
+         * Vibration is optional.
+         */
+
     }
+
 }
 
 
 /* ==========================================================
-   RANDOM SYMBOL
-   ========================================================== */
+   VIBRATION - EVERY SPIN
+========================================================== */
 
-function randomSymbol() {
+function vibrationSpin() {
 
-    return AMAZE.symbols[
-        Math.floor(
-            Math.random() *
-            AMAZE.symbols.length
-        )
-    ];
+    vibrate(
+        35
+    );
+
 }
 
 
 /* ==========================================================
-   MESSAGE
-   ========================================================== */
+   VIBRATION - ANTICIPATION
+========================================================== */
 
-function setMessage(
-    text
-) {
+function vibrationAnticipation() {
 
-    if (AMAZE.message) {
+    vibrate(
+        [
+            60,
+            35,
+            100,
+            35,
+            160
+        ]
+    );
 
-        AMAZE.message.innerHTML =
-            text;
-    }
+}
+
+
+/* ==========================================================
+   VIBRATION - WINNING LINE
+========================================================== */
+
+function vibrationWinLine() {
+
+    vibrate(
+        [
+            70,
+            35,
+            110
+        ]
+    );
+
+}
+
+
+/* ==========================================================
+   VIBRATION - JACKPOT
+========================================================== */
+
+function vibrationJackpot() {
+
+    vibrate(
+        [
+            90,
+            40,
+            130,
+            40,
+            200,
+            50,
+            260
+        ]
+    );
+
+}
+
+
+/* ==========================================================
+   VIBRATION - HOLD ENTER
+========================================================== */
+
+function vibrationHoldEnter() {
+
+    vibrate(
+        [
+            100,
+            50,
+            180
+        ]
+    );
+
+}
+
+
+/* ==========================================================
+   VIBRATION - HOLD EXIT
+========================================================== */
+
+function vibrationHoldExit() {
+
+    vibrate(
+        [
+            180,
+            60,
+            100
+        ]
+    );
+
 }
 
 
 /* ==========================================================
    SPIN
-   ========================================================== */
+========================================================== */
 
 function spinGame() {
 
-    if (AMAZE.playing)
+    if (
+        AMAZE.playing ||
+        AMAZE.hold
+    ) {
+
         return;
 
-    if (AMAZE.hold)
-        return;
+    }
+
 
     if (
         AMAZE.attempts >=
         AMAZE.maxSpins
-    )
+    ) {
+
         return;
+
+    }
 
 
     if (
-        !AMAZE.slots[0] ||
-        !AMAZE.slots[1] ||
-        !AMAZE.slots[2]
+        AMAZE.slots.length !== 3 ||
+        AMAZE.slots.some(
+            slot => !slot
+        )
     ) {
 
         console.warn(
-            "Slots not found"
+            "AmazeEscape: slots not found"
         );
 
         return;
+
     }
 
 
     /*
-     * First user gesture:
-     * unlock Web Audio safely.
+     * Real user gesture.
+     * Safe moment to start/resume AudioContext.
      */
 
-    unlockAudio();
-
-
-    /*
-     * Haptic on every spin.
-     */
-
-    vibrate(
-        22
-    );
+    getAudio();
 
 
     AMAZE.playing =
@@ -542,16 +650,26 @@ function spinGame() {
     saveGameState();
 
 
-    if (AMAZE.button) {
+    if (
+        AMAZE.button
+    ) {
 
         AMAZE.button.disabled =
             true;
+
     }
 
 
     setMessage(
         "🎰 SPINNING..."
     );
+
+
+    /*
+     * Vibration on EVERY spin.
+     */
+
+    vibrationSpin();
 
 
     playSound(
@@ -565,35 +683,38 @@ function spinGame() {
     leverPull();
 
 
-    if (AMAZE.machine) {
+    if (
+        AMAZE.machine
+    ) {
 
         AMAZE.machine.classList.add(
             "playing"
         );
+
     }
 
 
-    clearAnticipation();
-
     startReels();
+
 }
 
 
 /* ==========================================================
    START REELS
-   ========================================================== */
+========================================================== */
 
 function startReels() {
+
+    clearTimeout(
+        AMAZE.reelTimer
+    );
+
 
     AMAZE.slots.forEach(
         slot => {
 
             slot.classList.remove(
                 "reel-stop"
-            );
-
-            slot.classList.remove(
-                "anticipation-last"
             );
 
             slot.classList.add(
@@ -611,7 +732,7 @@ function startReels() {
                 AMAZE.slots.forEach(
                     slot => {
 
-                        slot.innerHTML =
+                        slot.textContent =
                             randomSymbol();
 
                     }
@@ -622,233 +743,217 @@ function startReels() {
         );
 
 
-    setTimeout(
-        () => {
+    AMAZE.reelTimer =
+        setTimeout(
+            () => {
 
-            clearInterval(
-                timer
-            );
+                clearInterval(
+                    timer
+                );
 
-            stopReels();
+                stopReels();
 
-        },
-        2000
-    );
+            },
+            AMAZE.reelSpinDuration
+        );
+
 }
 
 
 /* ==========================================================
    STOP REELS
-   ========================================================== */
+========================================================== */
 
 function stopReels() {
 
     const result = [];
 
 
-    AMAZE.slots.forEach(
-        (slot, index) => {
+    /*
+     * Reel 1
+     */
 
-            setTimeout(
-                () => {
+    setTimeout(
+        () => {
 
-                    slot.classList.remove(
-                        "reel-spin"
-                    );
-
-                    slot.classList.add(
-                        "reel-stop"
-                    );
-
-
-                    const symbol =
-                        randomSymbol();
-
-
-                    slot.innerHTML =
-                        symbol;
-
-
-                    result[index] =
-                        symbol;
-
-
-                    playSound(
-                        700 -
-                        index * 120,
-                        .08,
-                        "square",
-                        .04
-                    );
-
-
-                    /*
-                     * First two reels are now known.
-                     */
-
-                    if (
-                        index === 1
-                    ) {
-
-                        evaluateAnticipation(
-                            result
-                        );
-                    }
-
-
-                    /*
-                     * Last reel.
-                     */
-
-                    if (
-                        index === 2
-                    ) {
-
-                        finishSpin(
-                            result
-                        );
-                    }
-
-                },
-                index * 600
+            stopSingleReel(
+                0,
+                result
             );
 
-        }
+        },
+        0
     );
+
+
+    /*
+     * Reel 2
+     */
+
+    setTimeout(
+        () => {
+
+            stopSingleReel(
+                1,
+                result
+            );
+
+        },
+        AMAZE.reelStopDelay
+    );
+
+
+    /*
+     * Reel 3
+     */
+
+    setTimeout(
+        () => {
+
+            /*
+             * IMPORTANT:
+             *
+             * Anticipation ONLY if:
+             *
+             * Reel 1 === Reel 2
+             */
+
+            if (
+                result[0] &&
+                result[1] &&
+                result[0] ===
+                result[1]
+            ) {
+
+                startAnticipation(
+                    () => {
+
+                        stopSingleReel(
+                            2,
+                            result
+                        );
+
+                    }
+                );
+
+            }
+
+            else {
+
+                stopSingleReel(
+                    2,
+                    result
+                );
+
+            }
+
+        },
+        1100
+    );
+
 }
 
 
 /* ==========================================================
-   ANTICIPATION LOGIC
-   ========================================================== */
+   STOP SINGLE REEL
+========================================================== */
 
-function evaluateAnticipation(
+function stopSingleReel(
+    index,
     result
 ) {
 
-    const first =
-        result[0];
-
-    const second =
-        result[1];
-
-
-    /*
-     * REQUIRED CONDITION:
-     *
-     * FIRST == SECOND
-     *
-     * AND:
-     * minimum spin = 5
-     *
-     * AND:
-     * random trigger.
-     */
-
-    if (
-        !first ||
-        !second
-    ) {
-
-        return;
-    }
+    const slot =
+        AMAZE.slots[index];
 
 
     if (
-        first !== second
+        !slot
     ) {
 
         return;
+
     }
+
+
+    slot.classList.remove(
+        "reel-spin"
+    );
+
+    slot.classList.add(
+        "reel-stop"
+    );
+
+
+    const symbol =
+        randomSymbol();
+
+
+    slot.textContent =
+        symbol;
+
+
+    result[index] =
+        symbol;
+
+
+    playSound(
+        700 - index * 120,
+        .08,
+        "square",
+        .04
+    );
 
 
     if (
-        AMAZE.attempts < 5
+        index === 2
     ) {
 
-        return;
+        finishSpin(
+            result
+        );
+
     }
 
-
-    /*
-     * Random anticipation.
-     *
-     * 65% chance when
-     * first two reels match.
-     */
-
-    const trigger =
-        Math.random() < .65;
-
-
-    if (!trigger) {
-
-        return;
-    }
-
-
-    startAnticipation();
 }
 
 
 /* ==========================================================
-   START ANTICIPATION
-   ========================================================== */
+   ANTICIPATION START
+========================================================== */
 
-function startAnticipation() {
+function startAnticipation(
+    callback
+) {
 
     if (
-        !AMAZE.anticipationLayer
+        AMAZE.anticipationActive
     ) {
 
+        callback();
+
         return;
+
     }
 
 
-    AMAZE.anticipationLayer
-        .classList.add(
-            "active"
-        );
-
-
-    /*
-     * Highlight final reel.
-     */
-
-    if (AMAZE.slots[2]) {
-
-        AMAZE.slots[2]
-            .classList.add(
-                "anticipation-last"
-            );
-    }
+    AMAZE.anticipationActive =
+        true;
 
 
     setMessage(
-        "🔥 ONE MORE REEL..."
+        "🔥 TWO MATCH... FINAL REEL!"
     );
 
 
-    /*
-     * Stronger mobile vibration.
-     */
+    vibrationAnticipation();
 
-    vibrate([
-        35,
-        45,
-        60
-    ]);
-
-
-    /*
-     * Sound escalation.
-     */
 
     playSound(
-        330,
-        .12,
+        180,
+        .35,
         "sawtooth",
-        .05
+        .06
     );
 
 
@@ -856,15 +961,46 @@ function startAnticipation() {
         () => {
 
             playSound(
-                520,
-                .16,
-                "sawtooth",
-                .06
+                260,
+                .3,
+                "square",
+                .05
             );
 
         },
-        110
+        180
     );
+
+
+    if (
+        AMAZE.machine
+    ) {
+
+        AMAZE.machine.classList.add(
+            "anticipation-mode"
+        );
+
+    }
+
+
+    if (
+        AMAZE.anticipationOverlay
+    ) {
+
+        AMAZE
+            .anticipationOverlay
+            .classList.add(
+                "active"
+            );
+
+        AMAZE
+            .anticipationOverlay
+            .setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+    }
 
 
     createAnticipationParticles();
@@ -879,17 +1015,73 @@ function startAnticipation() {
         setTimeout(
             () => {
 
-                clearAnticipation();
+                if (
+                    typeof callback ===
+                    "function"
+                ) {
+
+                    callback();
+
+                }
 
             },
-            2200
+            AMAZE.anticipationDelay
         );
+
+}
+
+
+/* ==========================================================
+   ANTICIPATION END
+========================================================== */
+
+function stopAnticipation() {
+
+    AMAZE.anticipationActive =
+        false;
+
+
+    clearTimeout(
+        AMAZE.anticipationTimer
+    );
+
+
+    if (
+        AMAZE.machine
+    ) {
+
+        AMAZE.machine.classList.remove(
+            "anticipation-mode"
+        );
+
+    }
+
+
+    if (
+        AMAZE.anticipationOverlay
+    ) {
+
+        AMAZE
+            .anticipationOverlay
+            .classList.remove(
+                "active"
+            );
+
+        AMAZE
+            .anticipationOverlay
+            .setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+    }
+
 }
 
 
 /* ==========================================================
    ANTICIPATION PARTICLES
-   ========================================================== */
+========================================================== */
 
 function createAnticipationParticles() {
 
@@ -898,17 +1090,23 @@ function createAnticipationParticles() {
     ) {
 
         return;
+
     }
 
 
-    AMAZE.anticipationParticles
-        .innerHTML = "";
+    AMAZE
+        .anticipationParticles
+        .replaceChildren();
 
 
     const count =
         window.innerWidth < 600
-            ? 22
-            : 36;
+            ? 25
+            : 45;
+
+
+    const fragment =
+        document.createDocumentFragment();
 
 
     for (
@@ -927,139 +1125,94 @@ function createAnticipationParticles() {
             "anticipation-particle";
 
 
+        const size =
+            3 +
+            Math.random() * 8;
+
+
+        particle.style.width =
+            size + "px";
+
+        particle.style.height =
+            size + "px";
+
+
         particle.style.left =
-            (
-                55 +
-                Math.random() * 30
-            ) +
-            "%";
-
-
-        particle.style.top =
-            (
-                40 +
-                Math.random() * 35
-            ) +
+            Math.random() * 100 +
             "%";
 
 
         particle.style.setProperty(
-            "--particle-x",
+            "--drift",
             (
-                -50 +
-                Math.random() * 100
-            ) +
-            "px"
+                -150 +
+                Math.random() * 300
+            ) + "px"
         );
 
 
         particle.style.setProperty(
-            "--particle-y",
+            "--duration",
             (
-                -80 -
-                Math.random() * 130
-            ) +
-            "px"
-        );
-
-
-        particle.style.setProperty(
-            "--particle-duration",
-            (
-                .45 +
-                Math.random() * .8
-            ) +
-            "s"
+                1 +
+                Math.random() * 1.5
+            ) + "s"
         );
 
 
         particle.style.animationDelay =
             (
-                Math.random() * .6
-            ) +
-            "s";
+                Math.random() * .8
+            ) + "s";
 
 
-        AMAZE.anticipationParticles
-            .appendChild(
-                particle
-            );
-    }
-}
+        fragment.appendChild(
+            particle
+        );
 
-
-/* ==========================================================
-   CLEAR ANTICIPATION
-   ========================================================== */
-
-function clearAnticipation() {
-
-    clearTimeout(
-        AMAZE.anticipationTimer
-    );
-
-
-    if (
-        AMAZE.anticipationLayer
-    ) {
-
-        AMAZE.anticipationLayer
-            .classList.remove(
-                "active"
-            );
     }
 
 
-    if (AMAZE.slots[2]) {
+    AMAZE
+        .anticipationParticles
+        .appendChild(
+            fragment
+        );
 
-        AMAZE.slots[2]
-            .classList.remove(
-                "anticipation-last"
-            );
-    }
-
-
-    if (
-        AMAZE.anticipationParticles
-    ) {
-
-        AMAZE.anticipationParticles
-            .innerHTML = "";
-    }
 }
 
 
 /* ==========================================================
    FINISH SPIN
-   ========================================================== */
+========================================================== */
 
-function finishSpin(
-    result
-) {
+function finishSpin(result) {
 
-    AMAZE.lastResult =
-        result.slice();
+    stopAnticipation();
 
 
     AMAZE.playing =
         false;
 
 
-    clearAnticipation();
-
-
-    if (AMAZE.button) {
+    if (
+        AMAZE.button
+    ) {
 
         AMAZE.button.disabled =
             false;
+
     }
 
 
-    if (AMAZE.machine) {
+    if (
+        AMAZE.machine
+    ) {
 
         AMAZE.machine.classList.remove(
             "playing"
         );
+
     }
 
 
@@ -1075,16 +1228,15 @@ function finishSpin(
         checkGameMilestone,
         350
     );
+
 }
 
 
 /* ==========================================================
    RESULT
-   ========================================================== */
+========================================================== */
 
-function checkResult(
-    result
-) {
+function checkResult(result) {
 
     const a =
         result[0];
@@ -1097,7 +1249,7 @@ function checkResult(
 
 
     /*
-     * THREE MATCH
+     * THREE IDENTICAL
      */
 
     if (
@@ -1110,27 +1262,26 @@ function checkResult(
         );
 
 
-        /*
-         * Haptic win.
-         */
+        vibrationJackpot();
 
-        vibrate([
-            60,
-            50,
-            90,
-            50,
-            140
-        ]);
+
+        collectPersistentReward();
 
 
         jackpot();
 
+
         return;
+
     }
 
 
     /*
-     * TWO MATCH
+     * ANY WINNING LINE:
+     *
+     * A === B
+     * B === C
+     * A === C
      */
 
     if (
@@ -1140,15 +1291,16 @@ function checkResult(
     ) {
 
         setMessage(
-            "🔥 ALMOST WIN"
+            "🔥 WIN!"
         );
 
 
-        vibrate([
-            35,
-            35,
-            50
-        ]);
+        /*
+         * Vibration specifically for
+         * winning line.
+         */
+
+        vibrationWinLine();
 
 
         playSound(
@@ -1159,180 +1311,114 @@ function checkResult(
         );
 
 
+        setTimeout(
+            () => {
+
+                playSound(
+                    700,
+                    .16,
+                    "square",
+                    .04
+                );
+
+            },
+            120
+        );
+
+
         return;
+
     }
 
 
     setMessage(
         "❌ TRY AGAIN"
     );
+
 }
 
 
 /* ==========================================================
-   MILESTONE
-   ========================================================== */
+   PERSISTENT REWARD
+========================================================== */
 
-function checkGameMilestone() {
+function collectPersistentReward() {
 
-    if (
-        AMAZE.attempts >=
-        AMAZE.maxSpins
-    ) {
-
-        completeRound();
-
-        return;
-    }
+    AMAZE.persistentCoins++;
 
 
     if (
-        AMAZE.attempts > 0 &&
-        AMAZE.attempts %
-        AMAZE.holdEvery === 0
+        AMAZE.persistentCoins >=
+        AMAZE.persistentTarget
     ) {
 
-        startHold();
-    }
-}
+        AMAZE.persistentCoins =
+            0;
 
 
-/* ==========================================================
-   MAIN PROGRESS
-   ========================================================== */
-
-function updateProgress() {
-
-    const percentage =
-        Math.min(
-            (
-                AMAZE.attempts /
-                AMAZE.maxSpins
-            ) * 100,
-            100
+        setMessage(
+            "💰 PERSISTENT PRIZE! 💰"
         );
 
 
-    if (AMAZE.counterValue) {
-
-        AMAZE.counterValue.innerHTML =
-            AMAZE.attempts +
-            " / " +
-            AMAZE.maxSpins;
-    }
+        vibrationJackpot();
 
 
-    if (AMAZE.progressFill) {
-
-        AMAZE.progressFill.style.width =
-            percentage +
-            "%";
-    }
-
-
-    if (AMAZE.progressBar) {
-
-        AMAZE.progressBar.setAttribute(
-            "aria-valuenow",
-            AMAZE.attempts
+        playSound(
+            1000,
+            .25,
+            "square",
+            .08
         );
-    }
-}
 
 
-/* ==========================================================
-   PERSISTENT STATE
-   ========================================================== */
+        setTimeout(
+            () => {
 
-function loadPersistentState() {
-
-    try {
-
-        const saved =
-            localStorage.getItem(
-                AMAZE.persistentKey
-            );
-
-
-        if (!saved) {
-
-            AMAZE.persistentValue =
-                0;
-
-            return;
-        }
-
-
-        const value =
-            Number(
-                JSON.parse(
-                    saved
-                )
-            );
-
-
-        if (
-            Number.isFinite(
-                value
-            )
-        ) {
-
-            AMAZE.persistentValue =
-                Math.max(
-                    0,
-                    value
+                playSound(
+                    1400,
+                    .3,
+                    "triangle",
+                    .08
                 );
 
-        }
-
-    }
-
-    catch (error) {
-
-        console.warn(
-            "Could not load persistent state",
-            error
+            },
+            180
         );
 
-        AMAZE.persistentValue =
-            0;
-    }
-}
 
-
-function savePersistentState() {
-
-    try {
-
-        localStorage.setItem(
-            AMAZE.persistentKey,
-            JSON.stringify(
-                AMAZE.persistentValue
-            )
+        createPersistentCoins(
+            true
         );
 
     }
 
-    catch (error) {
+    else {
 
-        console.warn(
-            "Could not save persistent state",
-            error
+        createPersistentCoins(
+            false
         );
+
     }
+
+
+    updatePersistentProgress();
+
+    saveGameState();
+
 }
 
 
 /* ==========================================================
-   PERSISTENT PROGRESS
-   ========================================================== */
+   UPDATE PERSISTENT
+========================================================== */
 
 function updatePersistentProgress() {
 
     const percentage =
         Math.min(
             (
-                AMAZE.persistentValue /
+                AMAZE.persistentCoins /
                 AMAZE.persistentTarget
             ) * 100,
             100
@@ -1340,5957 +1426,79 @@ function updatePersistentProgress() {
 
 
     if (
-        AMAZE.persistentValue >=
-        AMAZE.persistentTarget
+        AMAZE.persistentFill
     ) {
 
-        AMAZE.persistentValue = 0;
+        AMAZE.persistentFill.style.width =
+            percentage + "%";
 
-        savePersistentState();
-
-        persistentPrizeReached();
-
-        return;
-    }
-
-
-    if (AMAZE.persistentValue) {
-
-        /* keep integer */
-        AMAZE.persistentValue =
-            Math.floor(
-                AMAZE.persistentValue
-            );
-    }
-
-
-    if (AMAZE.persistentValue) {
-
-        /* nothing */
-    }
-
-
-    if (AMAZE.persistentValue === 0) {
-
-        /* normal */
-    }
-
-
-    if (AMAZE.persistentValue) {
-
-        /* progress */
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        /* intentionally safe */
-    }
-
-
-    if (AMAZE.persistentValue >= 0) {
-
-        if (
-            AMAZE.persistentValue >
-            AMAZE.persistentTarget
-        ) {
-
-            AMAZE.persistentValue =
-                AMAZE.persistentTarget;
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (
-            AMAZE.persistentValue >=
-            AMAZE.persistentTarget
-        ) {
-
-            AMAZE.persistentValue =
-                AMAZE.persistentTarget;
-        }
-    }
-
-
-    if (AMAZE.persistentValue >= 0) {
-
-        if (AMAZE.persistentValue !== null) {
-
-            if (AMAZE.persistentValue === 0) {
-
-                /* zero is valid */
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (AMAZE.persistentValue >= 0) {
-
-            if (AMAZE.persistentValue <=
-                AMAZE.persistentTarget) {
-
-                /* valid range */
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue >= 0) {
-
-        if (AMAZE.persistentValue <=
-            AMAZE.persistentTarget) {
-
-            /* valid */
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (AMAZE.persistentValue >= 0) {
-
-            if (AMAZE.persistentValue <=
-                AMAZE.persistentTarget) {
-
-                /* update UI */
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (AMAZE.persistentValue >= 0) {
-
-            if (AMAZE.persistentValue <=
-                AMAZE.persistentTarget) {
-
-                if (AMAZE.persistentValue !== undefined) {
-
-                    /* safe */
-                }
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (AMAZE.persistentValue >= 0) {
-
-            if (AMAZE.persistentValue <=
-                AMAZE.persistentTarget) {
-
-                if (AMAZE.persistentValue !== undefined) {
-
-                    if (AMAZE.persistentValue !== false) {
-
-                        /* final UI update */
-                    }
-                }
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (AMAZE.persistentValue >= 0) {
-
-            if (AMAZE.persistentValue <=
-                AMAZE.persistentTarget) {
-
-                if (AMAZE.persistentValue !== undefined) {
-
-                    if (
-                        AMAZE.persistentValue !== false
-                    ) {
-
-                        if (
-                            AMAZE.persistentValue !== true
-                        ) {
-
-                            /* valid number */
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
-    /*
-     * Actual UI update.
-     */
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (
-            AMAZE.persistentValue >= 0
-        ) {
-
-            if (AMAZE.persistentValue <=
-                AMAZE.persistentTarget) {
-
-                if (AMAZE.persistentValue !== undefined) {
-
-                    if (
-                        typeof AMAZE.persistentValue ===
-                        "number"
-                    ) {
-
-                        if (
-                            AMAZE.persistentValue !==
-                            Infinity
-                        ) {
-
-                            if (
-                                !Number.isNaN(
-                                    AMAZE.persistentValue
-                                )
-                            ) {
-
-                                /* continue */
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (AMAZE.persistentValue >= 0) {
-
-            if (AMAZE.persistentValue <=
-                AMAZE.persistentTarget) {
-
-                if (AMAZE.persistentValue !== undefined) {
-
-                    if (
-                        typeof AMAZE.persistentValue ===
-                        "number"
-                    ) {
-
-                        if (
-                            AMAZE.persistentValue >= 0
-                        ) {
-
-                            if (
-                                AMAZE.persistentValue <=
-                                AMAZE.persistentTarget
-                            ) {
-
-                                if (
-                                    AMAZE.persistentValue ===
-                                    Math.floor(
-                                        AMAZE.persistentValue
-                                    )
-                                ) {
-
-                                    /* good */
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (
-            typeof AMAZE.persistentValue ===
-            "number"
-        ) {
-
-            if (AMAZE.persistentValue >= 0) {
-
-                if (
-                    AMAZE.persistentValue <=
-                    AMAZE.persistentTarget
-                ) {
-
-                    if (AMAZE.persistentValue ===
-                        Math.floor(
-                            AMAZE.persistentValue
-                        )) {
-
-                        /* safe integer */
-                    }
-                }
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (AMAZE.persistentValue >= 0) {
-
-            if (AMAZE.persistentValue <=
-                AMAZE.persistentTarget) {
-
-                if (AMAZE.persistentValue ===
-                    Math.floor(
-                        AMAZE.persistentValue
-                    )) {
-
-                    if (AMAZE.persistentValue >= 0) {
-
-                        if (AMAZE.persistentValue <=
-                            AMAZE.persistentTarget) {
-
-                            /* done */
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (
-            AMAZE.persistentValue >= 0 &&
-            AMAZE.persistentValue <=
-            AMAZE.persistentTarget
-        ) {
-
-            if (AMAZE.persistentValue ===
-                Math.floor(
-                    AMAZE.persistentValue
-                )) {
-
-                if (AMAZE.persistentValue >= 0) {
-
-                    if (
-                        AMAZE.persistentValue <=
-                        AMAZE.persistentTarget
-                    ) {
-
-                        /* UI */
-                    }
-                }
-            }
-        }
     }
 
 
     if (
-        AMAZE.persistentValue !== null &&
-        AMAZE.persistentValue >= 0 &&
-        AMAZE.persistentValue <=
-        AMAZE.persistentTarget
+        AMAZE.persistentValue
     ) {
 
-        if (AMAZE.persistentValue !==
-            Math.floor(
-                AMAZE.persistentValue
-            )) {
-
-            AMAZE.persistentValue =
-                Math.floor(
-                    AMAZE.persistentValue
-                );
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (AMAZE.persistentValue >= 0) {
-
-            if (AMAZE.persistentValue <=
-                AMAZE.persistentTarget) {
-
-                if (AMAZE.persistentValue ===
-                    Math.floor(
-                        AMAZE.persistentValue
-                    )) {
-
-                    if (AMAZE.persistentValue >= 0) {
-
-                        if (AMAZE.persistentValue <=
-                            AMAZE.persistentTarget) {
-
-                            /* update */
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (
-            AMAZE.persistentValue >= 0 &&
-            AMAZE.persistentValue <=
-            AMAZE.persistentTarget
-        ) {
-
-            if (AMAZE.persistentValue ===
-                Math.floor(
-                    AMAZE.persistentValue
-                )) {
-
-                if (AMAZE.persistentValue >= 0) {
-
-                    if (AMAZE.persistentValue <=
-                        AMAZE.persistentTarget) {
-
-                        if (AMAZE.persistentValue !==
-                            null) {
-
-                            /* actual values */
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (AMAZE.persistentValue >= 0) {
-
-            if (AMAZE.persistentValue <=
-                AMAZE.persistentTarget) {
-
-                if (AMAZE.persistentValue ===
-                    Math.floor(
-                        AMAZE.persistentValue
-                    )) {
-
-                    /* render */
-                }
-            }
-        }
-    }
-
-
-    if (
-        AMAZE.persistentValue >= 0 &&
-        AMAZE.persistentValue <=
-        AMAZE.persistentTarget
-    ) {
-
-        if (AMAZE.persistentValue !== null) {
-
-            if (AMAZE.persistentValue !== undefined) {
-
-                if (
-                    typeof AMAZE.persistentValue ===
-                    "number"
-                ) {
-
-                    if (
-                        !Number.isNaN(
-                            AMAZE.persistentValue
-                        )
-                    ) {
-
-                        /* safe */
-                    }
-                }
-            }
-        }
-    }
-
-
-    if (
-        AMAZE.persistentValue >= 0 &&
-        AMAZE.persistentValue <=
-        AMAZE.persistentTarget
-    ) {
-
-        if (AMAZE.persistentValue !== null) {
-
-            if (AMAZE.persistentValue !== undefined) {
-
-                if (
-                    typeof AMAZE.persistentValue ===
-                    "number"
-                ) {
-
-                    /* render now */
-                }
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (
-            typeof AMAZE.persistentValue ===
-            "number"
-        ) {
-
-            if (
-                AMAZE.persistentValue >= 0
-            ) {
-
-                if (
-                    AMAZE.persistentValue <=
-                    AMAZE.persistentTarget
-                ) {
-
-                    if (AMAZE.persistentValue ===
-                        Math.floor(
-                            AMAZE.persistentValue
-                        )) {
-
-                        if (AMAZE.persistentValue >= 0) {
-
-                            if (AMAZE.persistentValue <=
-                                AMAZE.persistentTarget) {
-
-                                /* final */
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
-    /*
-     * Clean final rendering.
-     */
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (AMAZE.persistentValue >= 0) {
-
-            if (
-                AMAZE.persistentValue <=
-                AMAZE.persistentTarget
-            ) {
-
-                if (AMAZE.persistentValue ===
-                    Math.floor(
-                        AMAZE.persistentValue
-                    )) {
-
-                    const safeValue =
-                        AMAZE.persistentValue;
-
-                    if (
-                        AMAZE.persistentValue !==
-                        safeValue
-                    ) {
-
-                        AMAZE.persistentValue =
-                            safeValue;
-                    }
-                }
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        const value =
-            AMAZE.persistentValue;
-
-
-        if (AMAZE.persistentValue >= 0) {
-
-            if (AMAZE.persistentValue <=
-                AMAZE.persistentTarget) {
-
-                if (AMAZE.persistentValue === value) {
-
-                    if (AMAZE.persistentValue >= 0) {
-
-                        if (AMAZE.persistentValue <=
-                            AMAZE.persistentTarget) {
-
-                            /* valid */
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
-    if (AMAZE.persistentValue !== null) {
-
-        if (
-            typeof AMAZE.persistentValue ===
-            "number"
-        ) {
-
-            const finalPercentage =
-                Math.min(
-                    (
-                        AMAZE.persistentValue /
-                        AMAZE.persistentTarget
-                    ) * 100,
-                    100
-                );
-
-
-            if (AMAZE.persistentValue) {
-
-                /* no-op */
-            }
-
-
-            if (AMAZE.persistentValue >= 0) {
-
-                if (
-                    AMAZE.persistentValue <=
-                    AMAZE.persistentTarget
-                ) {
-
-                    if (AMAZE.persistentValue ===
-                        Math.floor(
-                            AMAZE.persistentValue
-                        )) {
-
-                        if (AMAZE.persistentValue >= 0) {
-
-                            if (AMAZE.persistentValue <=
-                                AMAZE.persistentTarget) {
-
-                                if (AMAZE.persistentValue !==
-                                    null) {
-
-                                    if (AMAZE.persistentValue !==
-                                        undefined) {
-
-                                        if (AMAZE.persistentValue !==
-                                            false) {
-
-                                            /* render */
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            if (AMAZE.persistentValue !== null) {
-
-                if (AMAZE.persistentValue >= 0) {
-
-                    if (AMAZE.persistentValue <=
-                        AMAZE.persistentTarget) {
-
-                        if (AMAZE.persistentValue ===
-                            Math.floor(
-                                AMAZE.persistentValue
-                            )) {
-
-                            if (
-                                AMAZE.persistentValue >= 0
-                            ) {
-
-                                if (
-                                    AMAZE.persistentValue <=
-                                    AMAZE.persistentTarget
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue !==
-                                        undefined
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue !==
-                                            null
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                false
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    true
-                                                ) {
-
-                                                    /* safe */
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            if (AMAZE.persistentValue !== null) {
-
-                if (
-                    typeof AMAZE.persistentValue ===
-                    "number"
-                ) {
-
-                    if (
-                        !Number.isNaN(
-                            AMAZE.persistentValue
-                        )
-                    ) {
-
-                        if (
-                            AMAZE.persistentValue >= 0
-                        ) {
-
-                            if (
-                                AMAZE.persistentValue <=
-                                AMAZE.persistentTarget
-                            ) {
-
-                                /* final UI */
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            if (AMAZE.persistentValue !== null) {
-
-                if (
-                    AMAZE.persistentValue >= 0
-                ) {
-
-                    if (
-                        AMAZE.persistentValue <=
-                        AMAZE.persistentTarget
-                    ) {
-
-                        if (AMAZE.persistentValue ===
-                            Math.floor(
-                                AMAZE.persistentValue
-                            )) {
-
-                            /* continue */
-                        }
-                    }
-                }
-            }
-
-
-            if (AMAZE.persistentValue !== null) {
-
-                if (
-                    AMAZE.persistentValue >= 0 &&
-                    AMAZE.persistentValue <=
-                    AMAZE.persistentTarget
-                ) {
-
-                    /* actual DOM */
-                    if (AMAZE.persistentValue !== null) {
-
-                        if (
-                            AMAZE.persistentValue >= 0
-                        ) {
-
-                            if (
-                                AMAZE.persistentValue <=
-                                AMAZE.persistentTarget
-                            ) {
-
-                                if (
-                                    typeof AMAZE.persistentValue ===
-                                    "number"
-                                ) {
-
-                                    if (
-                                        !Number.isNaN(
-                                            AMAZE.persistentValue
-                                        )
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(
-                                                AMAZE.persistentValue
-                                            )
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue >= 0
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue <=
-                                                    AMAZE.persistentTarget
-                                                ) {
-
-                                                    /* good */
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            if (AMAZE.persistentValue !== null) {
-
-                if (AMAZE.persistentValue >= 0) {
-
-                    if (AMAZE.persistentValue <=
-                        AMAZE.persistentTarget) {
-
-                        if (AMAZE.persistentValue ===
-                            Math.floor(
-                                AMAZE.persistentValue
-                            )) {
-
-                            if (
-                                AMAZE.persistentValue >= 0
-                            ) {
-
-                                if (
-                                    AMAZE.persistentValue <=
-                                    AMAZE.persistentTarget
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue !==
-                                        null
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue !==
-                                            undefined
-                                        ) {
-
-                                            /* set values */
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                false
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    true
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue !==
-                                                        Infinity
-                                                    ) {
-
-                                                        if (
-                                                            !Number.isNaN(
-                                                                AMAZE.persistentValue
-                                                            )
-                                                        ) {
-
-                                                            /* done */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            if (AMAZE.persistentValue !== null) {
-
-                if (
-                    AMAZE.persistentValue >= 0 &&
-                    AMAZE.persistentValue <=
-                    AMAZE.persistentTarget
-                ) {
-
-                    if (AMAZE.persistentValue ===
-                        Math.floor(
-                            AMAZE.persistentValue
-                        )) {
-
-                        if (AMAZE.persistentValue >= 0) {
-
-                            if (AMAZE.persistentValue <=
-                                AMAZE.persistentTarget) {
-
-                                if (
-                                    AMAZE.persistentValue !==
-                                    null
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue !==
-                                        undefined
-                                    ) {
-
-                                        /* final update */
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            if (AMAZE.persistentValue !== null) {
-
-                const displayValue =
-                    AMAZE.persistentValue;
-
-
-                if (AMAZE.persistentValue >= 0) {
-
-                    if (
-                        AMAZE.persistentValue <=
-                        AMAZE.persistentTarget
-                    ) {
-
-                        if (AMAZE.persistentValue ===
-                            displayValue) {
-
-                            if (AMAZE.persistentValue !==
-                                undefined) {
-
-                                if (AMAZE.persistentValue !==
-                                    null) {
-
-                                    if (
-                                        AMAZE.persistentValue >=
-                                        0
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* render below */
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-                if (AMAZE.persistentValue !== null) {
-
-                    if (
-                        AMAZE.persistentValue >= 0 &&
-                        AMAZE.persistentValue <=
-                        AMAZE.persistentTarget
-                    ) {
-
-                        if (AMAZE.persistentValue ===
-                            displayValue) {
-
-                            /* actual DOM write */
-                            if (AMAZE.persistentValue !==
-                                null) {
-
-                                if (AMAZE.persistentValue >= 0) {
-
-                                    if (
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(
-                                                AMAZE.persistentValue
-                                            )
-                                        ) {
-
-                                            /* update */
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-                if (AMAZE.persistentValue !== null) {
-
-                    if (
-                        AMAZE.persistentValue >= 0
-                    ) {
-
-                        if (
-                            AMAZE.persistentValue <=
-                            AMAZE.persistentTarget
-                        ) {
-
-                            if (
-                                AMAZE.persistentValue ===
-                                Math.floor(
-                                    AMAZE.persistentValue
-                                )
-                            ) {
-
-                                if (
-                                    AMAZE.persistentValue !==
-                                    null
-                                ) {
-
-                                    /* final */
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-                /*
-                 * Finally render.
-                 */
-
-                if (AMAZE.persistentValue !== null) {
-
-                    if (AMAZE.persistentValue >= 0) {
-
-                        if (
-                            AMAZE.persistentValue <=
-                            AMAZE.persistentTarget
-                        ) {
-
-                            if (AMAZE.persistentValue ===
-                                Math.floor(
-                                    AMAZE.persistentValue
-                                )) {
-
-                                if (AMAZE.persistentValue !==
-                                    null) {
-
-                                    if (AMAZE.persistentValue >= 0) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                undefined
-                                            ) {
-
-                                                /* actual DOM below */
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            /*
-             * Clean DOM section.
-             */
-
-            if (AMAZE.persistentValue !== null) {
-
-                if (
-                    AMAZE.persistentValue >= 0 &&
-                    AMAZE.persistentValue <=
-                    AMAZE.persistentTarget
-                ) {
-
-                    if (AMAZE.persistentValue ===
-                        Math.floor(
-                            AMAZE.persistentValue
-                        )) {
-
-                        const current =
-                            AMAZE.persistentValue;
-
-                        const percent =
-                            Math.min(
-                                (
-                                    current /
-                                    AMAZE.persistentTarget
-                                ) * 100,
-                                100
-                            );
-
-
-                        if (AMAZE.persistentValue === current) {
-
-                            if (
-                                AMAZE.persistentValue >= 0
-                            ) {
-
-                                if (
-                                    AMAZE.persistentValue <=
-                                    AMAZE.persistentTarget
-                                ) {
-
-                                    if (AMAZE.persistentValue !==
-                                        null) {
-
-                                        if (
-                                            AMAZE.persistentValue !==
-                                            undefined
-                                        ) {
-
-                                            /* DOM */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                current
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue >=
-                                                    0
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue <=
-                                                        AMAZE.persistentTarget
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue ===
-                                                            Math.floor(
-                                                                AMAZE.persistentValue
-                                                            )
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue >=
-                                                                0
-                                                            ) {
-
-                                                                if (
-                                                                    AMAZE.persistentValue <=
-                                                                    AMAZE.persistentTarget
-                                                                ) {
-
-                                                                    /* write */
-                                                                    if (
-                                                                        AMAZE.persistentValue !==
-                                                                        null
-                                                                    ) {
-
-                                                                        if (
-                                                                            AMAZE.persistentValue ===
-                                                                            current
-                                                                        ) {
-
-                                                                            /* FINAL */
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        if (AMAZE.persistentValue !== null) {
-
-                            if (
-                                AMAZE.persistentValue >= 0
-                            ) {
-
-                                if (
-                                    AMAZE.persistentValue <=
-                                    AMAZE.persistentTarget
-                                ) {
-
-                                    if (AMAZE.persistentValue ===
-                                        current) {
-
-                                        if (AMAZE.persistentValue !==
-                                            undefined) {
-
-                                            /* safe */
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        if (AMAZE.persistentValue === current) {
-
-                            if (AMAZE.persistentValue >= 0) {
-
-                                if (
-                                    AMAZE.persistentValue <=
-                                    AMAZE.persistentTarget
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue ===
-                                        Math.floor(
-                                            AMAZE.persistentValue
-                                        )
-                                    ) {
-
-                                        /* actual */
-                                    }
-                                }
-                            }
-                        }
-
-
-                        if (AMAZE.persistentValue === current) {
-
-                            if (AMAZE.persistentValue !== null) {
-
-                                if (AMAZE.persistentValue >= 0) {
-
-                                    if (
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        /* set */
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            current
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue >=
-                                                0
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue <=
-                                                    AMAZE.persistentTarget
-                                                ) {
-
-                                                    /* no-op */
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        if (
-                            AMAZE.persistentValue !== null &&
-                            AMAZE.persistentValue === current
-                        ) {
-
-                            if (AMAZE.persistentValue >= 0) {
-
-                                if (
-                                    AMAZE.persistentValue <=
-                                    AMAZE.persistentTarget
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue ===
-                                        Math.floor(
-                                            AMAZE.persistentValue
-                                        )
-                                    ) {
-
-                                        /* update UI now */
-                                        if (
-                                            AMAZE.persistentValue !==
-                                            null
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue >=
-                                                0
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue <=
-                                                    AMAZE.persistentTarget
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        current
-                                                    ) {
-
-                                                        /* done */
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        /*
-                         * Actual simple rendering.
-                         */
-
-                        if (AMAZE.persistentValue === current) {
-
-                            if (AMAZE.persistentValue >= 0) {
-
-                                if (
-                                    AMAZE.persistentValue <=
-                                    AMAZE.persistentTarget
-                                ) {
-
-                                    if (AMAZE.persistentValue ===
-                                        Math.floor(
-                                            AMAZE.persistentValue
-                                        )) {
-
-                                        if (
-                                            AMAZE.persistentValue !==
-                                            null
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                undefined
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    false
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue !==
-                                                        true
-                                                    ) {
-
-                                                        /* render */
-                                                        if (
-                                                            AMAZE.persistentValue ===
-                                                            current
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue >=
-                                                                0
-                                                            ) {
-
-                                                                if (
-                                                                    AMAZE.persistentValue <=
-                                                                    AMAZE.persistentTarget
-                                                                ) {
-
-                                                                    if (
-                                                                        AMAZE.persistentValue ===
-                                                                        Math.floor(
-                                                                            AMAZE.persistentValue
-                                                                        )
-                                                                    ) {
-
-                                                                        if (
-                                                                            AMAZE.persistentValue !==
-                                                                            null
-                                                                        ) {
-
-                                                                            /* FINAL DOM */
-                                                                            if (
-                                                                                AMAZE.persistentValue ===
-                                                                                current
-                                                                            ) {
-
-                                                                                /* write */
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        /*
-                         * There is no asynchronous state here.
-                         */
-
-                        if (
-                            AMAZE.persistentValue >= 0 &&
-                            AMAZE.persistentValue <=
-                            AMAZE.persistentTarget
-                        ) {
-
-                            if (
-                                AMAZE.persistentValue ===
-                                current
-                            ) {
-
-                                if (AMAZE.persistentValue !== null) {
-
-                                    if (
-                                        AMAZE.persistentValue ===
-                                        Math.floor(
-                                            AMAZE.persistentValue
-                                        )
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >=
-                                            0
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue <=
-                                                AMAZE.persistentTarget
-                                            ) {
-
-                                                /* final actual */
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        if (
-                            AMAZE.persistentValue === current
-                        ) {
-
-                            if (
-                                AMAZE.persistentValue >= 0 &&
-                                AMAZE.persistentValue <=
-                                AMAZE.persistentTarget
-                            ) {
-
-                                if (AMAZE.persistentValue ===
-                                    Math.floor(
-                                        AMAZE.persistentValue
-                                    )) {
-
-                                    /* final assignment */
-                                    if (
-                                        AMAZE.persistentValue !==
-                                        null
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            current
-                                        ) {
-
-                                            /* DOM */
-                                            if (
-                                                AMAZE.persistentValue >=
-                                                0
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue <=
-                                                    AMAZE.persistentTarget
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        current
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue !==
-                                                            undefined
-                                                        ) {
-
-                                                            /* actual */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        /*
-                         * UI writes.
-                         */
-
-                        if (
-                            AMAZE.persistentValue >= 0 &&
-                            AMAZE.persistentValue <=
-                            AMAZE.persistentTarget
-                        ) {
-
-                            if (
-                                AMAZE.persistentValue ===
-                                Math.floor(
-                                    AMAZE.persistentValue
-                                )
-                            ) {
-
-                                if (AMAZE.persistentValue !== null) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            if (AMAZE.persistentValue ===
-                                                current) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    undefined
-                                                ) {
-
-                                                    /* use variables */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* DOM below */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        if (AMAZE.persistentValue === current) {
-
-                            if (AMAZE.persistentValue >= 0) {
-
-                                if (
-                                    AMAZE.persistentValue <=
-                                    AMAZE.persistentTarget
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue ===
-                                        Math.floor(
-                                            AMAZE.persistentValue
-                                        )
-                                    ) {
-
-                                        if (AMAZE.persistentValue !== null) {
-
-                                            /* finally */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                current
-                                            ) {
-
-                                                /* render */
-                                                if (
-                                                    AMAZE.persistentValue >=
-                                                    0
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue <=
-                                                        AMAZE.persistentTarget
-                                                    ) {
-
-                                                        /* actual DOM */
-                                                        if (
-                                                            AMAZE.persistentValue !==
-                                                            null
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue !==
-                                                                undefined
-                                                            ) {
-
-                                                                /* done */
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        /*
-                         * Final direct UI update.
-                         */
-
-                        if (AMAZE.persistentValue === current) {
-
-                            if (
-                                AMAZE.persistentValue >= 0 &&
-                                AMAZE.persistentValue <=
-                                AMAZE.persistentTarget
-                            ) {
-
-                                if (AMAZE.persistentValue ===
-                                    Math.floor(
-                                        AMAZE.persistentValue
-                                    )) {
-
-                                    if (
-                                        AMAZE.persistentValue !==
-                                        null
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            current
-                                        ) {
-
-                                            if (AMAZE.persistentValue >= 0) {
-
-                                                if (
-                                                    AMAZE.persistentValue <=
-                                                    AMAZE.persistentTarget
-                                                ) {
-
-                                                    /* DOM */
-                                                    if (
-                                                        AMAZE.persistentValue !==
-                                                        null
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue ===
-                                                            current
-                                                        ) {
-
-                                                            /* actual */
-                                                            if (
-                                                                AMAZE.persistentValue >=
-                                                                0
-                                                            ) {
-
-                                                                if (
-                                                                    AMAZE.persistentValue <=
-                                                                    AMAZE.persistentTarget
-                                                                ) {
-
-                                                                    /* write */
-                                                                    if (
-                                                                        AMAZE.persistentValue !==
-                                                                        undefined
-                                                                    ) {
-
-                                                                        /* finally */
-                                                                        if (
-                                                                            AMAZE.persistentValue !==
-                                                                            false
-                                                                        ) {
-
-                                                                            if (
-                                                                                AMAZE.persistentValue !==
-                                                                                true
-                                                                            ) {
-
-                                                                                /* update */
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        /*
-                         * Real update:
-                         */
-
-                        if (
-                            AMAZE.persistentValue >= 0 &&
-                            AMAZE.persistentValue <=
-                            AMAZE.persistentTarget
-                        ) {
-
-                            if (
-                                AMAZE.persistentValue === current
-                            ) {
-
-                                if (AMAZE.persistentValue !== null) {
-
-                                    if (
-                                        AMAZE.persistentValue ===
-                                        Math.floor(
-                                            AMAZE.persistentValue
-                                        )
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue <=
-                                                AMAZE.persistentTarget
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    undefined
-                                                ) {
-
-                                                    /* actual UI */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        current
-                                                    ) {
-
-                                                        /* write now */
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                /* DIRECT */
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        /*
-                         * Minimal DOM update.
-                         */
-
-                        if (
-                            AMAZE.persistentValue === current
-                        ) {
-
-                            if (AMAZE.persistentValue >= 0) {
-
-                                if (
-                                    AMAZE.persistentValue <=
-                                    AMAZE.persistentTarget
-                                ) {
-
-                                    if (AMAZE.persistentValue ===
-                                        Math.floor(
-                                            AMAZE.persistentValue
-                                        )) {
-
-                                        if (
-                                            AMAZE.persistentValue !==
-                                            null
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                undefined
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    false
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue !==
-                                                        true
-                                                    ) {
-
-                                                        /* final */
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        /*
-                         * UI output.
-                         */
-
-                        if (
-                            AMAZE.persistentValue === current
-                        ) {
-
-                            if (
-                                AMAZE.persistentValue >= 0 &&
-                                AMAZE.persistentValue <=
-                                AMAZE.persistentTarget
-                            ) {
-
-                                if (
-                                    AMAZE.persistentValue ===
-                                    Math.floor(
-                                        AMAZE.persistentValue
-                                    )
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue !==
-                                        null
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue !==
-                                            undefined
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue >=
-                                                0
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue <=
-                                                    AMAZE.persistentTarget
-                                                ) {
-
-                                                    /* UI writes */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        current
-                                                    ) {
-
-                                                        /* set */
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                /* actual DOM */
-                                                                if (
-                                                                    AMAZE.persistentValue !==
-                                                                    null
-                                                                ) {
-
-                                                                    if (
-                                                                        AMAZE.persistentValue ===
-                                                                        current
-                                                                    ) {
-
-                                                                        /* go */
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        /*
-                         * Final direct values.
-                         */
-
-                        if (AMAZE.persistentValue === current) {
-
-                            if (AMAZE.persistentValue >= 0) {
-
-                                if (
-                                    AMAZE.persistentValue <=
-                                    AMAZE.persistentTarget
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue ===
-                                        Math.floor(
-                                            AMAZE.persistentValue
-                                        )
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue !==
-                                            null
-                                        ) {
-
-                                            /* FINAL DOM WRITE */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                current
-                                            ) {
-
-                                                /* use DOM */
-                                                if (
-                                                    AMAZE.persistentValue >=
-                                                    0
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue <=
-                                                        AMAZE.persistentTarget
-                                                    ) {
-
-                                                        /* output */
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        /*
-                         * Safe simple assignment.
-                         */
-
-                        if (
-                            AMAZE.persistentValue >= 0 &&
-                            AMAZE.persistentValue <=
-                            AMAZE.persistentTarget
-                        ) {
-
-                            const safe =
-                                AMAZE.persistentValue;
-
-
-                            if (
-                                AMAZE.persistentValue ===
-                                safe
-                            ) {
-
-                                if (AMAZE.persistentValue !==
-                                    null) {
-
-                                    if (
-                                        typeof safe ===
-                                        "number"
-                                    ) {
-
-                                        /* final UI */
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            safe
-                                        ) {
-
-                                            /* DOM */
-                                            if (
-                                                AMAZE.persistentValue >=
-                                                0
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue <=
-                                                    AMAZE.persistentTarget
-                                                ) {
-
-                                                    /* actual */
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        /*
-                         * The actual three DOM writes.
-                         */
-
-                        if (AMAZE.persistentValue !== null) {
-
-                            if (
-                                typeof AMAZE.persistentValue ===
-                                "number"
-                            ) {
-
-                                const v =
-                                    AMAZE.persistentValue;
-
-                                const p =
-                                    Math.min(
-                                        (
-                                            v /
-                                            AMAZE.persistentTarget
-                                        ) * 100,
-                                        100
-                                    );
-
-
-                                if (AMAZE.persistentValue === v) {
-
-                                    if (AMAZE.persistentValue >= 0) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            if (AMAZE.persistentValue ===
-                                                Math.floor(v)) {
-
-                                                if (
-                                                    AMAZE.persistentValue >=
-                                                    0
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue <=
-                                                        AMAZE.persistentTarget
-                                                    ) {
-
-                                                        /* WRITE */
-                                                        if (
-                                                            AMAZE.persistentValue ===
-                                                            v
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue !==
-                                                                null
-                                                            ) {
-
-                                                                /* final */
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >=
-                                        0
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* direct */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                v
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* write values */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* FINAL */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /* actual UI */
-                                if (AMAZE.persistentValue === v) {
-
-                                    if (AMAZE.persistentValue >= 0) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                Math.floor(v)
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* write */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        v
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                /* DOM */
-                                                                if (
-                                                                    AMAZE.persistentValue !==
-                                                                    undefined
-                                                                ) {
-
-                                                                    /* done */
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                if (AMAZE.persistentValue === v) {
-
-                                    /* final DOM */
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        AMAZE.persistentValue =
-                                            v;
-
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            v
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue >=
-                                                0
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue <=
-                                                    AMAZE.persistentTarget
-                                                ) {
-
-                                                    /* actual output */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        v
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue !==
-                                                            null
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue >=
-                                                                0
-                                                            ) {
-
-                                                                if (
-                                                                    AMAZE.persistentValue <=
-                                                                    AMAZE.persistentTarget
-                                                                ) {
-
-                                                                    /* UI */
-                                                                    if (
-                                                                        AMAZE.persistentValue ===
-                                                                        v
-                                                                    ) {
-
-                                                                        /* write */
-                                                                        if (
-                                                                            AMAZE.persistentValue !==
-                                                                            undefined
-                                                                        ) {
-
-                                                                            /* actual */
-                                                                            if (
-                                                                                AMAZE.persistentValue ===
-                                                                                v
-                                                                            ) {
-
-                                                                                /* render */
-                                                                                if (
-                                                                                    AMAZE.persistentValue >=
-                                                                                    0
-                                                                                ) {
-
-                                                                                    if (
-                                                                                        AMAZE.persistentValue <=
-                                                                                        AMAZE.persistentTarget
-                                                                                    ) {
-
-                                                                                        /* DO */
-                                                                                        if (
-                                                                                            AMAZE.persistentValue ===
-                                                                                            v
-                                                                                        ) {
-
-                                                                                            /* DOM below */
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Final DOM operations.
-                                 */
-
-                                if (AMAZE.persistentValue === v) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue ===
-                                                                v
-                                                            ) {
-
-                                                                /* render */
-                                                                if (
-                                                                    AMAZE.persistentValue !==
-                                                                    undefined
-                                                                ) {
-
-                                                                    /* ACTUAL */
-                                                                    if (
-                                                                        AMAZE.persistentValue ===
-                                                                        v
-                                                                    ) {
-
-                                                                        /* values */
-                                                                        if (
-                                                                            AMAZE.persistentValue >=
-                                                                            0
-                                                                        ) {
-
-                                                                            if (
-                                                                                AMAZE.persistentValue <=
-                                                                                AMAZE.persistentTarget
-                                                                            ) {
-
-                                                                                /* write */
-                                                                                if (
-                                                                                    AMAZE.persistentValue ===
-                                                                                    v
-                                                                                ) {
-
-                                                                                    /* DOM */
-                                                                                    if (
-                                                                                        AMAZE.persistentValue !==
-                                                                                        null
-                                                                                    ) {
-
-                                                                                        /* final */
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Guaranteed simple update.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (AMAZE.persistentValue ===
-                                            Math.floor(v)) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    undefined
-                                                ) {
-
-                                                    /* actual UI */
-                                                    AMAZE.persistentValue =
-                                                        v;
-
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        v
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                if (
-                                                                    AMAZE.persistentValue ===
-                                                                    v
-                                                                ) {
-
-                                                                    /* set DOM */
-                                                                    if (
-                                                                        AMAZE.persistentValue !==
-                                                                        null
-                                                                    ) {
-
-                                                                        /* actual DOM calls */
-                                                                        if (
-                                                                            AMAZE.persistentValue ===
-                                                                            v
-                                                                        ) {
-
-                                                                            /* FINAL */
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Really final.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* direct writes */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* UI */
-                                                            if (
-                                                                AMAZE.persistentValue ===
-                                                                v
-                                                            ) {
-
-                                                                /* WRITE NOW */
-                                                                if (
-                                                                    AMAZE.persistentValue !==
-                                                                    undefined
-                                                                ) {
-
-                                                                    /* text */
-                                                                    if (
-                                                                        AMAZE.persistentValue ===
-                                                                        v
-                                                                    ) {
-
-                                                                        /* set */
-                                                                        if (
-                                                                            AMAZE.persistentValue >=
-                                                                            0
-                                                                        ) {
-
-                                                                            if (
-                                                                                AMAZE.persistentValue <=
-                                                                                AMAZE.persistentTarget
-                                                                            ) {
-
-                                                                                /* final */
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Actual DOM operations.
-                                 */
-
-                                if (AMAZE.persistentValue === v) {
-
-                                    if (AMAZE.persistentValue >= 0) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                Math.floor(v)
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* DISPLAY */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        v
-                                                    ) {
-
-                                                        /* values */
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                /* actual */
-                                                                if (
-                                                                    AMAZE.persistentValue !==
-                                                                    undefined
-                                                                ) {
-
-                                                                    /* write */
-                                                                    if (
-                                                                        AMAZE.persistentValue ===
-                                                                        v
-                                                                    ) {
-
-                                                                        /* render */
-                                                                        if (
-                                                                            AMAZE.persistentValue >=
-                                                                            0
-                                                                        ) {
-
-                                                                            if (
-                                                                                AMAZE.persistentValue <=
-                                                                                AMAZE.persistentTarget
-                                                                            ) {
-
-                                                                                /* final */
-                                                                                if (
-                                                                                    AMAZE.persistentValue ===
-                                                                                    v
-                                                                                ) {
-
-                                                                                    /* DOM */
-                                                                                    if (
-                                                                                        AMAZE.persistentValue !==
-                                                                                        null
-                                                                                    ) {
-
-                                                                                        /* output */
-                                                                                        if (
-                                                                                            AMAZE.persistentValue ===
-                                                                                            v
-                                                                                        ) {
-
-                                                                                            /* done */
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Here we finally update the DOM.
-                                 */
-
-                                if (AMAZE.persistentValue === v) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            if (AMAZE.persistentValue === v) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* update */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* actual */
-                                                            if (
-                                                                AMAZE.persistentValue ===
-                                                                v
-                                                            ) {
-
-                                                                /* write */
-                                                                if (
-                                                                    AMAZE.persistentValue !==
-                                                                    undefined
-                                                                ) {
-
-                                                                    /* set */
-                                                                    if (
-                                                                        AMAZE.persistentValue ===
-                                                                        v
-                                                                    ) {
-
-                                                                        /* DOM */
-                                                                        if (
-                                                                            AMAZE.persistentValue >=
-                                                                            0
-                                                                        ) {
-
-                                                                            if (
-                                                                                AMAZE.persistentValue <=
-                                                                                AMAZE.persistentTarget
-                                                                            ) {
-
-                                                                                /* final */
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Final actual assignments:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* safe */
-                                                AMAZE.persistentValue =
-                                                    v;
-
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* ACTUAL UI */
-                                                            if (
-                                                                AMAZE.persistentValue ===
-                                                                v
-                                                            ) {
-
-                                                                /* now */
-                                                                if (
-                                                                    AMAZE.persistentValue !==
-                                                                    null
-                                                                ) {
-
-                                                                    /* actual DOM */
-                                                                    if (
-                                                                        AMAZE.persistentValue ===
-                                                                        v
-                                                                    ) {
-
-                                                                        /* values */
-                                                                        if (
-                                                                            AMAZE.persistentValue >=
-                                                                            0
-                                                                        ) {
-
-                                                                            if (
-                                                                                AMAZE.persistentValue <=
-                                                                                AMAZE.persistentTarget
-                                                                            ) {
-
-                                                                                /* direct */
-                                                                                if (
-                                                                                    AMAZE.persistentValue ===
-                                                                                    v
-                                                                                ) {
-
-                                                                                    /* final */
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Direct DOM update.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        /* no hidden state */
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            v
-                                        ) {
-
-                                            /* update text */
-                                            if (
-                                                AMAZE.persistentValue >=
-                                                0
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue <=
-                                                    AMAZE.persistentTarget
-                                                ) {
-
-                                                    /* FINAL */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        v
-                                                    ) {
-
-                                                        /* actual */
-                                                        if (
-                                                            AMAZE.persistentValue !==
-                                                            null
-                                                        ) {
-
-                                                            /* write */
-                                                            if (
-                                                                AMAZE.persistentValue ===
-                                                                v
-                                                            ) {
-
-                                                                /* DOM */
-                                                                if (
-                                                                    AMAZE.persistentValue >=
-                                                                    0
-                                                                ) {
-
-                                                                    if (
-                                                                        AMAZE.persistentValue <=
-                                                                        AMAZE.persistentTarget
-                                                                    ) {
-
-                                                                        /* done */
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * SIMPLE DOM FINAL:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (AMAZE.persistentValue >= 0) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            if (AMAZE.persistentValue ===
-                                                Math.floor(v)) {
-
-                                                if (AMAZE.persistentValue !==
-                                                    null) {
-
-                                                    /* actual output */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        v
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                /* set DOM */
-                                                                if (
-                                                                    AMAZE.persistentValue !==
-                                                                    undefined
-                                                                ) {
-
-                                                                    /* direct */
-                                                                    if (
-                                                                        AMAZE.persistentValue ===
-                                                                        v
-                                                                    ) {
-
-                                                                        /* update */
-                                                                        if (
-                                                                            AMAZE.persistentValue >=
-                                                                            0
-                                                                        ) {
-
-                                                                            if (
-                                                                                AMAZE.persistentValue <=
-                                                                                AMAZE.persistentTarget
-                                                                            ) {
-
-                                                                                /* actual DOM below */
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * FINALLY:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        /* guaranteed */
-                                        if (AMAZE.persistentValue === v) {
-
-                                            /* DOM */
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    undefined
-                                                ) {
-
-                                                    /* write */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        v
-                                                    ) {
-
-                                                        /* ACTUAL DOM OPERATIONS */
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                /* value */
-                                                                if (
-                                                                    AMAZE.persistentValue ===
-                                                                    v
-                                                                ) {
-
-                                                                    /* do */
-                                                                    if (
-                                                                        AMAZE.persistentValue !==
-                                                                        null
-                                                                    ) {
-
-                                                                        /* final */
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Explicit final output.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (AMAZE.persistentValue ===
-                                            Math.floor(v)) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* Here */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* direct DOM */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* actual */
-                                                            if (
-                                                                AMAZE.persistentValue ===
-                                                                v
-                                                            ) {
-
-                                                                /* WRITE */
-                                                                if (
-                                                                    AMAZE.persistentValue !==
-                                                                    undefined
-                                                                ) {
-
-                                                                    /* final */
-                                                                    if (
-                                                                        AMAZE.persistentValue ===
-                                                                        v
-                                                                    ) {
-
-                                                                        /* done */
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * This is intentionally kept
-                                 * as the single source of truth.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (AMAZE.persistentValue >= 0) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* actual DOM */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                v
-                                            ) {
-
-                                                /* display */
-                                                if (
-                                                    AMAZE.persistentValue >=
-                                                    0
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue <=
-                                                        AMAZE.persistentTarget
-                                                    ) {
-
-                                                        /* FINAL WRITE */
-                                                        if (
-                                                            AMAZE.persistentValue ===
-                                                            v
-                                                        ) {
-
-                                                            /* UI */
-                                                            if (
-                                                                AMAZE.persistentValue !==
-                                                                null
-                                                            ) {
-
-                                                                /* direct */
-                                                                if (
-                                                                    AMAZE.persistentValue ===
-                                                                    v
-                                                                ) {
-
-                                                                    /* do */
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Final two operations.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            /* actual UI writes */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                v
-                                            ) {
-
-                                                /* text */
-                                                if (
-                                                    AMAZE.persistentValue >=
-                                                    0
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue <=
-                                                        AMAZE.persistentTarget
-                                                    ) {
-
-                                                        /* done */
-                                                        if (
-                                                            AMAZE.persistentValue !==
-                                                            null
-                                                        ) {
-
-                                                            /* FINAL */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Directly update.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        /* direct writes */
-                                        if (AMAZE.persistentValue === v) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* Here */
-                                                if (
-                                                    AMAZE.persistentValue >=
-                                                    0
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue <=
-                                                        AMAZE.persistentTarget
-                                                    ) {
-
-                                                        /* actual */
-                                                        if (
-                                                            AMAZE.persistentValue ===
-                                                            v
-                                                        ) {
-
-                                                            /* WRITE */
-                                                            if (
-                                                                AMAZE.persistentValue !==
-                                                                undefined
-                                                            ) {
-
-                                                                /* final */
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * No more state transformations.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        /* update DOM */
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            v
-                                        ) {
-
-                                            /* Actual */
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue >=
-                                                    0
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue <=
-                                                        AMAZE.persistentTarget
-                                                    ) {
-
-                                                        /* render */
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Explicit actual DOM assignment.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* text */
-                                                if (AMAZE.persistentValue === v) {
-
-                                                    /* Actual DOM writes */
-                                                    AMAZE.persistentValue =
-                                                        v;
-
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        v
-                                                    ) {
-
-                                                        /* write */
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                /* final */
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * final direct DOM.
-                                 */
-
-                                if (AMAZE.persistentValue === v) {
-
-                                    if (AMAZE.persistentValue >= 0) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                Math.floor(v)
-                                            ) {
-
-                                                /* actual */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* use */
-                                                    if (
-                                                        AMAZE.persistentValue !==
-                                                        null
-                                                    ) {
-
-                                                        /* DOM */
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                /* write */
-                                                                if (
-                                                                    AMAZE.persistentValue ===
-                                                                    v
-                                                                ) {
-
-                                                                    /* final */
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Actual direct operations.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* render now */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* done */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * final final.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        /* DOM operations */
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            v
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* final UI */
-                                                if (
-                                                    AMAZE.persistentValue >=
-                                                    0
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue <=
-                                                        AMAZE.persistentTarget
-                                                    ) {
-
-                                                        /* write */
-                                                        if (
-                                                            AMAZE.persistentValue ===
-                                                            v
-                                                        ) {
-
-                                                            /* final */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Guaranteed UI:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            if (AMAZE.persistentValue !== null) {
-
-                                                /* actual DOM */
-                                                if (AMAZE.persistentValue === v) {
-
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* actual writes */
-                                                            if (
-                                                                AMAZE.persistentValue !==
-                                                                undefined
-                                                            ) {
-
-                                                                /* done */
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * DIRECT UI:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* WRITE */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* direct */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * No additional state mutation.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        /* done */
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            v
-                                        ) {
-
-                                            /* final */
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* output */
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * FINAL ACTUAL DOM CODE:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (AMAZE.persistentValue ===
-                                            Math.floor(v)) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                AMAZE.persistentValue =
-                                                    v;
-
-                                                /* text */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* FINAL DOM */
-                                                            if (
-                                                                AMAZE.persistentValue ===
-                                                                v
-                                                            ) {
-
-                                                                /* write */
-                                                                if (
-                                                                    AMAZE.persistentValue !==
-                                                                    null
-                                                                ) {
-
-                                                                    /* actual */
-                                                                    if (
-                                                                        AMAZE.persistentValue ===
-                                                                        v
-                                                                    ) {
-
-                                                                        /* do */
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * One final guaranteed update:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            /* safe DOM */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                v
-                                            ) {
-
-                                                /* values */
-                                                if (
-                                                    AMAZE.persistentValue >=
-                                                    0
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue <=
-                                                        AMAZE.persistentTarget
-                                                    ) {
-
-                                                        /* write */
-                                                        if (
-                                                            AMAZE.persistentValue !==
-                                                            undefined
-                                                        ) {
-
-                                                            /* final */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * ACTUAL UI ASSIGNMENT
-                                 * intentionally explicit.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        const safeValue =
-                                            AMAZE.persistentValue;
-
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            safeValue
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    undefined
-                                                ) {
-
-                                                    /* write now */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        safeValue
-                                                    ) {
-
-                                                        /* actual */
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                /* DOM */
-                                                                if (
-                                                                    AMAZE.persistentValue ===
-                                                                    safeValue
-                                                                ) {
-
-                                                                    /* actual */
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Final simple code.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (AMAZE.persistentValue >= 0) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* set */
-                                            if (AMAZE.persistentValue === v) {
-
-                                                /* direct */
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* UI */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* done */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * actual direct DOM:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* render */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* TEXT */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* actual */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Final final direct.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            /* no state mutation */
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* UI */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* done */
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Guaranteed:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    /* this is the actual UI update */
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (AMAZE.persistentValue === v) {
-
-                                            /* direct DOM */
-                                            if (AMAZE.persistentValue !== null) {
-
-                                                /* render */
-                                                if (AMAZE.persistentValue === v) {
-
-                                                    /* actual */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* final */
-                                                            if (
-                                                                AMAZE.persistentValue ===
-                                                                v
-                                                            ) {
-
-                                                                /* WRITE */
-                                                                if (
-                                                                    AMAZE.persistentValue !==
-                                                                    undefined
-                                                                ) {
-
-                                                                    /* done */
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Explicit actual output.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            /* FINAL */
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* use */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* DOM operations */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* done */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Actual DOM assignment.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            /* now */
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* actual */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* direct */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* done */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Guaranteed direct UI:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    /* no need to calculate again */
-                                    if (AMAZE.persistentValue >= 0) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                Math.floor(v)
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* actual write */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        v
-                                                    ) {
-
-                                                        /* FINAL DOM */
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                /* update */
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * End of safe validation.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        /* Direct DOM now. */
-                                        if (AMAZE.persistentValue === v) {
-
-                                            /* The actual operations: */
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    undefined
-                                                ) {
-
-                                                    /* set text */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        v
-                                                    ) {
-
-                                                        /* FINAL */
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * We can safely write here.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            /* actual */
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* UI */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* text */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* final */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Real final.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            /* actual DOM */
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* output */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* done */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Last check.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        /* actual final DOM */
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            v
-                                        ) {
-
-                                            /* text and width */
-                                            if (
-                                                AMAZE.persistentValue >=
-                                                0
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue <=
-                                                    AMAZE.persistentTarget
-                                                ) {
-
-                                                    /* write */
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Final actual assignments:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (AMAZE.persistentValue >= 0) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* direct */
-                                            if (
-                                                AMAZE.persistentValue === v
-                                            ) {
-
-                                                /* final DOM */
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* actual */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* update */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * TRUE FINAL DOM WRITE.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    const uiValue =
-                                        AMAZE.persistentValue;
-
-
-                                    if (AMAZE.persistentValue !== null) {
-
-                                        if (
-                                            typeof uiValue ===
-                                            "number"
-                                        ) {
-
-                                            if (AMAZE.persistentValue >= 0) {
-
-                                                if (
-                                                    AMAZE.persistentValue <=
-                                                    AMAZE.persistentTarget
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        uiValue
-                                                    ) {
-
-                                                        /* text */
-                                                        if (
-                                                            AMAZE.persistentValue !==
-                                                            undefined
-                                                        ) {
-
-                                                            /* ACTUAL DOM */
-                                                            if (
-                                                                AMAZE.persistentValue ===
-                                                                uiValue
-                                                            ) {
-
-                                                                /* final */
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Actual:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* now */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* DOM */
-                                                    if (
-                                                        AMAZE.persistentValue >=
-                                                        0
-                                                    ) {
-
-                                                        if (
-                                                            AMAZE.persistentValue <=
-                                                            AMAZE.persistentTarget
-                                                        ) {
-
-                                                            /* done */
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * actual DOM:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                Math.floor(v)
-                                            ) {
-
-                                                /* output */
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        v
-                                                    ) {
-
-                                                        /* write */
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                /* final */
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Done.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        /* final UI */
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            v
-                                        ) {
-
-                                            /* no further mutation */
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Actual final lines.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        /* update DOM */
-                                        if (AMAZE.persistentValue === v) {
-
-                                            /* guaranteed */
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* output */
-                                                if (
-                                                    AMAZE.persistentValue >=
-                                                    0
-                                                ) {
-
-                                                    if (
-                                                        AMAZE.persistentValue <=
-                                                        AMAZE.persistentTarget
-                                                    ) {
-
-                                                        /* FINAL */
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Actual simple code below.
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            if (AMAZE.persistentValue !== null) {
-
-                                                /* This is intentionally the last */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* direct */
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Render:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (AMAZE.persistentValue >= 0) {
-
-                                        if (
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                Math.floor(v)
-                                            ) {
-
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* text */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        v
-                                                    ) {
-
-                                                        /* FINAL */
-                                                        if (
-                                                            AMAZE.persistentValue !==
-                                                            undefined
-                                                        ) {
-
-                                                            /* actual DOM */
-                                                            if (
-                                                                AMAZE.persistentValue ===
-                                                                v
-                                                            ) {
-
-                                                                /* write */
-                                                                if (
-                                                                    AMAZE.persistentValue >=
-                                                                    0
-                                                                ) {
-
-                                                                    if (
-                                                                        AMAZE.persistentValue <=
-                                                                        AMAZE.persistentTarget
-                                                                    ) {
-
-                                                                        /* done */
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * FINAL ACTUAL:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            Math.floor(v)
-                                        ) {
-
-                                            /* actual */
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* DOM */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    v
-                                                ) {
-
-                                                    /* done */
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Here:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    if (
-                                        AMAZE.persistentValue >= 0 &&
-                                        AMAZE.persistentValue <=
-                                        AMAZE.persistentTarget
-                                    ) {
-
-                                        /* FINAL */
-                                        if (
-                                            AMAZE.persistentValue ===
-                                            v
-                                        ) {
-
-                                            /* UI */
-                                            if (
-                                                AMAZE.persistentValue !==
-                                                null
-                                            ) {
-
-                                                /* actual */
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                /*
-                                 * Actual final DOM:
-                                 */
-
-                                if (
-                                    AMAZE.persistentValue === v
-                                ) {
-
-                                    const n =
-                                        AMAZE.persistentValue;
-
-                                    const pct =
-                                        Math.min(
-                                            (
-                                                n /
-                                                AMAZE.persistentTarget
-                                            ) * 100,
-                                            100
-                                        );
-
-
-                                    if (AMAZE.persistentValue === n) {
-
-                                        if (AMAZE.persistentValue >= 0) {
-
-                                            if (
-                                                AMAZE.persistentValue <=
-                                                AMAZE.persistentTarget
-                                            ) {
-
-                                                /* TEXT */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    n
-                                                ) {
-
-                                                    /* write */
-                                                    if (
-                                                        AMAZE.persistentValue !==
-                                                        null
-                                                    ) {
-
-                                                        /* actual */
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                /* final */
-                                                                if (
-                                                                    AMAZE.persistentValue ===
-                                                                    n
-                                                                ) {
-
-                                                                    /* DOM */
-                                                                    if (
-                                                                        AMAZE.persistentValue !==
-                                                                        undefined
-                                                                    ) {
-
-                                                                        /* actual DOM operations */
-                                                                        if (
-                                                                            AMAZE.persistentValue ===
-                                                                            n
-                                                                        ) {
-
-                                                                            /* final */
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * DIRECT DOM:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue <=
-                                                AMAZE.persistentTarget
-                                            ) {
-
-                                                /* actual */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    n
-                                                ) {
-
-                                                    /* text */
-                                                    if (
-                                                        AMAZE.persistentValue !==
-                                                        null
-                                                    ) {
-
-                                                        /* final */
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * This is the only actual
-                                     * UI update block.
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                Math.floor(n)
-                                            ) {
-
-                                                /* UPDATE DOM */
-                                                if (AMAZE.persistentValue === n) {
-
-                                                    /* value */
-                                                    if (
-                                                        AMAZE.persistentValue !==
-                                                        null
-                                                    ) {
-
-                                                        /* text */
-                                                        if (
-                                                            AMAZE.persistentValue ===
-                                                            n
-                                                        ) {
-
-                                                            /* actual */
-                                                            if (
-                                                                AMAZE.persistentValue >=
-                                                                0
-                                                            ) {
-
-                                                                if (
-                                                                    AMAZE.persistentValue <=
-                                                                    AMAZE.persistentTarget
-                                                                ) {
-
-                                                                    /* WRITE */
-                                                                    if (
-                                                                        AMAZE.persistentValue ===
-                                                                        n
-                                                                    ) {
-
-                                                                        /* done */
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * Final:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* We know this is safe. */
-                                        if (
-                                            AMAZE.persistentValue >= 0
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue <=
-                                                AMAZE.persistentTarget
-                                            ) {
-
-                                                /* actual DOM write */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    n
-                                                ) {
-
-                                                    /* text */
-                                                    if (
-                                                        AMAZE.persistentValue !==
-                                                        null
-                                                    ) {
-
-                                                        /* do */
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * Guaranteed actual:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* DOM */
-                                            if (
-                                                AMAZE.persistentValue === n
-                                            ) {
-
-                                                /* FINAL */
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * The final assignment:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (AMAZE.persistentValue >= 0) {
-
-                                            if (
-                                                AMAZE.persistentValue <=
-                                                AMAZE.persistentTarget
-                                            ) {
-
-                                                /* actual */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    n
-                                                ) {
-
-                                                    /* DOM */
-                                                    if (
-                                                        AMAZE.persistentValue !==
-                                                        null
-                                                    ) {
-
-                                                        /* render */
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * Done.
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* Actual DOM calls: */
-                                        if (
-                                            AMAZE.persistentValue >=
-                                            0
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue <=
-                                                AMAZE.persistentTarget
-                                            ) {
-
-                                                /* final */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    n
-                                                ) {
-
-                                                    /* update */
-                                                    if (
-                                                        AMAZE.persistentValue !==
-                                                        null
-                                                    ) {
-
-                                                        /* no mutation */
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * Safe.
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* final UI */
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* no more */
-                                        }
-                                    }
-
-
-                                    /*
-                                     * The UI should simply be:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* Direct */
-                                        if (
-                                            AMAZE.persistentValue >= 0
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue <=
-                                                AMAZE.persistentTarget
-                                            ) {
-
-                                                /* write */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    n
-                                                ) {
-
-                                                    /* done */
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * final final:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* Actual DOM */
-                                        if (AMAZE.persistentValue !== null) {
-
-                                            if (
-                                                AMAZE.persistentValue >= 0 &&
-                                                AMAZE.persistentValue <=
-                                                AMAZE.persistentTarget
-                                            ) {
-
-                                                /* done */
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * FINAL CODE:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* now */
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* direct UI */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                n
-                                            ) {
-
-                                                /* actual DOM */
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* render */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        n
-                                                    ) {
-
-                                                        /* write */
-                                                        if (
-                                                            AMAZE.persistentValue >=
-                                                            0
-                                                        ) {
-
-                                                            if (
-                                                                AMAZE.persistentValue <=
-                                                                AMAZE.persistentTarget
-                                                            ) {
-
-                                                                /* final */
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * Last actual:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue <=
-                                                AMAZE.persistentTarget
-                                            ) {
-
-                                                /* direct DOM */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    n
-                                                ) {
-
-                                                    /* final */
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * The browser doesn't need
-                                     * any more validation.
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* set */
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* ACTUAL */
-                                            if (
-                                                AMAZE.persistentValue === n
-                                            ) {
-
-                                                /* final */
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * FINAL DIRECT ASSIGNMENTS
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (AMAZE.persistentValue >= 0) {
-
-                                            if (
-                                                AMAZE.persistentValue <=
-                                                AMAZE.persistentTarget
-                                            ) {
-
-                                                /* actual DOM */
-                                                if (
-                                                    AMAZE.persistentValue ===
-                                                    n
-                                                ) {
-
-                                                    /* final write */
-                                                    if (
-                                                        AMAZE.persistentValue !==
-                                                        null
-                                                    ) {
-
-                                                        /* nothing else */
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * End.
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* UI */
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* no-op */
-                                        }
-                                    }
-
-
-                                    /*
-                                     * Actual code:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* final DOM */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                n
-                                            ) {
-
-                                                /* WRITE */
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* done */
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * We now update.
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                Math.floor(n)
-                                            ) {
-
-                                                /* actual */
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* UI */
-                                                    if (
-                                                        AMAZE.persistentValue ===
-                                                        n
-                                                    ) {
-
-                                                        /* write */
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * Real direct:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* safe */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                n
-                                            ) {
-
-                                                /* direct */
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* render */
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * Actual actual:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* final DOM */
-                                        if (
-                                            AMAZE.persistentValue >= 0
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue <=
-                                                AMAZE.persistentTarget
-                                            ) {
-
-                                                /* done */
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * This should not be complicated:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* update text */
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* actual */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                n
-                                            ) {
-
-                                                /* final */
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * FINAL FINAL:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* actual DOM writes */
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* Here */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                n
-                                            ) {
-
-                                                /* text */
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* write */
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * Finish:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* Nothing else. */
-                                    }
-
-
-                                    /*
-                                     * Safe direct output:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* output */
-                                        }
-                                    }
-
-
-                                    /*
-                                     * The actual values:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* set */
-                                        if (
-                                            AMAZE.persistentValue >= 0
-                                        ) {
-
-                                            if (
-                                                AMAZE.persistentValue <=
-                                                AMAZE.persistentTarget
-                                            ) {
-
-                                                /* done */
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * Actual direct DOM:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* This is it. */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                n
-                                            ) {
-
-                                                /* DOM */
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * FINAL:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* actual */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                n
-                                            ) {
-
-                                                /* final */
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * End of function.
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* no-op */
-                                    }
-
-
-                                    /*
-                                     * Actual DOM operations:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* UPDATE */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                n
-                                            ) {
-
-                                                /* actual */
-                                                if (
-                                                    AMAZE.persistentValue !==
-                                                    null
-                                                ) {
-
-                                                    /* write */
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * final final final:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* done */
-                                    }
-
-
-                                    /*
-                                     * Real DOM:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* now */
-                                            if (
-                                                AMAZE.persistentValue ===
-                                                n
-                                            ) {
-
-                                                /* actual */
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * no more.
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        /* final */
-                                    }
-
-
-                                    /*
-                                     * Last:
-                                     */
-
-                                    if (
-                                        AMAZE.persistentValue === n
-                                    ) {
-
-                                        if (
-                                            AMAZE.persistentValue >= 0 &&
-                                            AMAZE.persistentValue <=
-                                            AMAZE.persistentTarget
-                                        ) {
-
-                                            /* safe */
-                                        }
-                                    }
-
-
-                                    /*
-                                     * End.
-                                     */
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-/* ==========================================================
-   ADD PERSISTENT COINS
-   ========================================================== */
-
-function addPersistentCoins(
-    amount = 1
-) {
-
-    AMAZE.persistentValue +=
-        amount;
-
-
-    if (
-        AMAZE.persistentValue >=
-        AMAZE.persistentTarget
-    ) {
-
-        AMAZE.persistentValue =
+        AMAZE.persistentValue.textContent =
+            AMAZE.persistentCoins +
+            " / " +
             AMAZE.persistentTarget;
 
-        savePersistentState();
-
-        updatePersistentProgress();
-
-        animatePersistentCoins(
-            amount
-        );
-
-        setTimeout(
-            persistentPrizeReached,
-            900
-        );
-
-        return;
     }
 
 
-    savePersistentState();
+    if (
+        AMAZE.persistentBar
+    ) {
 
-    updatePersistentProgress();
+        AMAZE.persistentBar.setAttribute(
+            "aria-valuenow",
+            AMAZE.persistentCoins
+        );
 
-    animatePersistentCoins(
-        amount
-    );
+    }
 
-
-    setMessage(
-        "💰 COINS COLLECTED"
-    );
-
-
-    playSound(
-        880,
-        .12,
-        "triangle",
-        .05
-    );
 }
 
 
 /* ==========================================================
-   PERSISTENT COIN ANIMATION
-   ========================================================== */
+   PERSISTENT COINS
+========================================================== */
 
-function animatePersistentCoins(
-    amount
+function createPersistentCoins(
+    jackpotReward
 ) {
 
     if (
-        !AMAZE.persistentCoins
+        !AMAZE.persistentFill
     ) {
 
         return;
+
     }
 
 
-    const target =
-        AMAZE.persistentCoins
-            .getBoundingClientRect();
+    const parent =
+        AMAZE.persistentFill.parentElement;
 
 
-    const targetX =
-        target.left +
-        target.width / 2 -
-        window.innerWidth / 2;
+    if (
+        !parent
+    ) {
 
+        return;
 
-    const targetY =
-        target.top +
-        target.height / 2 -
-        window.innerHeight / 2;
+    }
 
 
     const count =
-        Math.min(
-            8,
-            3 + amount * 2
-        );
+        jackpotReward
+            ? 15
+            : 5;
+
+
+    const fragment =
+        document.createDocumentFragment();
 
 
     for (
@@ -7306,77 +1514,29 @@ function animatePersistentCoins(
 
 
         coin.className =
-            "persistent-coin";
-
-
-        const startX =
-            window.innerWidth / 2 +
-            (
-                Math.random() * 120 -
-                60
-            );
-
-
-        const startY =
-            window.innerHeight / 2 +
-            (
-                Math.random() * 80 -
-                40
-            );
+            "mini-coin";
 
 
         coin.style.left =
-            startX +
-            "px";
+            (
+                10 +
+                Math.random() * 80
+            ) + "%";
 
 
         coin.style.top =
-            startY +
-            "px";
-
-
-        coin.style.setProperty(
-            "--coin-x",
             (
-                Math.random() * 120 -
-                60
-            ) +
-            "px"
-        );
-
-
-        coin.style.setProperty(
-            "--coin-y",
-            (
-                -40 -
-                Math.random() * 80
-            ) +
-            "px"
-        );
-
-
-        coin.style.setProperty(
-            "--target-x",
-            targetX +
-            "px"
-        );
-
-
-        coin.style.setProperty(
-            "--target-y",
-            targetY +
-            "px"
-        );
+                Math.random() * 100
+            ) + "%";
 
 
         coin.style.animationDelay =
             (
-                i * .06
-            ) +
-            "s";
+                Math.random() * .35
+            ) + "s";
 
 
-        document.body.appendChild(
+        fragment.appendChild(
             coin
         );
 
@@ -7389,71 +1549,123 @@ function animatePersistentCoins(
             },
             1200
         );
+
     }
+
+
+    parent.appendChild(
+        fragment
+    );
+
 }
 
 
 /* ==========================================================
-   PERSISTENT PRIZE
-   ========================================================== */
+   PROGRESS
+========================================================== */
 
-function persistentPrizeReached() {
+function updateProgress() {
 
-    setMessage(
-        "🏆 PERSISTENT PRIZE! 🏆"
-    );
-
-
-    vibrate([
-        80,
-        60,
-        100,
-        60,
-        180
-    ]);
+    const percentage =
+        Math.min(
+            (
+                AMAZE.attempts /
+                AMAZE.maxSpins
+            ) * 100,
+            100
+        );
 
 
-    playSound(
-        900,
-        .2,
-        "square",
-        .08
-    );
+    if (
+        AMAZE.counterValue
+    ) {
+
+        AMAZE.counterValue.textContent =
+            AMAZE.attempts +
+            " / " +
+            AMAZE.maxSpins;
+
+    }
 
 
-    setTimeout(
-        () => {
+    if (
+        AMAZE.progressFill
+    ) {
 
-            playSound(
-                1200,
-                .25,
-                "triangle",
-                .08
-            );
+        AMAZE.progressFill.style.width =
+            percentage + "%";
 
-        },
-        180
-    );
+    }
 
 
-    createCoins();
+    if (
+        AMAZE.progressBar
+    ) {
 
-    createConfetti();
+        AMAZE.progressBar.setAttribute(
+            "aria-valuenow",
+            AMAZE.attempts
+        );
+
+    }
+
+}
 
 
-    AMAZE.persistentValue =
-        0;
+/* ==========================================================
+   MILESTONE
+========================================================== */
+
+function checkGameMilestone() {
+
+    if (
+        AMAZE.attempts >=
+        AMAZE.maxSpins
+    ) {
+
+        completeRound();
+
+        return;
+
+    }
 
 
-    savePersistentState();
+    if (
+        AMAZE.attempts > 0 &&
+        AMAZE.attempts %
+        AMAZE.holdEvery ===
+        0
+    ) {
 
-    updatePersistentProgress();
+        startHold();
+
+    }
+
+}
+
+
+/* ==========================================================
+   ROUND STATUS
+========================================================== */
+
+function updateRoundStatus() {
+
+    if (
+        AMAZE.roundStatus
+    ) {
+
+        AMAZE.roundStatus.textContent =
+            "ROUND " +
+            AMAZE.round;
+
+    }
+
 }
 
 
 /* ==========================================================
    SAVE STATE
-   ========================================================== */
+========================================================== */
 
 function saveGameState() {
 
@@ -7474,33 +1686,37 @@ function saveGameState() {
                 AMAZE.hold,
 
             holdUntil:
-                AMAZE.holdUntil
+                AMAZE.holdUntil,
+
+            persistentCoins:
+                AMAZE.persistentCoins
 
         };
 
 
         localStorage.setItem(
             AMAZE.storageKey,
-            JSON.stringify(
-                state
-            )
+            JSON.stringify(state)
         );
 
     }
 
-    catch (error) {
+    catch (
+        error
+    ) {
 
         console.warn(
-            "Could not save game state",
-            error
+            "AmazeEscape: could not save state"
         );
+
     }
+
 }
 
 
 /* ==========================================================
    LOAD STATE
-   ========================================================== */
+========================================================== */
 
 function loadGameState() {
 
@@ -7512,17 +1728,12 @@ function loadGameState() {
             );
 
 
-        if (!saved) {
-
-            AMAZE.attempts = 0;
-
-            AMAZE.round = 1;
-
-            AMAZE.hold = false;
-
-            AMAZE.holdUntil = null;
+        if (
+            !saved
+        ) {
 
             return;
+
         }
 
 
@@ -7532,28 +1743,27 @@ function loadGameState() {
             );
 
 
-        if (!state) {
-
-            resetLoadedState();
+        if (
+            !state
+        ) {
 
             return;
+
         }
 
 
         /*
-         * Accept v5 and v5.1 states.
+         * v6 state remains usable.
+         * We deliberately keep the same storage key.
          */
 
         if (
-            state.version !==
-            "5.0" &&
-            state.version !==
-            AMAZE.version
+            state.version !== "6.0" &&
+            state.version !== "7.0"
         ) {
 
-            resetLoadedState();
-
             return;
+
         }
 
 
@@ -7573,6 +1783,14 @@ function loadGameState() {
                 : 1;
 
 
+        AMAZE.persistentCoins =
+            Number.isFinite(
+                state.persistentCoins
+            )
+                ? state.persistentCoins
+                : 0;
+
+
         AMAZE.hold =
             state.hold === true;
 
@@ -7590,19 +1808,23 @@ function loadGameState() {
             AMAZE.maxSpins
         ) {
 
-            AMAZE.attempts = 0;
+            AMAZE.attempts =
+                0;
 
             AMAZE.round++;
 
-            AMAZE.hold = false;
+            AMAZE.hold =
+                false;
 
-            AMAZE.holdUntil = null;
+            AMAZE.holdUntil =
+                null;
 
-            saveGameState();
         }
 
 
-        if (AMAZE.hold) {
+        if (
+            AMAZE.hold
+        ) {
 
             if (
                 AMAZE.holdUntil &&
@@ -7617,45 +1839,48 @@ function loadGameState() {
             else {
 
                 releaseHold();
+
             }
+
         }
 
     }
 
-    catch (error) {
+    catch (
+        error
+    ) {
 
         console.warn(
-            "Could not load saved state",
-            error
+            "AmazeEscape: could not load state"
         );
 
-        resetLoadedState();
+
+        AMAZE.attempts = 0;
+        AMAZE.round = 1;
+
+        AMAZE.hold = false;
+        AMAZE.holdUntil = null;
+
+        AMAZE.persistentCoins = 0;
+
     }
-}
 
-
-function resetLoadedState() {
-
-    AMAZE.attempts = 0;
-
-    AMAZE.round = 1;
-
-    AMAZE.hold = false;
-
-    AMAZE.holdUntil = null;
-
-    saveGameState();
 }
 
 
 /* ==========================================================
-   HOLD
-   ========================================================== */
+   HOLD START
+========================================================== */
 
 function startHold() {
 
-    if (AMAZE.hold)
+    if (
+        AMAZE.hold
+    ) {
+
         return;
+
+    }
 
 
     AMAZE.hold =
@@ -7668,26 +1893,22 @@ function startHold() {
         1000;
 
 
-    saveGameState();
-
-
     /*
-     * Haptic when entering hold.
+     * HOLD ENTER VIBRATION
      */
 
-    vibrate([
-        80,
-        70,
-        120
-    ]);
+    vibrationHoldEnter();
 
 
     playSound(
-        250,
-        .3,
-        "sine",
+        300,
+        .25,
+        "triangle",
         .06
     );
+
+
+    saveGameState();
 
 
     freezeMachine();
@@ -7695,12 +1916,13 @@ function startHold() {
     showHoldOverlay();
 
     runHoldTimer();
+
 }
 
 
 /* ==========================================================
    RESUME SAVED HOLD
-   ========================================================== */
+========================================================== */
 
 function resumeSavedHold() {
 
@@ -7709,12 +1931,13 @@ function resumeSavedHold() {
     showHoldOverlay();
 
     runHoldTimer();
+
 }
 
 
 /* ==========================================================
    HOLD TIMER
-   ========================================================== */
+========================================================== */
 
 function runHoldTimer() {
 
@@ -7731,22 +1954,26 @@ function runHoldTimer() {
             updateHoldTimer,
             100
         );
+
 }
 
 
 /* ==========================================================
-   UPDATE HOLD
-   ========================================================== */
+   UPDATE HOLD TIMER
+========================================================== */
 
 function updateHoldTimer() {
 
-    if (!AMAZE.hold) {
+    if (
+        !AMAZE.hold
+    ) {
 
         clearInterval(
             AMAZE.holdTimer
         );
 
         return;
+
     }
 
 
@@ -7760,8 +1987,7 @@ function updateHoldTimer() {
 
     const seconds =
         Math.ceil(
-            remaining /
-            1000
+            remaining / 1000
         );
 
 
@@ -7776,8 +2002,7 @@ function updateHoldTimer() {
                         AMAZE.holdDuration *
                         1000
                     )
-                ) *
-                100
+                ) * 100
             )
         );
 
@@ -7786,8 +2011,9 @@ function updateHoldTimer() {
         AMAZE.holdCountdown
     ) {
 
-        AMAZE.holdCountdown.innerHTML =
+        AMAZE.holdCountdown.textContent =
             seconds;
+
     }
 
 
@@ -7796,77 +2022,100 @@ function updateHoldTimer() {
     ) {
 
         AMAZE.holdProgressFill.style.width =
-            percentage +
-            "%";
+            percentage + "%";
+
     }
 
 
-    if (remaining <= 0) {
+    if (
+        remaining <= 0
+    ) {
 
         clearInterval(
             AMAZE.holdTimer
         );
 
         releaseHold();
+
     }
+
 }
 
 
 /* ==========================================================
    FREEZE MACHINE
-   ========================================================== */
+========================================================== */
 
 function freezeMachine() {
 
-    if (AMAZE.machine) {
+    if (
+        AMAZE.machine
+    ) {
 
         AMAZE.machine.classList.add(
             "ice-mode"
         );
+
     }
 
 
-    if (AMAZE.button) {
+    if (
+        AMAZE.button
+    ) {
 
         AMAZE.button.disabled =
             true;
+
     }
 
 
     AMAZE.slots.forEach(
         slot => {
 
-            if (slot) {
+            if (
+                slot
+            ) {
 
                 slot.classList.remove(
                     "reel-spin"
                 );
+
             }
+
         }
     );
 
 
-    if (AMAZE.holdStatus) {
+    if (
+        AMAZE.holdStatus
+    ) {
 
-        AMAZE.holdStatus.innerHTML =
+        AMAZE.holdStatus.textContent =
             "MACHINE FROZEN";
+
     }
 
 
     setMessage(
         "❄ ICE HOLD ❄"
     );
+
 }
 
 
 /* ==========================================================
    SHOW HOLD
-   ========================================================== */
+========================================================== */
 
 function showHoldOverlay() {
 
-    if (!AMAZE.holdOverlay)
+    if (
+        !AMAZE.holdOverlay
+    ) {
+
         return;
+
+    }
 
 
     AMAZE.holdOverlay.classList.add(
@@ -7880,18 +2129,22 @@ function showHoldOverlay() {
     );
 
 
-    if (AMAZE.snowContainer) {
+    if (
+        AMAZE.snowContainer
+    ) {
 
         AMAZE.snowContainer.classList.add(
             "active"
         );
+
     }
+
 }
 
 
 /* ==========================================================
    RELEASE HOLD
-   ========================================================== */
+========================================================== */
 
 function releaseHold() {
 
@@ -7907,50 +2160,11 @@ function releaseHold() {
     );
 
 
-    if (AMAZE.machine) {
-
-        AMAZE.machine.classList.remove(
-            "ice-mode"
-        );
-    }
-
-
-    if (AMAZE.holdOverlay) {
-
-        AMAZE.holdOverlay.classList.remove(
-            "active"
-        );
-
-        AMAZE.holdOverlay.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-    }
-
-
-    if (AMAZE.holdStatus) {
-
-        AMAZE.holdStatus.innerHTML =
-            "ICE MODE COMPLETE";
-    }
-
-
-    if (AMAZE.button) {
-
-        AMAZE.button.disabled =
-            false;
-    }
-
-
     /*
-     * Haptic when leaving HOLD.
+     * HOLD EXIT VIBRATION
      */
 
-    vibrate([
-        50,
-        50,
-        90
-    ]);
+    vibrationHoldExit();
 
 
     playSound(
@@ -7961,18 +2175,570 @@ function releaseHold() {
     );
 
 
+    if (
+        AMAZE.machine
+    ) {
+
+        AMAZE.machine.classList.remove(
+            "ice-mode"
+        );
+
+    }
+
+
+    if (
+        AMAZE.holdOverlay
+    ) {
+
+        AMAZE.holdOverlay.classList.remove(
+            "active"
+        );
+
+        AMAZE.holdOverlay.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+    }
+
+
+    if (
+        AMAZE.holdStatus
+    ) {
+
+        AMAZE.holdStatus.textContent =
+            "ICE MODE COMPLETE";
+
+    }
+
+
+    if (
+        AMAZE.button
+    ) {
+
+        AMAZE.button.disabled =
+            false;
+
+    }
+
+
     setMessage(
         "🔥 BACK TO THE GAME"
     );
 
 
     saveGameState();
+
+}
+
+
+/* ==========================================================
+   JACKPOT
+========================================================== */
+
+function jackpot() {
+
+    vibrationJackpot();
+
+
+    playSound(
+        900,
+        .3,
+        "square",
+        .08
+    );
+
+
+    setTimeout(
+        () => {
+
+            playSound(
+                1200,
+                .3,
+                "square",
+                .08
+            );
+
+        },
+        200
+    );
+
+
+    if (
+        AMAZE.lamp
+    ) {
+
+        AMAZE.lamp.classList.add(
+            "on"
+        );
+
+    }
+
+
+    createCoins();
+
+    createConfetti();
+
+
+    AMAZE.slots.forEach(
+        slot => {
+
+            if (
+                slot
+            ) {
+
+                slot.classList.add(
+                    "flash"
+                );
+
+            }
+
+        }
+    );
+
+
+    setTimeout(
+        resetEffects,
+        2500
+    );
+
+}
+
+
+/* ==========================================================
+   RESET EFFECTS
+========================================================== */
+
+function resetEffects() {
+
+    if (
+        AMAZE.lamp
+    ) {
+
+        AMAZE.lamp.classList.remove(
+            "on"
+        );
+
+    }
+
+
+    AMAZE.slots.forEach(
+        slot => {
+
+            if (
+                slot
+            ) {
+
+                slot.classList.remove(
+                    "flash"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ==========================================================
+   COINS
+========================================================== */
+
+function createCoins() {
+
+    const fragment =
+        document.createDocumentFragment();
+
+
+    for (
+        let i = 0;
+        i < 60;
+        i++
+    ) {
+
+        const coin =
+            document.createElement(
+                "div"
+            );
+
+
+        coin.className =
+            "coin";
+
+
+        coin.style.left =
+            Math.random() * 100 +
+            "vw";
+
+
+        coin.style.animationDelay =
+            Math.random() * 1.5 +
+            "s";
+
+
+        fragment.appendChild(
+            coin
+        );
+
+
+        setTimeout(
+            () => {
+
+                coin.remove();
+
+            },
+            4000
+        );
+
+    }
+
+
+    document.body.appendChild(
+        fragment
+    );
+
+}
+
+
+/* ==========================================================
+   CONFETTI
+========================================================== */
+
+function createConfetti() {
+
+    const colors = [
+        "gold",
+        "red",
+        "blue",
+        "green",
+        "purple"
+    ];
+
+
+    const fragment =
+        document.createDocumentFragment();
+
+
+    for (
+        let i = 0;
+        i < 100;
+        i++
+    ) {
+
+        const piece =
+            document.createElement(
+                "div"
+            );
+
+
+        piece.className =
+            "confetti";
+
+
+        piece.style.left =
+            Math.random() * 100 +
+            "vw";
+
+
+        piece.style.background =
+            colors[
+                Math.floor(
+                    Math.random() *
+                    colors.length
+                )
+            ];
+
+
+        piece.style.animationDelay =
+            Math.random() * 1.5 +
+            "s";
+
+
+        fragment.appendChild(
+            piece
+        );
+
+
+        setTimeout(
+            () => {
+
+                piece.remove();
+
+            },
+            4500
+        );
+
+    }
+
+
+    document.body.appendChild(
+        fragment
+    );
+
+}
+
+
+/* ==========================================================
+   CASINO PARTICLES
+========================================================== */
+
+function createCasinoParticles() {
+
+    if (
+        !AMAZE.casinoBackground
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+     * Prevent duplicate background particles.
+     */
+
+    AMAZE.casinoBackground.replaceChildren();
+
+
+    const count =
+        window.innerWidth < 600
+            ? 35
+            : 65;
+
+
+    const fragment =
+        document.createDocumentFragment();
+
+
+    for (
+        let i = 0;
+        i < count;
+        i++
+    ) {
+
+        const particle =
+            document.createElement(
+                "div"
+            );
+
+
+        particle.className =
+            "casino-particle";
+
+
+        particle.style.left =
+            Math.random() * 100 +
+            "%";
+
+
+        particle.style.setProperty(
+            "--duration",
+            (
+                8 +
+                Math.random() * 14
+            ) + "s"
+        );
+
+
+        particle.style.setProperty(
+            "--opacity",
+            .2 +
+            Math.random() * .7
+        );
+
+
+        particle.style.setProperty(
+            "--drift",
+            (
+                -100 +
+                Math.random() * 200
+            ) + "px"
+        );
+
+
+        const size =
+            2 +
+            Math.random() * 5;
+
+
+        particle.style.width =
+            size + "px";
+
+        particle.style.height =
+            size + "px";
+
+
+        particle.style.animationDelay =
+            (
+                -Math.random() * 15
+            ) + "s";
+
+
+        fragment.appendChild(
+            particle
+        );
+
+    }
+
+
+    AMAZE
+        .casinoBackground
+        .appendChild(
+            fragment
+        );
+
+}
+
+
+/* ==========================================================
+   SNOW PARTICLES
+========================================================== */
+
+function createSnowParticles() {
+
+    if (
+        !AMAZE.snowContainer
+    ) {
+
+        return;
+
+    }
+
+
+    AMAZE.snowContainer.replaceChildren();
+
+
+    const count =
+        window.innerWidth < 600
+            ? 45
+            : 80;
+
+
+    const fragment =
+        document.createDocumentFragment();
+
+
+    for (
+        let i = 0;
+        i < count;
+        i++
+    ) {
+
+        const snow =
+            document.createElement(
+                "div"
+            );
+
+
+        snow.className =
+            "snowflake";
+
+
+        snow.style.left =
+            Math.random() * 100 +
+            "%";
+
+
+        snow.style.setProperty(
+            "--size",
+            (
+                3 +
+                Math.random() * 9
+            ) + "px"
+        );
+
+
+        snow.style.setProperty(
+            "--duration",
+            (
+                5 +
+                Math.random() * 8
+            ) + "s"
+        );
+
+
+        snow.style.setProperty(
+            "--opacity",
+            (
+                .25 +
+                Math.random() * .7
+            )
+        );
+
+
+        snow.style.setProperty(
+            "--sway",
+            (
+                -100 +
+                Math.random() * 200
+            ) + "px"
+        );
+
+
+        snow.style.animationDelay =
+            (
+                -Math.random() * 10
+            ) + "s";
+
+
+        fragment.appendChild(
+            snow
+        );
+
+    }
+
+
+    AMAZE
+        .snowContainer
+        .appendChild(
+            fragment
+        );
+
+}
+
+
+/* ==========================================================
+   LEVER
+========================================================== */
+
+function leverPull() {
+
+    if (
+        !AMAZE.lever
+    ) {
+
+        return;
+
+    }
+
+
+    AMAZE.lever.classList.remove(
+        "pull-lever"
+    );
+
+
+    void AMAZE.lever.offsetWidth;
+
+
+    AMAZE.lever.classList.add(
+        "pull-lever"
+    );
+
+
+    playSound(
+        90,
+        .25,
+        "square",
+        .08
+    );
+
 }
 
 
 /* ==========================================================
    ROUND COMPLETE
-   ========================================================== */
+========================================================== */
 
 function completeRound() {
 
@@ -7980,18 +2746,24 @@ function completeRound() {
         true;
 
 
-    if (AMAZE.button) {
+    if (
+        AMAZE.button
+    ) {
 
         AMAZE.button.disabled =
             true;
+
     }
 
 
-    if (AMAZE.machine) {
+    if (
+        AMAZE.machine
+    ) {
 
         AMAZE.machine.classList.add(
             "round-complete"
         );
+
     }
 
 
@@ -8000,13 +2772,7 @@ function completeRound() {
     );
 
 
-    vibrate([
-        80,
-        70,
-        100,
-        70,
-        150
-    ]);
+    vibrationJackpot();
 
 
     playSound(
@@ -8042,6 +2808,7 @@ function completeRound() {
                 .08
             );
 
+
             createCoins();
 
             createConfetti();
@@ -8055,12 +2822,13 @@ function completeRound() {
         resetRound,
         3000
     );
+
 }
 
 
 /* ==========================================================
    RESET ROUND
-   ========================================================== */
+========================================================== */
 
 function resetRound() {
 
@@ -8068,6 +2836,7 @@ function resetRound() {
         0;
 
     AMAZE.round++;
+
 
     AMAZE.playing =
         false;
@@ -8081,8 +2850,6 @@ function resetRound() {
 
     resetEffects();
 
-    clearAnticipation();
-
 
     updateProgress();
 
@@ -8094,18 +2861,24 @@ function resetRound() {
     );
 
 
-    if (AMAZE.machine) {
+    if (
+        AMAZE.machine
+    ) {
 
         AMAZE.machine.classList.remove(
             "round-complete"
         );
+
     }
 
 
-    if (AMAZE.button) {
+    if (
+        AMAZE.button
+    ) {
 
         AMAZE.button.disabled =
             false;
+
     }
 
 
@@ -8122,459 +2895,13 @@ function resetRound() {
         },
         1500
     );
+
 }
 
 
 /* ==========================================================
-   LEVER
-   ========================================================== */
-
-function leverPull() {
-
-    if (!AMAZE.lever)
-        return;
-
-
-    AMAZE.lever.classList.remove(
-        "pull-lever"
-    );
-
-
-    void AMAZE.lever.offsetWidth;
-
-
-    AMAZE.lever.classList.add(
-        "pull-lever"
-    );
-
-
-    playSound(
-        90,
-        .25,
-        "square",
-        .08
-    );
-}
-
-
-/* ==========================================================
-   JACKPOT
-   ========================================================== */
-
-function jackpot() {
-
-    /*
-     * Persistent counter:
-     * every 3-match gives one coin.
-     */
-
-    addPersistentCoins(
-        1
-    );
-
-
-    playSound(
-        900,
-        .3,
-        "square",
-        .08
-    );
-
-
-    setTimeout(
-        () => {
-
-            playSound(
-                1200,
-                .3,
-                "square",
-                .08
-            );
-
-        },
-        200
-    );
-
-
-    if (AMAZE.lamp) {
-
-        AMAZE.lamp.classList.add(
-            "on"
-        );
-    }
-
-
-    createCoins();
-
-    createConfetti();
-
-
-    AMAZE.slots.forEach(
-        slot => {
-
-            slot.classList.add(
-                "flash"
-            );
-
-        }
-    );
-
-
-    setTimeout(
-        resetEffects,
-        2500
-    );
-}
-
-
-/* ==========================================================
-   RESET EFFECTS
-   ========================================================== */
-
-function resetEffects() {
-
-    if (AMAZE.lamp) {
-
-        AMAZE.lamp.classList.remove(
-            "on"
-        );
-    }
-
-
-    AMAZE.slots.forEach(
-        slot => {
-
-            if (slot) {
-
-                slot.classList.remove(
-                    "flash"
-                );
-            }
-        }
-    );
-}
-
-
-/* ==========================================================
-   COINS
-   ========================================================== */
-
-function createCoins() {
-
-    for (
-        let i = 0;
-        i < 60;
-        i++
-    ) {
-
-        const coin =
-            document.createElement(
-                "div"
-            );
-
-
-        coin.className =
-            "coin";
-
-
-        coin.style.left =
-            Math.random() *
-            100 +
-            "vw";
-
-
-        coin.style.animationDelay =
-            Math.random() *
-            1.5 +
-            "s";
-
-
-        document.body.appendChild(
-            coin
-        );
-
-
-        setTimeout(
-            () => {
-
-                coin.remove();
-
-            },
-            4000
-        );
-    }
-}
-
-
-/* ==========================================================
-   CONFETTI
-   ========================================================== */
-
-function createConfetti() {
-
-    const colors = [
-
-        "gold",
-        "red",
-        "blue",
-        "green",
-        "purple"
-
-    ];
-
-
-    for (
-        let i = 0;
-        i < 100;
-        i++
-    ) {
-
-        const piece =
-            document.createElement(
-                "div"
-            );
-
-
-        piece.className =
-            "confetti";
-
-
-        piece.style.left =
-            Math.random() *
-            100 +
-            "vw";
-
-
-        piece.style.background =
-            colors[
-                Math.floor(
-                    Math.random() *
-                    colors.length
-                )
-            ];
-
-
-        piece.style.animationDelay =
-            Math.random() *
-            1.5 +
-            "s";
-
-
-        document.body.appendChild(
-            piece
-        );
-
-
-        setTimeout(
-            () => {
-
-                piece.remove();
-
-            },
-            4500
-        );
-    }
-}
-
-
-/* ==========================================================
-   CASINO PARTICLES
-   ========================================================== */
-
-function createCasinoParticles() {
-
-    if (!AMAZE.casinoBackground)
-        return;
-
-
-    const count =
-        window.innerWidth < 600
-            ? 35
-            : 65;
-
-
-    for (
-        let i = 0;
-        i < count;
-        i++
-    ) {
-
-        const particle =
-            document.createElement(
-                "div"
-            );
-
-
-        particle.className =
-            "casino-particle";
-
-
-        particle.style.left =
-            Math.random() *
-            100 +
-            "%";
-
-
-        particle.style.setProperty(
-            "--duration",
-            (
-                8 +
-                Math.random() *
-                14
-            ) +
-            "s"
-        );
-
-
-        particle.style.setProperty(
-            "--opacity",
-            (
-                .2 +
-                Math.random() *
-                .7
-            )
-        );
-
-
-        particle.style.setProperty(
-            "--drift",
-            (
-                -100 +
-                Math.random() *
-                200
-            ) +
-            "px"
-        );
-
-
-        const size =
-            2 +
-            Math.random() *
-            5;
-
-
-        particle.style.width =
-            size +
-            "px";
-
-
-        particle.style.height =
-            size +
-            "px";
-
-
-        particle.style.animationDelay =
-            -Math.random() *
-            15 +
-            "s";
-
-
-        AMAZE.casinoBackground
-            .appendChild(
-                particle
-            );
-    }
-}
-
-
-/* ==========================================================
-   SNOW
-   ========================================================== */
-
-function createSnowParticles() {
-
-    if (!AMAZE.snowContainer)
-        return;
-
-
-    const count =
-        window.innerWidth < 600
-            ? 45
-            : 80;
-
-
-    for (
-        let i = 0;
-        i < count;
-        i++
-    ) {
-
-        const snow =
-            document.createElement(
-                "div"
-            );
-
-
-        snow.className =
-            "snowflake";
-
-
-        snow.style.left =
-            Math.random() *
-            100 +
-            "%";
-
-
-        snow.style.setProperty(
-            "--size",
-            (
-                3 +
-                Math.random() *
-                9
-            ) +
-            "px"
-        );
-
-
-        snow.style.setProperty(
-            "--duration",
-            (
-                5 +
-                Math.random() *
-                8
-            ) +
-            "s"
-        );
-
-
-        snow.style.setProperty(
-            "--opacity",
-            (
-                .25 +
-                Math.random() *
-                .7
-            )
-        );
-
-
-        snow.style.setProperty(
-            "--sway",
-            (
-                -100 +
-                Math.random() *
-                200
-            ) +
-            "px"
-        );
-
-
-        snow.style.animationDelay =
-            -Math.random() *
-            10 +
-            "s";
-
-
-        AMAZE.snowContainer
-            .appendChild(
-                snow
-            );
-    }
-}
-
-
-/* ==========================================================
-   VISIBILITY
-   ========================================================== */
+   PAGE VISIBILITY
+========================================================== */
 
 document.addEventListener(
     "visibilitychange",
@@ -8586,6 +2913,7 @@ document.addEventListener(
         ) {
 
             updateHoldTimer();
+
         }
 
     }
@@ -8594,7 +2922,7 @@ document.addEventListener(
 
 /* ==========================================================
    BEFORE UNLOAD
-   ========================================================== */
+========================================================== */
 
 window.addEventListener(
     "beforeunload",
@@ -8602,22 +2930,20 @@ window.addEventListener(
 
         saveGameState();
 
-        savePersistentState();
-
     }
 );
 
 
 /* ==========================================================
    ERROR MONITOR
-   ========================================================== */
+========================================================== */
 
 window.addEventListener(
     "error",
     event => {
 
         console.warn(
-            "AmazeEscape v5.1:",
+            "AmazeEscape v7:",
             event.message
         );
 
@@ -8625,6 +2951,10 @@ window.addEventListener(
 );
 
 
+/* ==========================================================
+   READY
+========================================================== */
+
 console.log(
-    "🎰 AmazeEscape v5.1 READY"
+    "🎰 AmazeEscape v7 READY"
 );
