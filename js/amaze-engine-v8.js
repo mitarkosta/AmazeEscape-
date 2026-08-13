@@ -1,1647 +1,1563 @@
 /* ==========================================================
    AMAZE GAMING
-   STYLE v8.0
-
-   THREE VERTICAL SLOT REELS
-   CLASSIC CASINO DRUMS
-   METAL SEPARATORS
-   FIRE / ICE / JACKPOT EFFECTS
-   MOBILE READY
+   ESCAPE ENGINE V8
+   MASTER GAME ENGINE
 ========================================================== */
 
-* {
-    box-sizing: border-box;
-}
+(() => {
+    "use strict";
 
-html,
-body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: 100%;
-}
 
-body {
-    overflow-x: hidden;
-    background:
-        radial-gradient(
-            circle at center,
-            #241008 0%,
-            #0b0503 45%,
-            #020202 100%
+    /* ======================================================
+       CONFIG
+    ======================================================= */
+
+    const CONFIG = {
+
+        roundSpins: 10,
+
+        symbols: [
+            "🍒",
+            "🍋",
+            "🍊",
+            "🍇",
+            "🍉",
+            "⭐",
+            "💎",
+            "7️⃣"
+        ],
+
+        spinDuration: [
+            1500,
+            2050,
+            2700
+        ],
+
+        anticipationThreshold: 0.65,
+
+        holdDuration: 3000,
+
+        persistentStep: 10
+    };
+
+
+    /* ======================================================
+       DOM
+    ======================================================= */
+
+    const machine =
+        document.getElementById("machine");
+
+    const reelsContainer =
+        document.getElementById("reels");
+
+    const slotElements = [
+        document.getElementById("slot1"),
+        document.getElementById("slot2"),
+        document.getElementById("slot3")
+    ];
+
+    const reelStrips =
+        slotElements.map(
+            slot => slot.querySelector(".reel-strip")
         );
 
-    color: #fff;
+    const spinButton =
+        document.getElementById("spinButton");
 
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-}
+    const lever =
+        document.getElementById("lever");
 
-/* ==========================================================
-   MAIN BACKGROUND
-========================================================== */
+    const message =
+        document.getElementById("message");
 
-#casinoBackground {
-    position: fixed;
-    inset: 0;
+    const roundStatus =
+        document.getElementById("roundStatus");
 
-    overflow: hidden;
+    const jackpotLamp =
+        document.getElementById("jackpotLamp");
 
-    pointer-events: none;
+    const counterValue =
+        document.getElementById("counterValue");
 
-    z-index: 0;
+    const spinProgressFill =
+        document.getElementById("spinProgressFill");
 
-    background:
-        radial-gradient(
-            ellipse at center,
-            rgba(100, 30, 5, .20),
-            transparent 65%
-        );
-}
+    const persistentValue =
+        document.getElementById("persistentValue");
 
-.casino-particle {
-    position: absolute;
+    const persistentFill =
+        document.getElementById("persistentFill");
 
-    bottom: -20px;
+    const anticipationOverlay =
+        document.getElementById("anticipationOverlay");
 
-    border-radius: 50%;
+    const anticipationParticles =
+        document.getElementById("anticipationParticles");
 
-    background: #ffb300;
+    const finalReelFire =
+        document.getElementById("finalReelFire");
 
-    box-shadow:
-        0 0 5px #ff6a00,
-        0 0 12px #ff3000;
+    const snowContainer =
+        document.getElementById("snowContainer");
 
-    opacity: var(--opacity);
+    const holdOverlay =
+        document.getElementById("holdOverlay");
 
-    animation:
-        casinoFloat
-        var(--duration)
-        linear
-        infinite;
-}
+    const holdCountdown =
+        document.getElementById("holdCountdown");
 
-@keyframes casinoFloat {
+    const holdProgressFill =
+        document.getElementById("holdProgressFill");
 
-    0% {
-        transform:
-            translate3d(0, 0, 0);
-    }
+    const holdStatus =
+        document.getElementById("holdStatus");
 
-    100% {
-        transform:
-            translate3d(
-                var(--drift),
-                -110vh,
-                0
+    const casinoBackground =
+        document.getElementById("casinoBackground");
+
+
+    /* ======================================================
+       STATE
+    ======================================================= */
+
+    const state = {
+
+        spinning: false,
+
+        round: 0,
+
+        persistent: 0,
+
+        results: [
+            0,
+            0,
+            0
+        ],
+
+        anticipation: false,
+
+        holdActive: false,
+
+        jackpot: false,
+
+        roundComplete: false
+    };
+
+
+    /* ======================================================
+       HELPERS
+    ======================================================= */
+
+    const random =
+        (min, max) =>
+            Math.random() *
+                (max - min) +
+                min;
+
+
+    const randomInt =
+        (min, max) =>
+            Math.floor(
+                Math.random() *
+                (max - min + 1)
+            ) + min;
+
+
+    const sleep =
+        ms =>
+            new Promise(
+                resolve =>
+                    setTimeout(
+                        resolve,
+                        ms
+                    )
             );
+
+
+    /* ======================================================
+       SYMBOL STRIP
+    ======================================================= */
+
+    function createStrip(
+        strip,
+        startIndex
+    ) {
+
+        strip.innerHTML = "";
+
+        const count =
+            36;
+
+        const fragment =
+            document.createDocumentFragment();
+
+        for (
+            let i = 0;
+            i < count;
+            i++
+        ) {
+
+            const symbol =
+                document.createElement("div");
+
+            symbol.className =
+                "reel-symbol";
+
+            const index =
+                (
+                    startIndex +
+                    i
+                ) % CONFIG.symbols.length;
+
+            symbol.textContent =
+                CONFIG.symbols[index];
+
+            fragment.appendChild(
+                symbol
+            );
+        }
+
+        strip.appendChild(
+            fragment
+        );
     }
-}
 
-/* ==========================================================
-   GAME WRAPPER
-========================================================== */
 
-#game,
-.game-container,
-.amaze-game {
-    position: relative;
+    /* ======================================================
+       INITIALIZE REELS
+    ======================================================= */
 
-    z-index: 5;
+    function initializeReels() {
 
-    width: 100%;
-    min-height: 100vh;
+        reelStrips.forEach(
+            (strip, reelIndex) => {
 
-    display: flex;
+                createStrip(
+                    strip,
+                    reelIndex * 2
+                );
 
-    flex-direction: column;
+                strip.style.setProperty(
+                    "--symbol-height",
+                    "120px"
+                );
 
-    align-items: center;
+                strip.style.setProperty(
+                    "--reel-offset",
+                    "0px"
+                );
+            }
+        );
 
-    justify-content: flex-start;
+        requestAnimationFrame(
+            updateSymbolHeight
+        );
+    }
 
-    padding:
-        20px
-        12px
-        40px;
-}
 
-/* ==========================================================
-   MACHINE
-========================================================== */
+    /* ======================================================
+       RESPONSIVE SYMBOL HEIGHT
+    ======================================================= */
 
-#machine {
-    position: relative;
+    function updateSymbolHeight() {
 
-    width: min(
-        94vw,
-        760px
+        reelStrips.forEach(
+            strip => {
+
+                const reel =
+                    strip.closest(
+                        ".slot-reel"
+                    );
+
+                if (!reel) {
+                    return;
+                }
+
+                const height =
+                    reel.clientHeight;
+
+                const symbolHeight =
+                    height / 3;
+
+                strip.style.setProperty(
+                    "--symbol-height",
+                    `${symbolHeight}px`
+                );
+            }
+        );
+    }
+
+
+    window.addEventListener(
+        "resize",
+        updateSymbolHeight
     );
 
-    margin: 20px auto;
 
-    padding:
-        28px
-        24px
-        32px;
+    /* ======================================================
+       GET SYMBOL HEIGHT
+    ======================================================= */
 
-    border:
-        6px solid #5b1b0a;
+    function getSymbolHeight() {
 
-    border-radius: 28px;
+        const reel =
+            slotElements[0]
+                .querySelector(".slot-reel");
 
-    background:
-        linear-gradient(
-            145deg,
-            #781b08,
-            #2b0903 45%,
-            #7b1a05
+        if (!reel) {
+            return 80;
+        }
+
+        return reel.clientHeight / 3;
+    }
+
+
+    /* ======================================================
+       SET MESSAGE
+    ======================================================= */
+
+    function setMessage(
+        text
+    ) {
+
+        message.textContent =
+            text;
+    }
+
+
+    /* ======================================================
+       ROUND UI
+    ======================================================= */
+
+    function updateRoundUI() {
+
+        counterValue.textContent =
+            `${state.round} / ${CONFIG.roundSpins}`;
+
+        const percent =
+            Math.min(
+                100,
+                (
+                    state.round /
+                    CONFIG.roundSpins
+                ) * 100
+            );
+
+        spinProgressFill.style.width =
+            `${percent}%`;
+
+        persistentValue.textContent =
+            `${state.persistent}%`;
+
+        persistentFill.style.width =
+            `${state.persistent}%`;
+
+        roundStatus.textContent =
+            state.spinning
+                ? "SPINNING"
+                : state.roundComplete
+                    ? "COMPLETE"
+                    : "READY";
+    }
+
+
+    /* ======================================================
+       LEVER
+    ======================================================= */
+
+    function animateLever() {
+
+        lever.classList.remove(
+            "pull-lever"
         );
 
-    box-shadow:
-        0 0 0 3px #d58a22,
-        0 0 0 7px #351006,
+        void lever.offsetWidth;
 
-        0 12px 30px
-        rgba(0,0,0,.85),
+        lever.classList.add(
+            "pull-lever"
+        );
+    }
 
-        inset 0 0 35px
-        rgba(255,100,0,.25);
 
-    transition:
-        .3s ease;
-}
+    /* ======================================================
+       BACKGROUND PARTICLES
+    ======================================================= */
 
-/* ==========================================================
-   MACHINE PLAYING
-========================================================== */
+    function createCasinoParticles() {
 
-#machine.playing {
-    box-shadow:
-        0 0 0 3px #ffae00,
-        0 0 25px #ff3c00,
-        0 0 60px rgba(255,60,0,.55),
-        inset 0 0 40px rgba(255,80,0,.25);
-}
+        const fragment =
+            document.createDocumentFragment();
 
-/* ==========================================================
-   MACHINE ANTICIPATION
-========================================================== */
+        for (
+            let i = 0;
+            i < 30;
+            i++
+        ) {
 
-#machine.anticipation-mode {
-    box-shadow:
-        0 0 0 4px #ff1600,
-        0 0 30px #ff3000,
-        0 0 70px #ff0000,
-        0 0 120px rgba(255,30,0,.7),
-        inset 0 0 45px rgba(255,0,0,.3);
-}
+            const particle =
+                document.createElement("div");
 
-/* ==========================================================
-   MACHINE ICE
-========================================================== */
+            particle.className =
+                "casino-particle";
 
-#machine.ice-mode {
-    filter:
-        saturate(.7)
-        brightness(.85);
+            particle.style.left =
+                `${random(0, 100)}%`;
 
-    box-shadow:
-        0 0 0 4px #8eeeff,
-        0 0 25px #00cfff,
-        0 0 70px rgba(0,190,255,.65),
-        inset 0 0 45px rgba(0,150,255,.25);
-}
+            particle.style.setProperty(
+                "--size",
+                `${random(2, 6)}px`
+            );
 
-/* ==========================================================
-   TITLE
-========================================================== */
+            particle.style.setProperty(
+                "--opacity",
+                random(.2, .7)
+            );
 
-h1,
-.game-title,
-#title {
-    margin:
-        0 0 20px;
+            particle.style.setProperty(
+                "--duration",
+                `${random(5, 12)}s`
+            );
 
-    text-align: center;
+            particle.style.setProperty(
+                "--drift",
+                `${random(-100, 100)}px`
+            );
 
-    color: #ffd43b;
+            particle.style.animationDelay =
+                `${random(-10, 0)}s`;
 
-    font-size:
-        clamp(
-            28px,
-            7vw,
-            58px
+            fragment.appendChild(
+                particle
+            );
+        }
+
+        casinoBackground.appendChild(
+            fragment
+        );
+    }
+
+
+    /* ======================================================
+       ANTICIPATION PARTICLES
+    ======================================================= */
+
+    function createAnticipationParticles() {
+
+        anticipationParticles.innerHTML =
+            "";
+
+        const fragment =
+            document.createDocumentFragment();
+
+        for (
+            let i = 0;
+            i < 25;
+            i++
+        ) {
+
+            const particle =
+                document.createElement("div");
+
+            particle.className =
+                "anticipation-particle";
+
+            particle.style.left =
+                `${random(0, 100)}%`;
+
+            particle.style.setProperty(
+                "--particle-size",
+                `${random(3, 9)}px`
+            );
+
+            particle.style.setProperty(
+                "--duration",
+                `${random(2, 5)}s`
+            );
+
+            particle.style.setProperty(
+                "--drift",
+                `${random(-120, 120)}px`
+            );
+
+            particle.style.animationDelay =
+                `${random(-5, 0)}s`;
+
+            fragment.appendChild(
+                particle
+            );
+        }
+
+        anticipationParticles.appendChild(
+            fragment
+        );
+    }
+
+
+    /* ======================================================
+       FINAL REEL FIRE
+    ======================================================= */
+
+    function createFireEffect() {
+
+        finalReelFire.innerHTML =
+            "";
+
+        const fragment =
+            document.createDocumentFragment();
+
+
+        /* Flames */
+
+        for (
+            let i = 0;
+            i < 12;
+            i++
+        ) {
+
+            const flame =
+                document.createElement("div");
+
+            flame.className =
+                "final-reel-flame";
+
+            flame.style.setProperty(
+                "--fire-size",
+                `${random(18, 42)}px`
+            );
+
+            flame.style.setProperty(
+                "--fire-left",
+                `${random(-15, 85)}%`
+            );
+
+            flame.style.setProperty(
+                "--fire-bottom",
+                `${random(-10, 35)}px`
+            );
+
+            flame.style.setProperty(
+                "--fire-opacity",
+                random(.45, 1)
+            );
+
+            flame.style.setProperty(
+                "--fire-rotate",
+                `${random(-35, 35)}deg`
+            );
+
+            flame.style.setProperty(
+                "--fire-duration",
+                `${random(.25, .6)}s`
+            );
+
+            fragment.appendChild(
+                flame
+            );
+        }
+
+
+        /* Particles */
+
+        for (
+            let i = 0;
+            i < 20;
+            i++
+        ) {
+
+            const particle =
+                document.createElement("div");
+
+            particle.className =
+                "final-reel-particle";
+
+            particle.style.setProperty(
+                "--particle-size",
+                `${random(3, 8)}px`
+            );
+
+            particle.style.setProperty(
+                "--particle-left",
+                `${random(0, 100)}%`
+            );
+
+            particle.style.setProperty(
+                "--particle-bottom",
+                `${random(0, 80)}px`
+            );
+
+            particle.style.setProperty(
+                "--particle-drift",
+                `${random(-100, 100)}px`
+            );
+
+            particle.style.setProperty(
+                "--particle-rise",
+                `${random(-80, -220)}px`
+            );
+
+            particle.style.setProperty(
+                "--particle-duration",
+                `${random(1, 2.5)}s`
+            );
+
+            particle.style.setProperty(
+                "--particle-delay",
+                `${random(-2, 0)}s`
+            );
+
+            fragment.appendChild(
+                particle
+            );
+        }
+
+        finalReelFire.appendChild(
+            fragment
+        );
+    }
+
+
+    /* ======================================================
+       ANTICIPATION
+    ======================================================= */
+
+    function setAnticipation(
+        active
+    ) {
+
+        state.anticipation =
+            active;
+
+        machine.classList.toggle(
+            "anticipation-mode",
+            active
         );
 
-    font-weight: 900;
-
-    letter-spacing: 3px;
-
-    text-shadow:
-        0 2px 0 #7c2400,
-        0 0 10px #ff9d00,
-        0 0 25px #ff4000;
-}
-
-/* ==========================================================
-   SLOT AREA
-========================================================== */
-
-.slots,
-.slot-machine,
-.reels {
-    position: relative;
-
-    width: 100%;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: stretch;
-
-    gap: 0;
-
-    margin:
-        15px 0
-        25px;
-
-    padding: 12px;
-
-    border-radius: 18px;
-
-    background:
-        linear-gradient(
-            180deg,
-            #171717,
-            #050505
+        anticipationOverlay.classList.toggle(
+            "active",
+            active
         );
 
-    border:
-        4px solid #444;
-
-    box-shadow:
-        inset 0 0 20px #000,
-        0 0 15px rgba(0,0,0,.8);
-
-    overflow: hidden;
-}
-
-/* ==========================================================
-   INDIVIDUAL REEL CONTAINER
-========================================================== */
-
-.slot,
-.reel {
-    position: relative;
-
-    flex: 1;
-
-    height:
-        clamp(
-            190px,
-            34vw,
-            270px
+        slotElements[2].classList.toggle(
+            "final-reel-anticipation",
+            active
         );
 
-    min-width: 0;
+        if (active) {
 
-    overflow: hidden;
+            jackpotLamp.classList.add(
+                "on"
+            );
 
-    background:
-        linear-gradient(
-            90deg,
-            #080808,
-            #2b2b2b 45%,
-            #111 100%
+        } else {
+
+            jackpotLamp.classList.remove(
+                "on"
+            );
+        }
+    }
+
+
+    /* ======================================================
+       ICE HOLD
+    ======================================================= */
+
+    async function runIceHold() {
+
+        if (state.holdActive) {
+            return;
+        }
+
+        state.holdActive =
+            true;
+
+        machine.classList.add(
+            "ice-mode"
         );
 
-    border:
-        3px solid #666;
-
-    box-shadow:
-        inset 0 0 18px #000,
-        inset 4px 0 8px rgba(255,255,255,.08),
-        inset -4px 0 8px rgba(0,0,0,.8);
-}
-
-/* ==========================================================
-   REEL 1
-========================================================== */
-
-#slot1 {
-    border-radius:
-        12px 0 0 12px;
-}
-
-/* ==========================================================
-   REEL 3
-========================================================== */
-
-#slot3 {
-    border-radius:
-        0 12px 12px 0;
-}
-
-/* ==========================================================
-   METAL SEPARATORS
-========================================================== */
-
-#slot2,
-#slot3 {
-    border-left:
-        7px solid #777;
-}
-
-#slot2::before,
-#slot3::before {
-    content: "";
-
-    position: absolute;
-
-    left: -7px;
-    top: 0;
-    bottom: 0;
-
-    width: 7px;
-
-    z-index: 50;
-
-    background:
-        linear-gradient(
-            90deg,
-            #222 0%,
-            #eee 22%,
-            #999 42%,
-            #fff 50%,
-            #777 65%,
-            #222 100%
+        holdOverlay.classList.add(
+            "active"
         );
 
-    box-shadow:
-        0 0 5px #000,
-        0 0 10px rgba(255,255,255,.2);
-}
-
-/* ==========================================================
-   REALISTIC REEL WINDOW
-========================================================== */
-
-.slot::after,
-.reel::after {
-    content: "";
-
-    position: absolute;
-
-    inset: 0;
-
-    z-index: 20;
-
-    pointer-events: none;
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(0,0,0,.55),
-            transparent 18%,
-            transparent 82%,
-            rgba(0,0,0,.55)
-        ),
-
-        linear-gradient(
-            180deg,
-            rgba(0,0,0,.8),
-            transparent 18%,
-            transparent 82%,
-            rgba(0,0,0,.8)
-        );
-}
-
-/* ==========================================================
-   CENTER PAYLINE
-========================================================== */
-
-.slots::after,
-.reels::after {
-    content: "";
-
-    position: absolute;
-
-    left: 8px;
-    right: 8px;
-
-    top: 50%;
-
-    height: 4px;
-
-    transform:
-        translateY(-50%);
-
-    z-index: 40;
-
-    pointer-events: none;
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(255,215,0,.8),
-            transparent
+        snowContainer.classList.add(
+            "active"
         );
 
-    box-shadow:
-        0 0 8px #ffd000;
-}
-
-/* ==========================================================
-   SLOT SYMBOL
-========================================================== */
-
-.slot-symbol,
-.reel-symbol {
-    position: relative;
-
-    height: 100%;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    justify-content: center;
-
-    font-size:
-        clamp(
-            60px,
-            13vw,
-            105px
+        holdOverlay.setAttribute(
+            "aria-hidden",
+            "false"
         );
 
-    line-height: 1;
+        const start =
+            performance.now();
 
-    user-select: none;
+        const end =
+            start +
+            CONFIG.holdDuration;
 
-    text-shadow:
-        0 4px 4px rgba(0,0,0,.8),
-        0 0 12px rgba(255,255,255,.15);
-}
 
-/* ==========================================================
-   SYMBOLS IN CURRENT HTML
-========================================================== */
+        function update() {
 
-#slot1,
-#slot2,
-#slot3 {
-    display: flex;
+            const now =
+                performance.now();
 
-    align-items: center;
+            const remaining =
+                Math.max(
+                    0,
+                    end - now
+                );
 
-    justify-content: center;
+            const progress =
+                remaining /
+                CONFIG.holdDuration;
 
-    font-size:
-        clamp(
-            65px,
-            14vw,
-            110px
+            const seconds =
+                Math.ceil(
+                    remaining / 1000
+                );
+
+            holdCountdown.textContent =
+                seconds;
+
+            holdProgressFill.style.width =
+                `${progress * 100}%`;
+
+            if (
+                remaining > 0
+            ) {
+
+                requestAnimationFrame(
+                    update
+                );
+
+            } else {
+
+                finishIceHold();
+            }
+        }
+
+
+        function finishIceHold() {
+
+            machine.classList.remove(
+                "ice-mode"
+            );
+
+            holdOverlay.classList.remove(
+                "active"
+            );
+
+            snowContainer.classList.remove(
+                "active"
+            );
+
+            holdOverlay.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+            holdCountdown.textContent =
+                "3";
+
+            holdProgressFill.style.width =
+                "100%";
+
+            holdStatus.textContent =
+                "COOLING COMPLETE";
+
+            state.holdActive =
+                false;
+
+            setMessage(
+                "ENGINE RESTARTED"
+            );
+        }
+
+
+        holdStatus.textContent =
+            "COOLING SYSTEM ACTIVE";
+
+        requestAnimationFrame(
+            update
         );
 
-    line-height: 1;
-
-    user-select: none;
-}
-
-/* ==========================================================
-   REALISTIC SPIN
-========================================================== */
-
-.reel-spin {
-    animation:
-        reelSpin
-        .11s
-        linear
-        infinite;
-}
-
-@keyframes reelSpin {
-
-    0% {
-        transform:
-            translateY(-18px);
-    }
-
-    25% {
-        transform:
-            translateY(12px);
-    }
-
-    50% {
-        transform:
-            translateY(-14px);
-    }
-
-    75% {
-        transform:
-            translateY(10px);
-    }
-
-    100% {
-        transform:
-            translateY(-18px);
-    }
-}
-
-/* ==========================================================
-   REEL STOP
-========================================================== */
-
-.reel-stop {
-    animation:
-        reelStop
-        .32s
-        cubic-bezier(.18,.9,.25,1);
-}
-
-@keyframes reelStop {
-
-    0% {
-        transform:
-            translateY(-35px);
-    }
-
-    55% {
-        transform:
-            translateY(10px);
-    }
-
-    78% {
-        transform:
-            translateY(-5px);
-    }
-
-    100% {
-        transform:
-            translateY(0);
-    }
-}
-
-/* ==========================================================
-   FINAL REEL ANTICIPATION
-========================================================== */
-
-#slot3.final-reel-anticipation {
-
-    border-color: #ff1800 !important;
-
-    box-shadow:
-        0 0 10px #ff0000,
-        0 0 25px #ff3b00,
-        0 0 50px #ff0000,
-        inset 0 0 18px
-        rgba(255,0,0,.65) !important;
-
-    animation:
-        finalReelFireFrame
-        .22s
-        infinite alternate !important;
-
-    z-index: 20;
-}
-
-@keyframes finalReelFireFrame {
-
-    from {
-
-        border-color: #ff0000;
-
-        box-shadow:
-            0 0 8px #ff0000,
-            0 0 20px #ff3b00,
-            0 0 35px rgba(255,0,0,.75),
-            inset 0 0 12px rgba(255,0,0,.45);
-    }
-
-    to {
-
-        border-color: #ffb000;
-
-        box-shadow:
-            0 0 15px #ff0000,
-            0 0 35px #ff4500,
-            0 0 70px #ff0000,
-            inset 0 0 22px rgba(255,60,0,.9);
-    }
-}
-
-#slot3.final-reel-anticipation.reel-spin {
-
-    animation:
-        reelSpin
-        .12s
-        linear
-        infinite,
-        finalReelFireFrame
-        .22s
-        infinite alternate !important;
-}
-
-/* ==========================================================
-   FIRE AROUND FINAL REEL
-========================================================== */
-
-.final-reel-fire {
-
-    position: absolute;
-
-    left: -22px;
-    right: -22px;
-    top: -22px;
-    bottom: -22px;
-
-    pointer-events: none;
-
-    z-index: 25;
-
-    border-radius: 22px;
-
-    background:
-        radial-gradient(
-            ellipse at center,
-            transparent 25%,
-            rgba(255,60,0,.12) 45%,
-            rgba(255,0,0,.35) 70%,
-            transparent 80%
+        await sleep(
+            CONFIG.holdDuration + 50
         );
-
-    filter:
-        blur(5px);
-
-    animation:
-        finalReelFireGlow
-        .35s
-        infinite alternate;
-}
-
-@keyframes finalReelFireGlow {
-
-    from {
-
-        transform:
-            scale(.96);
-
-        opacity: .7;
     }
 
-    to {
 
-        transform:
-            scale(1.08);
+    /* ======================================================
+       CALCULATE RESULT
+    ======================================================= */
 
-        opacity: 1;
-    }
-}
+    function generateResults() {
 
-/* ==========================================================
-   FLAMES
-========================================================== */
+        /*
+         * Small chance of jackpot.
+         */
 
-.final-reel-flame {
+        const jackpotChance =
+            Math.random() < .055;
 
-    position: absolute;
 
-    width: var(--fire-size);
-    height: var(--fire-size);
+        if (jackpotChance) {
 
-    left: var(--fire-left);
-    bottom: var(--fire-bottom);
+            const seven =
+                CONFIG.symbols.indexOf(
+                    "7️⃣"
+                );
 
-    pointer-events: none;
+            return [
+                seven,
+                seven,
+                seven
+            ];
+        }
 
-    border-radius:
-        50% 50% 45% 45%;
 
-    background:
-        radial-gradient(
-            circle at 50% 75%,
-            #fff6a0 0%,
-            #ffd000 20%,
-            #ff6800 48%,
-            #ff1800 70%,
-            transparent 76%
-        );
+        return [
+            randomInt(
+                0,
+                CONFIG.symbols.length - 1
+            ),
 
-    filter: blur(1px);
+            randomInt(
+                0,
+                CONFIG.symbols.length - 1
+            ),
 
-    opacity:
-        var(--fire-opacity);
-
-    transform:
-        rotate(var(--fire-rotate));
-
-    animation:
-        finalReelFlame
-        var(--fire-duration)
-        ease-in-out
-        infinite alternate;
-}
-
-@keyframes finalReelFlame {
-
-    from {
-
-        transform:
-            translateY(5px)
-            scale(.75)
-            rotate(var(--fire-rotate));
-
-        opacity: .45;
-    }
-
-    to {
-
-        transform:
-            translateY(-15px)
-            scale(1.25)
-            rotate(calc(var(--fire-rotate) * -1));
-
-        opacity: 1;
-    }
-}
-
-/* ==========================================================
-   FIRE PARTICLES
-========================================================== */
-
-.final-reel-particle {
-
-    position: absolute;
-
-    width: var(--particle-size);
-    height: var(--particle-size);
-
-    left: var(--particle-left);
-    bottom: var(--particle-bottom);
-
-    border-radius: 50%;
-
-    pointer-events: none;
-
-    background:
-        radial-gradient(
-            circle,
-            #fff 0%,
-            #ffd700 25%,
-            #ff5a00 55%,
-            #f00 75%,
-            transparent 100%
-        );
-
-    box-shadow:
-        0 0 6px #ffcc00,
-        0 0 14px #ff3000;
-
-    animation:
-        finalReelParticle
-        var(--particle-duration)
-        linear
-        infinite;
-
-    animation-delay:
-        var(--particle-delay);
-}
-
-@keyframes finalReelParticle {
-
-    0% {
-
-        transform:
-            translate3d(0,0,0)
-            scale(.4);
-
-        opacity: 0;
-    }
-
-    15% {
-        opacity: 1;
-    }
-
-    100% {
-
-        transform:
-            translate3d(
-                var(--particle-drift),
-                var(--particle-rise),
-                0
+            randomInt(
+                0,
+                CONFIG.symbols.length - 1
             )
-            scale(0);
-
-        opacity: 0;
+        ];
     }
-}
 
-/* ==========================================================
-   HOLD / ICE
-========================================================== */
 
-#holdOverlay {
-    position: fixed;
+    /* ======================================================
+       SHOW RESULT
+    ======================================================= */
 
-    inset: 0;
+    function showResult(
+        reelIndex,
+        resultIndex
+    ) {
 
-    z-index: 100;
+        const strip =
+            reelStrips[reelIndex];
 
-    display: flex;
+        const symbolHeight =
+            getSymbolHeight();
 
-    align-items: center;
-    justify-content: center;
+        const target =
+            resultIndex +
+            12;
 
-    background:
-        rgba(0,30,60,.72);
+        const offset =
+            -target *
+            symbolHeight;
 
-    backdrop-filter:
-        blur(4px);
+        strip.style.setProperty(
+            "--reel-offset",
+            `${offset}px`
+        );
 
-    opacity: 0;
+        strip.classList.remove(
+            "reel-spin"
+        );
 
-    visibility: hidden;
+        strip.classList.remove(
+            "reel-stop"
+        );
 
-    transition:
-        .3s ease;
-}
+        void strip.offsetWidth;
 
-#holdOverlay.active {
+        strip.classList.add(
+            "reel-stop"
+        );
+    }
 
-    opacity: 1;
 
-    visibility: visible;
-}
+    /* ======================================================
+       SPIN REEL
+    ======================================================= */
 
-.ice-mode {
-    filter:
-        hue-rotate(120deg)
-        saturate(.8);
-}
+    async function spinReel(
+        reelIndex,
+        resultIndex,
+        duration
+    ) {
 
-/* ==========================================================
-   SNOW
-========================================================== */
+        const strip =
+            reelStrips[reelIndex];
 
-#snowContainer {
+        strip.classList.add(
+            "reel-spin"
+        );
 
-    position: fixed;
+        const start =
+            performance.now();
 
-    inset: 0;
+        const end =
+            start + duration;
 
-    pointer-events: none;
 
-    z-index: 110;
+        /*
+         * Fake movement while spinning.
+         * This does not depend on CSS transform
+         * animation, so stopping is deterministic.
+         */
 
-    opacity: 0;
+        function animate(now) {
 
-    visibility: hidden;
-}
+            if (
+                now >= end
+            ) {
+                return;
+            }
 
-#snowContainer.active {
+            const elapsed =
+                now - start;
 
-    opacity: 1;
+            const movement =
+                -(
+                    (
+                        elapsed * .75
+                    ) %
+                    (
+                        getSymbolHeight()
+                    )
+                );
 
-    visibility: visible;
-}
+            const base =
+                -(
+                    10 *
+                    getSymbolHeight()
+                );
 
-.snowflake {
+            strip.style.setProperty(
+                "--reel-offset",
+                `${base + movement}px`
+            );
 
-    position: absolute;
+            requestAnimationFrame(
+                animate
+            );
+        }
 
-    top: -20px;
+        requestAnimationFrame(
+            animate
+        );
 
-    width: var(--size);
-    height: var(--size);
+        await sleep(
+            duration
+        );
 
-    border-radius: 50%;
+        showResult(
+            reelIndex,
+            resultIndex
+        );
 
-    background: #fff;
+        await sleep(
+            300
+        );
 
-    opacity: var(--opacity);
+        strip.classList.remove(
+            "reel-spin"
+        );
+    }
 
-    box-shadow:
-        0 0 8px #fff;
 
-    animation:
-        snowFall
-        var(--duration)
-        linear
-        infinite;
-}
+    /* ======================================================
+       JACKPOT
+    ======================================================= */
 
-@keyframes snowFall {
+    function isJackpot(
+        results
+    ) {
 
-    0% {
+        return (
+            results[0] ===
+            results[1] &&
+            results[1] ===
+            results[2]
+        );
+    }
 
-        transform:
-            translate3d(
+
+    /* ======================================================
+       JACKPOT EFFECTS
+    ======================================================= */
+
+    async function jackpotEffect() {
+
+        state.jackpot =
+            true;
+
+        jackpotLamp.classList.add(
+            "on"
+        );
+
+        machine.classList.add(
+            "round-complete"
+        );
+
+        setMessage(
+            "🎰 JACKPOT! ESCAPE!"
+        );
+
+        reelStrips.forEach(
+            strip => {
+                strip.classList.add(
+                    "flash"
+                );
+            }
+        );
+
+        createCoins();
+        createConfetti();
+
+        await sleep(
+            4000
+        );
+
+        reelStrips.forEach(
+            strip => {
+                strip.classList.remove(
+                    "flash"
+                );
+            }
+        );
+
+        machine.classList.remove(
+            "round-complete"
+        );
+
+        state.jackpot =
+            false;
+    }
+
+
+    /* ======================================================
+       COINS
+    ======================================================= */
+
+    function createCoins() {
+
+        for (
+            let i = 0;
+            i < 35;
+            i++
+        ) {
+
+            const coin =
+                document.createElement("div");
+
+            coin.className =
+                "coin";
+
+            coin.style.left =
+                `${random(0, 100)}vw`;
+
+            coin.style.animationDelay =
+                `${random(0, 1.5)}s`;
+
+            document.body.appendChild(
+                coin
+            );
+
+            setTimeout(
+                () => coin.remove(),
+                5000
+            );
+        }
+    }
+
+
+    /* ======================================================
+       CONFETTI
+    ======================================================= */
+
+    function createConfetti() {
+
+        const colors = [
+            "#ff2400",
+            "#ffd000",
+            "#00d9ff",
+            "#ffffff",
+            "#ff5a00",
+            "#7dff00"
+        ];
+
+        for (
+            let i = 0;
+            i < 80;
+            i++
+        ) {
+
+            const confetti =
+                document.createElement("div");
+
+            confetti.className =
+                "confetti";
+
+            confetti.style.left =
+                `${random(0, 100)}vw`;
+
+            confetti.style.background =
+                colors[
+                    randomInt(
+                        0,
+                        colors.length - 1
+                    )
+                ];
+
+            confetti.style.transform =
+                `rotate(${random(0, 360)}deg)`;
+
+            confetti.style.animationDelay =
+                `${random(0, 1.5)}s`;
+
+            document.body.appendChild(
+                confetti
+            );
+
+            setTimeout(
+                () =>
+                    confetti.remove(),
+                5500
+            );
+        }
+    }
+
+
+    /* ======================================================
+       MINI COINS
+    ======================================================= */
+
+    function createMiniCoins() {
+
+        const rect =
+            persistentFill.getBoundingClientRect();
+
+        for (
+            let i = 0;
+            i < 5;
+            i++
+        ) {
+
+            const coin =
+                document.createElement("div");
+
+            coin.className =
+                "mini-coin";
+
+            coin.style.left =
+                `${random(
+                    0,
+                    Math.max(
+                        1,
+                        rect.width
+                    )
+                )}px`;
+
+            coin.style.bottom =
+                "0";
+
+            persistentFill.appendChild(
+                coin
+            );
+
+            setTimeout(
+                () =>
+                    coin.remove(),
+                1300
+            );
+        }
+    }
+
+
+    /* ======================================================
+       UPDATE PERSISTENT PROGRESS
+    ======================================================= */
+
+    function updatePersistent(
+        results
+    ) {
+
+        let gain =
+            CONFIG.persistentStep;
+
+        if (
+            results[0] ===
+            results[1]
+        ) {
+            gain += 5;
+        }
+
+        if (
+            results[1] ===
+            results[2]
+        ) {
+            gain += 5;
+        }
+
+        state.persistent =
+            Math.min(
+                100,
+                state.persistent +
+                gain
+            );
+
+        createMiniCoins();
+
+        updateRoundUI();
+    }
+
+
+    /* ======================================================
+       ROUND COMPLETE
+    ======================================================= */
+
+    async function completeRound() {
+
+        state.roundComplete =
+            true;
+
+        state.spinning =
+            false;
+
+        machine.classList.remove(
+            "playing"
+        );
+
+        setAnticipation(
+            false
+        );
+
+        updateRoundUI();
+
+        await jackpotEffect();
+
+        if (
+            state.persistent >= 100
+        ) {
+
+            setMessage(
+                "❄ ESCAPE ENGINE CHARGED"
+            );
+
+            await runIceHold();
+
+            state.round =
+                0;
+
+            state.persistent =
+                0;
+
+            state.roundComplete =
+                false;
+
+            updateRoundUI();
+
+            setMessage(
+                "NEW ESCAPE ROUND READY"
+            );
+        }
+    }
+
+
+    /* ======================================================
+       MAIN SPIN
+    ======================================================= */
+
+    async function spin() {
+
+        if (
+            state.spinning ||
+            state.holdActive
+        ) {
+            return;
+        }
+
+        state.spinning =
+            true;
+
+        state.roundComplete =
+            false;
+
+        spinButton.disabled =
+            true;
+
+        machine.classList.add(
+            "playing"
+        );
+
+        animateLever();
+
+        setMessage(
+            "SPINNING..."
+        );
+
+        roundStatus.textContent =
+            "SPINNING";
+
+
+        const results =
+            generateResults();
+
+        state.results =
+            results;
+
+
+        /*
+         * Anticipation begins before
+         * the final reel stops.
+         */
+
+        const finalReelTime =
+            CONFIG.spinDuration[2];
+
+        const anticipationDelay =
+            finalReelTime *
+            CONFIG.anticipationThreshold;
+
+
+        /*
+         * Reel 1
+         */
+
+        const reel1 =
+            spinReel(
                 0,
-                -30px,
-                0
-            );
-    }
-
-    100% {
-
-        transform:
-            translate3d(
-                var(--sway),
-                110vh,
-                0
-            );
-    }
-}
-
-/* ==========================================================
-   ANTICIPATION OVERLAY
-========================================================== */
-
-#anticipationOverlay {
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 90;
-
-    pointer-events: none;
-
-    opacity: 0;
-
-    visibility: hidden;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(255,40,0,.12),
-            transparent 65%
-        );
-
-    transition:
-        opacity .2s ease;
-}
-
-#anticipationOverlay.active {
-
-    opacity: 1;
-
-    visibility: visible;
-}
-
-#anticipationParticles {
-
-    position: absolute;
-
-    inset: 0;
-
-    overflow: hidden;
-}
-
-.anticipation-particle {
-
-    position: absolute;
-
-    bottom: -20px;
-
-    border-radius: 50%;
-
-    background:
-        #ff4b00;
-
-    box-shadow:
-        0 0 10px #ff0000;
-
-    animation:
-        anticipationRise
-        var(--duration)
-        linear
-        infinite;
-}
-
-@keyframes anticipationRise {
-
-    from {
-
-        transform:
-            translate3d(
-                0,
-                0,
-                0
+                results[0],
+                CONFIG.spinDuration[0]
             );
 
-        opacity: 0;
-    }
 
-    20% {
-        opacity: 1;
-    }
+        /*
+         * Reel 2
+         */
 
-    to {
-
-        transform:
-            translate3d(
-                var(--drift),
-                -110vh,
-                0
+        const reel2 =
+            spinReel(
+                1,
+                results[1],
+                CONFIG.spinDuration[1]
             );
 
-        opacity: 0;
-    }
-}
 
-/* ==========================================================
-   BUTTON
-========================================================== */
+        /*
+         * Wait before final reel
+         */
 
-#button,
-.spin-button {
-
-    position: relative;
-
-    min-width: 220px;
-
-    padding:
-        16px
-        35px;
-
-    border:
-        3px solid #ffd447;
-
-    border-radius: 14px;
-
-    background:
-        linear-gradient(
-            180deg,
-            #ff4d00,
-            #9d1200
+        await sleep(
+            anticipationDelay
         );
 
-    color: #fff;
 
-    font-size: 20px;
+        /*
+         * Only activate anticipation
+         * when reels 1 and 2 match.
+         */
 
-    font-weight: 900;
+        if (
+            results[0] ===
+            results[1]
+        ) {
 
-    letter-spacing: 2px;
+            createAnticipationParticles();
+            setAnticipation(true);
 
-    cursor: pointer;
+            setMessage(
+                "🔥 ONE MORE REEL..."
+            );
+        }
 
-    box-shadow:
-        0 5px 0 #5b0c00,
-        0 0 20px rgba(255,80,0,.5);
 
-    transition:
-        .15s ease;
-}
+        /*
+         * Final reel
+         */
 
-#button:hover,
-.spin-button:hover {
+        const reel3 =
+            spinReel(
+                2,
+                results[2],
+                CONFIG.spinDuration[2]
+            );
 
-    transform:
-        translateY(-2px);
 
-    box-shadow:
-        0 7px 0 #5b0c00,
-        0 0 30px #ff4500;
-}
+        await Promise.all([
+            reel1,
+            reel2,
+            reel3
+        ]);
 
-#button:active,
-.spin-button:active {
 
-    transform:
-        translateY(4px);
-
-    box-shadow:
-        0 2px 0 #5b0c00;
-}
-
-#button:disabled,
-.spin-button:disabled {
-
-    opacity: .45;
-
-    cursor:
-        not-allowed;
-
-    transform:
-        none;
-}
-
-/* ==========================================================
-   MESSAGE
-========================================================== */
-
-#message {
-
-    min-height: 35px;
-
-    margin:
-        12px 0;
-
-    text-align: center;
-
-    font-size: 22px;
-
-    font-weight: 900;
-
-    color: #ffd83d;
-
-    text-shadow:
-        0 0 10px #ff5a00;
-}
-
-/* ==========================================================
-   PROGRESS
-========================================================== */
-
-#spinProgress,
-#persistentBar {
-
-    position: relative;
-
-    width: 100%;
-
-    height: 14px;
-
-    overflow: hidden;
-
-    border-radius: 20px;
-
-    background:
-        #111;
-
-    border:
-        2px solid #555;
-
-    box-shadow:
-        inset 0 2px 5px #000;
-}
-
-#spinProgressFill,
-#persistentFill {
-
-    height: 100%;
-
-    width: 0%;
-
-    border-radius: inherit;
-
-    background:
-        linear-gradient(
-            90deg,
-            #ff2400,
-            #ffb300,
-            #fff000
+        setAnticipation(
+            false
         );
 
-    box-shadow:
-        0 0 10px #ff5a00;
 
-    transition:
-        width .35s ease;
-}
+        /*
+         * Result
+         */
 
-/* ==========================================================
-   COUNTER
-========================================================== */
+        if (
+            isJackpot(results)
+        ) {
 
-#counterValue,
-#persistentValue,
-#roundStatus {
+            setMessage(
+                "🎰 JACKPOT!"
+            );
 
-    text-align: center;
+            await jackpotEffect();
 
-    font-weight: 900;
+        } else if (
+            results[0] ===
+            results[1] ||
+            results[1] ===
+            results[2]
+        ) {
 
-    color: #ffd34d;
+            setMessage(
+                "NICE COMBINATION!"
+            );
 
-    text-shadow:
-        0 0 8px #ff6400;
-}
+        } else {
 
-/* ==========================================================
-   JACKPOT LAMP
-========================================================== */
+            setMessage(
+                "TRY AGAIN"
+            );
+        }
 
-#jackpotLamp {
 
-    width: 22px;
-    height: 22px;
+        state.round++;
 
-    margin: 10px auto;
-
-    border-radius: 50%;
-
-    background:
-        #330000;
-
-    border:
-        2px solid #8b4b00;
-
-    box-shadow:
-        inset 0 0 8px #000;
-}
-
-#jackpotLamp.on {
-
-    background:
-        #fff700;
-
-    box-shadow:
-        0 0 10px #fff000,
-        0 0 25px #ff9000,
-        0 0 50px #ff3000;
-
-    animation:
-        lampFlash
-        .18s
-        infinite alternate;
-}
-
-@keyframes lampFlash {
-
-    from {
-        opacity: .65;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-/* ==========================================================
-   LEVER
-========================================================== */
-
-.real-lever {
-    transform-origin:
-        top center;
-}
-
-.pull-lever {
-
-    animation:
-        leverPull
-        .35s
-        ease-out;
-}
-
-@keyframes leverPull {
-
-    0% {
-        transform:
-            rotate(0deg);
-    }
-
-    45% {
-        transform:
-            rotate(35deg);
-    }
-
-    100% {
-        transform:
-            rotate(0deg);
-    }
-}
-
-/* ==========================================================
-   JACKPOT FLASH
-========================================================== */
-
-.flash {
-
-    animation:
-        jackpotFlash
-        .15s
-        infinite alternate;
-}
-
-@keyframes jackpotFlash {
-
-    from {
-
-        filter:
-            brightness(1);
-    }
-
-    to {
-
-        filter:
-            brightness(2.5)
-            saturate(1.8);
-    }
-}
-
-/* ==========================================================
-   COINS
-========================================================== */
-
-.coin {
-
-    position: fixed;
-
-    top: -30px;
-
-    width: 18px;
-    height: 18px;
-
-    z-index: 500;
-
-    border-radius: 50%;
-
-    background:
-        radial-gradient(
-            circle,
-            #fff19a,
-            #ffd000 40%,
-            #b56b00 80%
+        updatePersistent(
+            results
         );
 
-    border:
-        2px solid #fff2a0;
 
-    box-shadow:
-        0 0 10px #ffd000;
+        /*
+         * Round limit
+         */
 
-    animation:
-        coinFall
-        3.5s
-        linear
-        forwards;
-}
+        if (
+            state.round >=
+            CONFIG.roundSpins
+        ) {
 
-@keyframes coinFall {
+            state.round =
+                CONFIG.roundSpins;
 
-    to {
+            await completeRound();
 
-        transform:
-            translateY(115vh)
-            rotate(720deg);
-    }
-}
+        } else {
 
-/* ==========================================================
-   CONFETTI
-========================================================== */
+            state.spinning =
+                false;
 
-.confetti {
+            machine.classList.remove(
+                "playing"
+            );
 
-    position: fixed;
+            spinButton.disabled =
+                false;
 
-    top: -20px;
-
-    width: 9px;
-    height: 18px;
-
-    z-index: 490;
-
-    animation:
-        confettiFall
-        4s
-        linear
-        forwards;
-}
-
-@keyframes confettiFall {
-
-    to {
-
-        transform:
-            translateY(115vh)
-            rotate(720deg);
-    }
-}
-
-/* ==========================================================
-   MINI COINS
-========================================================== */
-
-.mini-coin {
-
-    position: absolute;
-
-    width: 8px;
-    height: 8px;
-
-    border-radius: 50%;
-
-    background:
-        #ffd700;
-
-    box-shadow:
-        0 0 7px #ffb300;
-
-    animation:
-        miniCoin
-        1.2s
-        ease-out
-        forwards;
-}
-
-@keyframes miniCoin {
-
-    from {
-
-        transform:
-            translateY(0)
-            scale(.5);
-
-        opacity: 1;
+            updateRoundUI();
+        }
     }
 
-    to {
 
-        transform:
-            translateY(-40px)
-            scale(0);
+    /* ======================================================
+       BUTTON
+    ======================================================= */
 
-        opacity: 0;
-    }
-}
+    spinButton.addEventListener(
+        "click",
+        spin
+    );
 
-/* ==========================================================
-   ROUND COMPLETE
-========================================================== */
 
-#machine.round-complete {
+    /* ======================================================
+       LEVER
+    ======================================================= */
 
-    animation:
-        roundComplete
-        .25s
-        infinite alternate;
-}
+    lever.addEventListener(
+        "click",
+        () => {
 
-@keyframes roundComplete {
+            if (
+                !state.spinning &&
+                !state.holdActive
+            ) {
+                spin();
+            }
+        }
+    );
 
-    from {
 
-        transform:
-            scale(1);
-    }
+    /* ======================================================
+       KEYBOARD
+    ======================================================= */
 
-    to {
+    document.addEventListener(
+        "keydown",
+        event => {
 
-        transform:
-            scale(1.015);
-    }
-}
+            if (
+                event.code ===
+                "Space" ||
+                event.code ===
+                "Enter"
+            ) {
 
-/* ==========================================================
-   MOBILE
-========================================================== */
+                if (
+                    document.activeElement ===
+                    spinButton
+                ) {
+                    return;
+                }
 
-@media (max-width: 600px) {
+                event.preventDefault();
 
-    #game,
-    .game-container,
-    .amaze-game {
+                spin();
+            }
+        }
+    );
 
-        padding:
-            10px
-            6px
-            25px;
-    }
 
-    #machine {
+    /* ======================================================
+       INITIALIZATION
+    ======================================================= */
 
-        width: 98vw;
+    function initialize() {
 
-        padding:
-            18px
-            8px
-            22px;
+        initializeReels();
 
-        border-width:
-            4px;
-    }
+        createCasinoParticles();
 
-    .slots,
-    .slot-machine,
-    .reels {
+        createFireEffect();
 
-        padding: 7px;
+        updateRoundUI();
 
-        border-width:
-            3px;
-    }
+        setMessage(
+            "READY TO ESCAPE"
+        );
 
-    .slot,
-    .reel {
+        /*
+         * Make sure the fire container
+         * does not visually interfere
+         * before anticipation.
+         */
 
-        height: 185px;
-
-        border-width:
-            2px;
-    }
-
-    #slot2,
-    #slot3 {
-
-        border-left-width:
-            5px;
+        finalReelFire.style.opacity =
+            "0";
     }
 
-    #slot2::before,
-    #slot3::before {
 
-        left: -5px;
+    initialize();
 
-        width: 5px;
-    }
-
-    #slot1,
-    #slot2,
-    #slot3 {
-
-        font-size: 62px;
-    }
-
-    #button,
-    .spin-button {
-
-        width: 90%;
-
-        min-width: 0;
-
-        padding:
-            14px
-            20px;
-
-        font-size: 18px;
-    }
-
-    #message {
-
-        font-size: 18px;
-    }
-}
-
-/* ==========================================================
-   VERY SMALL PHONES
-========================================================== */
-
-@media (max-width: 380px) {
-
-    .slot,
-    .reel {
-
-        height: 160px;
-    }
-
-    #slot1,
-    #slot2,
-    #slot3 {
-
-        font-size: 52px;
-    }
-
-    #machine {
-
-        padding:
-            14px
-            5px
-            18px;
-    }
-}
-
-/* ==========================================================
-   ACCESSIBILITY
-========================================================== */
-
-button:focus-visible {
-
-    outline:
-        3px solid #fff;
-
-    outline-offset:
-        4px;
-}
-
-/* ==========================================================
-   REDUCED MOTION
-========================================================== */
-
-@media (prefers-reduced-motion: reduce) {
-
-    *,
-    *::before,
-    *::after {
-
-        animation-duration:
-            .01ms !important;
-
-        animation-iteration-count:
-            1 !important;
-
-        scroll-behavior:
-            auto !important;
-    }
-}
+})();
