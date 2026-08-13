@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#220000"
+    >
+
+    <title>AmazeEscape - Jackpot Maze v7</title>
+
+    <link
+        rel="icon"
+        href="favicon.svg"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/amaze-style-v7.css"
+    >
+
+</head>
+
+<body>
+
+    <!-- =====================================================
+         CASINO BACKGROUND
+    ====================================================== -->
+
+    <div
+        class="casino-background"
+        id="casinoBackground"
+        aria-hidden="true"
+    ></div>
+
+
+    <!-- =====================================================
+         ANTICIPATION OVERLAY
+         GLOBAL FIRE / V7
+    ====================================================== -->
+
+    <div
+        class="anticipation-overlay"
+        id="anticipationOverlay"
+        aria-hidden="true"
+    >
+
+        <div class="anticipation-fire"></div>
+
+        <div
+            class="anticipation-particles"
+            id="anticipationParticles"
+        ></div>
+
+        <div class="anticipation-vignette"></div>
+
+        <div class="anticipation-text">
+
+            <span>🔥</span>
+
+            <strong>
+                ANTICIPATION
+            </strong>
+
+            <small>
+                FINAL REEL
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         HOLD / ICE MODE
+    ====================================================== -->
+
+    <div
+        class="hold-overlay"
+        id="holdOverlay"
+        aria-hidden="true"
+    >
+
+        <div class="ice-vignette"></div>
+
+        <div
+            class="snow-container"
+            id="snowContainer"
+        ></div>
+
+        <div class="hold-panel">
+
+            <div class="hold-icon">
+                ❄
+            </div>
+
+            <div class="hold-title">
+                HOLD
+            </div>
+
+            <div class="hold-subtitle">
+                ICE MODE
+            </div>
+
+            <div
+                class="hold-countdown"
+                id="holdCountdown"
+            >
+                30
+            </div>
+
+            <div class="hold-progress">
+
+                <div
+                    class="hold-progress-fill"
+                    id="holdProgressFill"
+                ></div>
+
+            </div>
+
+            <div
+                class="hold-status"
+                id="holdStatus"
+            >
+                MACHINE FROZEN
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         MACHINE
+    ====================================================== -->
+
+    <main
+        class="machine"
+        id="machine"
+    >
+
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
+        <div class="machine-header">
+
+            <h1>
+                AmazeEscape
+            </h1>
+
+            <div class="subtitle">
+                ESCAPE THE JACKPOT MAZE
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             CABINET / REELS
+        ================================================== -->
+
+        <section class="cabinet">
+
+            <div class="display">
+
+                <div class="slots">
+
+                    <!-- =====================================
+                         REEL 1
+                    ====================================== -->
+
+                    <div
+                        class="slot reel-stop"
+                        id="slot1"
+                    >
+                        🍒
+                    </div>
+
+
+                    <!-- =====================================
+                         REEL 2
+                    ====================================== -->
+
+                    <div
+                        class="slot reel-stop"
+                        id="slot2"
+                    >
+                        🍋
+                    </div>
+
+
+                    <!-- =====================================
+                         REEL 3
+                         ANTICIPATION TARGET
+                    ====================================== -->
+
+                    <div
+                        class="anticipation-reel-wrap"
+                        id="anticipationReelWrap"
+                    >
+
+                        <!-- Fire ring around reel 3 -->
+                        <div
+                            class="reel-fire-ring"
+                            aria-hidden="true"
+                        ></div>
+
+
+                        <!-- Fire glow -->
+                        <div
+                            class="reel-fire-glow"
+                            aria-hidden="true"
+                        ></div>
+
+
+                        <!-- Reel-specific fire particles -->
+                        <div
+                            class="reel-fire-particles"
+                            id="reelFireParticles"
+                            aria-hidden="true"
+                        ></div>
+
+
+                        <!-- Actual reel 3 -->
+                        <div
+                            class="slot reel-stop"
+                            id="slot3"
+                        >
+                            ⭐
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             HARDWARE
+        ================================================== -->
+
+        <div class="led-border"></div>
+
+
+        <div
+            class="jackpot-lamp"
+            id="jackpotLamp"
+        ></div>
+
+
+        <div class="real-lever">
+
+            <div class="ball"></div>
+
+        </div>
+
+
+        <!-- =================================================
+             CONTROLS
+        ================================================== -->
+
+        <div class="controls">
+
+            <button
+                id="button"
+                type="button"
+            >
+                🎰 SPIN
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             MESSAGE
+        ================================================== -->
+
+        <div
+            id="message"
+            class="message"
+        >
+            READY
+        </div>
+
+
+        <!-- =================================================
+             MAIN SPIN PROGRESS
+        ================================================== -->
+
+        <div class="progress-section">
+
+            <div class="progress-label">
+
+                <span>
+                    SPIN PROGRESS
+                </span>
+
+                <span id="counterValue">
+                    0 / 100
+                </span>
+
+            </div>
+
+
+            <div
+                class="spin-progress"
+                id="spinProgress"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+            >
+
+                <div
+                    class="spin-progress-fill"
+                    id="spinProgressFill"
+                ></div>
+
+                <div
+                    class="spin-progress-glow"
+                ></div>
+
+            </div>
+
+
+            <div class="progress-milestones">
+
+                <span>0</span>
+                <span>20</span>
+                <span>40</span>
+                <span>60</span>
+                <span>80</span>
+                <span>100</span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PERSISTENT PRIZE
+        ================================================== -->
+
+        <section
+            class="persistent-section"
+            aria-label="Persistent prize progress"
+        >
+
+            <div class="persistent-header">
+
+                <div>
+
+                    <span class="persistent-title">
+                        PERSISTENT PRIZE
+                    </span>
+
+                    <span class="persistent-subtitle">
+                        COLLECT THE FRUITS
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="persistent-value"
+                    id="persistentValue"
+                >
+                    0 / 10
+                </div>
+
+            </div>
+
+
+            <div
+                class="persistent-bar"
+                id="persistentBar"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="10"
+                aria-valuenow="0"
+            >
+
+                <div
+                    class="persistent-fill"
+                    id="persistentFill"
+                ></div>
+
+                <div
+                    class="persistent-coins"
+                    id="persistentCoins"
+                ></div>
+
+                <div class="persistent-shine"></div>
+
+            </div>
+
+
+            <div class="persistent-hint">
+                3 MATCH = 💰 COLLECT
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ROUND STATUS
+        ================================================== -->
+
+        <div
+            id="roundStatus"
+            class="round-status"
+        >
+            ROUND 1
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         ENGINE
+    ====================================================== -->
+
+    <script src="js/amaze-engine-v7.js"></script>
+
+</body>
+
+</html>
