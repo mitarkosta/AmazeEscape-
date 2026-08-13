@@ -1341,16 +1341,17 @@ function stopAnticipation() {
 
 
     const finalReel =
-        AMAZE.slots[2];
+    document.getElementById(
+        "reelWindow3"
+    );
 
+if (finalReel) {
 
-    if (finalReel) {
+    finalReel.classList.remove(
+        "final-reel-anticipation"
+    );
 
-        finalReel.classList.remove(
-            "final-reel-anticipation"
-        );
-
-    }
+}
 
 
     removeFinalReelFire();
