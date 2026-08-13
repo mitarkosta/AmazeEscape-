@@ -1242,16 +1242,17 @@ function startAnticipation(
      */
 
     const finalReel =
-        AMAZE.slots[2];
+    document.getElementById(
+        "reelWindow3"
+    );
 
+if (finalReel) {
 
-    if (finalReel) {
+    finalReel.classList.add(
+        "final-reel-anticipation"
+    );
 
-        finalReel.classList.add(
-            "final-reel-anticipation"
-        );
-
-    }
+}
 
 
     createAnticipationParticles();
