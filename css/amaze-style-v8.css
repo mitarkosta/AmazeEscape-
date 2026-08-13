@@ -1,49 +1,60 @@
 /* ==========================================================
    AMAZE GAMING
-   ESCAPE ENGINE v8
-   STYLE
-   ========================================================== */
+   ESCAPE ENGINE V8
+   MASTER STYLE
+========================================================== */
 
-* {
+
+/* ==========================================================
+   RESET
+========================================================== */
+
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
-html,
-body {
-    margin: 0;
-    padding: 0;
+html {
     width: 100%;
     min-height: 100%;
 }
 
 body {
+    margin: 0;
+    padding: 0;
+
+    width: 100%;
     min-height: 100vh;
+
     overflow-x: hidden;
+
+    color: #fff;
 
     font-family:
         Arial,
         Helvetica,
         sans-serif;
 
-    color: #ffffff;
-
     background:
         radial-gradient(
             circle at 50% 20%,
-            #303030 0%,
-            #121212 38%,
-            #050505 75%,
-            #000000 100%
+            #30200f 0%,
+            #120804 38%,
+            #050202 75%,
+            #000 100%
         );
 }
 
 
 /* ==========================================================
    GAME
-   ========================================================== */
+========================================================== */
 
 .game {
     position: relative;
+
+    z-index: 5;
 
     width: 100%;
     min-height: 100vh;
@@ -63,26 +74,27 @@ body {
 
 /* ==========================================================
    CASINO BACKGROUND
-   ========================================================== */
+========================================================== */
 
 .casino-background {
     position: fixed;
+
     inset: 0;
 
     overflow: hidden;
 
     pointer-events: none;
 
-    z-index: -5;
+    z-index: 0;
 
     background:
         radial-gradient(
-            circle at 20% 30%,
+            ellipse at 20% 30%,
             rgba(255, 30, 0, .12),
             transparent 28%
         ),
         radial-gradient(
-            circle at 80% 70%,
+            ellipse at 80% 70%,
             rgba(255, 180, 0, .09),
             transparent 30%
         );
@@ -92,6 +104,9 @@ body {
     position: absolute;
 
     bottom: -20px;
+
+    width: var(--size);
+    height: var(--size);
 
     border-radius: 50%;
 
@@ -119,7 +134,11 @@ body {
 
     50% {
         transform:
-            translate3d(var(--drift), -50vh, 0);
+            translate3d(
+                var(--drift),
+                -50vh,
+                0
+            );
     }
 
     100% {
@@ -134,88 +153,13 @@ body {
 
 
 /* ==========================================================
-   SNOW
-   ========================================================== */
-
-.snow-container {
-    position: fixed;
-    inset: 0;
-
-    pointer-events: none;
-
-    overflow: hidden;
-
-    opacity: 0;
-
-    z-index: 100;
-
-    transition:
-        opacity .4s ease;
-}
-
-.snow-container.active {
-    opacity: 1;
-}
-
-.snowflake {
-    position: absolute;
-
-    top: -20px;
-
-    width: var(--size);
-    height: var(--size);
-
-    border-radius: 50%;
-
-    background:
-        radial-gradient(
-            circle,
-            #ffffff 0%,
-            #dff8ff 50%,
-            rgba(255,255,255,0) 100%
-        );
-
-    opacity: var(--opacity);
-
-    animation:
-        snowfall
-        var(--duration)
-        linear
-        infinite;
-}
-
-@keyframes snowfall {
-
-    0% {
-        transform:
-            translate3d(0, -30px, 0)
-            rotate(0deg);
-    }
-
-    50% {
-        transform:
-            translate3d(var(--sway), 50vh, 0)
-            rotate(180deg);
-    }
-
-    100% {
-        transform:
-            translate3d(
-                calc(var(--sway) * -.4),
-                110vh,
-                0
-            )
-            rotate(360deg);
-    }
-}
-
-
-/* ==========================================================
    HEADER
-   ========================================================== */
+========================================================== */
 
 .game-header {
     position: relative;
+
+    z-index: 5;
 
     width: min(760px, 100%);
 
@@ -224,8 +168,6 @@ body {
     align-items: center;
 
     margin-bottom: 10px;
-
-    z-index: 5;
 }
 
 .brand {
@@ -233,14 +175,18 @@ body {
 }
 
 .brand-title {
-    font-size: clamp(28px, 6vw, 48px);
+    font-size:
+        clamp(
+            28px,
+            6vw,
+            48px
+        );
 
     font-weight: 1000;
 
     line-height: .8;
 
-    letter-spacing:
-        .08em;
+    letter-spacing: .08em;
 
     color: #ffcc00;
 
@@ -257,10 +203,9 @@ body {
 
     font-weight: 900;
 
-    letter-spacing:
-        .45em;
+    letter-spacing: .45em;
 
-    color: #ffffff;
+    color: #fff;
 }
 
 .round-status {
@@ -296,10 +241,12 @@ body {
 
 /* ==========================================================
    MACHINE
-   ========================================================== */
+========================================================== */
 
 .machine {
     position: relative;
+
+    z-index: 10;
 
     width: min(760px, 100%);
 
@@ -319,7 +266,7 @@ body {
             #393939 0%,
             #181818 18%,
             #0b0b0b 52%,
-            #222222 82%,
+            #222 82%,
             #080808 100%
         );
 
@@ -328,7 +275,7 @@ body {
         inset 0 2px rgba(255,255,255,.12),
         inset 0 -4px rgba(0,0,0,.8);
 
-    overflow: hidden;
+    overflow: visible;
 
     transition:
         box-shadow .35s ease,
@@ -400,7 +347,7 @@ body {
 
 /* ==========================================================
    MACHINE TOP
-   ========================================================== */
+========================================================== */
 
 .machine-top {
     position: relative;
@@ -413,12 +360,16 @@ body {
 }
 
 .machine-title {
-    font-size: clamp(24px, 5vw, 40px);
+    font-size:
+        clamp(
+            24px,
+            5vw,
+            40px
+        );
 
     font-weight: 1000;
 
-    letter-spacing:
-        .18em;
+    letter-spacing: .18em;
 
     color: #f6c400;
 
@@ -437,21 +388,24 @@ body {
 
     font-weight: 900;
 
-    letter-spacing:
-        .35em;
+    letter-spacing: .35em;
 }
 
 
 /* ==========================================================
    JACKPOT LAMP
-   ========================================================== */
+========================================================== */
 
-.jackpot-lamp {
+.jackpot-lamp-wrap {
     position: absolute;
 
     top: 18px;
     right: 18px;
 
+    z-index: 30;
+}
+
+.jackpot-lamp {
     width: 16px;
     height: 16px;
 
@@ -464,8 +418,6 @@ body {
 
     box-shadow:
         inset 0 2px 4px rgba(0,0,0,.8);
-
-    z-index: 20;
 }
 
 .jackpot-lamp.on {
@@ -498,7 +450,7 @@ body {
 
 /* ==========================================================
    REEL WINDOW
-   ========================================================== */
+========================================================== */
 
 .reel-window {
     position: relative;
@@ -514,24 +466,28 @@ body {
 
     width: 100%;
 
-    height: clamp(250px, 42vw, 360px);
+    height:
+        clamp(
+            250px,
+            42vw,
+            360px
+        );
 
-    padding:
-        12px;
+    padding: 12px;
 
     border:
-        4px solid #111111;
+        4px solid #111;
 
     border-radius: 18px;
 
     background:
         linear-gradient(
             180deg,
-            #666666 0%,
+            #666,
             #4a4a4a 8%,
-            #777777 50%,
+            #777 50%,
             #424242 92%,
-            #686868 100%
+            #686868
         );
 
     box-shadow:
@@ -547,7 +503,7 @@ body {
 
 /* ==========================================================
    REEL COLUMN
-   ========================================================== */
+========================================================== */
 
 .reel-column {
     position: relative;
@@ -563,11 +519,11 @@ body {
     background:
         linear-gradient(
             90deg,
-            #111111,
-            #333333 8%,
+            #111,
+            #333 8%,
             #080808 50%,
-            #333333 92%,
-            #111111
+            #333 92%,
+            #111
         );
 
     box-shadow:
@@ -576,16 +532,13 @@ body {
 
 
 /* ==========================================================
-   REAL SLOT REEL
-   ========================================================== */
+   REEL
+========================================================== */
 
 .slot-reel {
     position: absolute;
 
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
+    inset: 0;
 
     overflow: hidden;
 
@@ -603,20 +556,15 @@ body {
     transform-style: preserve-3d;
 }
 
-
-/* ==========================================================
-   REEL STRIP
-   ========================================================== */
-
 .reel-strip {
     position: absolute;
 
     left: 0;
     right: 0;
 
-    top: 50%;
+    top: 0;
 
-    height: 300%;
+    height: auto;
 
     display: flex;
 
@@ -627,25 +575,25 @@ body {
     justify-content: flex-start;
 
     transform:
-        translateY(-50%);
+        translateY(var(--reel-offset, 0px));
 
-    will-change:
-        transform;
-
-    transition:
-        transform .15s linear;
+    will-change: transform;
 }
 
 
 /* ==========================================================
    SYMBOL
-   ========================================================== */
+========================================================== */
 
 .reel-symbol {
     flex:
-        0 0 33.3333%;
+        0 0 var(--symbol-height);
 
-    height: 33.3333%;
+    height:
+        var(--symbol-height);
+
+    min-height:
+        var(--symbol-height);
 
     display: flex;
 
@@ -655,7 +603,11 @@ body {
     padding: 8px;
 
     font-size:
-        clamp(52px, 11vw, 105px);
+        clamp(
+            52px,
+            11vw,
+            105px
+        );
 
     line-height: 1;
 
@@ -677,7 +629,7 @@ body {
 
 /* ==========================================================
    REEL SHADING
-   ========================================================== */
+========================================================== */
 
 .reel-column::before {
     content: "";
@@ -707,11 +659,7 @@ body {
 
     position: absolute;
 
-    left: 0;
-    right: 0;
-
-    top: 0;
-    bottom: 0;
+    inset: 0;
 
     pointer-events: none;
 
@@ -724,8 +672,8 @@ body {
 
 
 /* ==========================================================
-   REEL CENTER WINDOW
-   ========================================================== */
+   CENTER WINDOW
+========================================================== */
 
 .reel-center-line {
     position: absolute;
@@ -735,7 +683,12 @@ body {
 
     top: 50%;
 
-    height: clamp(78px, 13vw, 108px);
+    height:
+        clamp(
+            78px,
+            13vw,
+            108px
+        );
 
     transform:
         translateY(-50%);
@@ -762,7 +715,7 @@ body {
 
 /* ==========================================================
    METAL SEPARATORS
-   ========================================================== */
+========================================================== */
 
 .reel-separator {
     position: relative;
@@ -792,13 +745,13 @@ body {
             #5f5f5f 15%,
             #d7d7d7 32%,
             #6d6d6d 50%,
-            #eeeeee 65%,
+            #eee 65%,
             #4a4a4a 83%,
-            #111111 100%
+            #111 100%
         );
 
     border:
-        1px solid #111111;
+        1px solid #111;
 
     box-shadow:
         0 0 5px rgba(0,0,0,.9),
@@ -827,52 +780,12 @@ body {
 
 
 /* ==========================================================
-   REEL SPIN
-   ========================================================== */
+   REEL ANIMATION
+========================================================== */
 
 .slot-reel.reel-spin {
-    filter:
-        blur(.7px);
-
-    animation:
-        reelSpinV8
-        .11s
-        linear
-        infinite;
+    filter: blur(.7px);
 }
-
-@keyframes reelSpinV8 {
-
-    0% {
-        transform:
-            translateY(0);
-    }
-
-    25% {
-        transform:
-            translateY(2px);
-    }
-
-    50% {
-        transform:
-            translateY(0);
-    }
-
-    75% {
-        transform:
-            translateY(-2px);
-    }
-
-    100% {
-        transform:
-            translateY(0);
-    }
-}
-
-
-/* ==========================================================
-   REEL STOP
-   ========================================================== */
 
 .slot-reel.reel-stop {
     animation:
@@ -885,24 +798,32 @@ body {
 
     0% {
         transform:
-            translateY(-3px);
+            translateY(
+                var(--reel-offset, 0px)
+            );
     }
 
     55% {
         transform:
-            translateY(2px);
+            translateY(
+                calc(
+                    var(--reel-offset, 0px) + 6px
+                )
+            );
     }
 
     100% {
         transform:
-            translateY(0);
+            translateY(
+                var(--reel-offset, 0px)
+            );
     }
 }
 
 
 /* ==========================================================
    FINAL REEL ANTICIPATION
-   ========================================================== */
+========================================================== */
 
 #slot3.final-reel-anticipation {
     border:
@@ -920,17 +841,6 @@ body {
         infinite alternate;
 
     z-index: 50;
-}
-
-#slot3.final-reel-anticipation.reel-spin {
-    animation:
-        reelSpinV8
-        .11s
-        linear
-        infinite,
-        finalReelFireFrame
-        .22s
-        infinite alternate;
 }
 
 @keyframes finalReelFireFrame {
@@ -958,8 +868,8 @@ body {
 
 
 /* ==========================================================
-   FINAL REEL FIRE
-   ========================================================== */
+   FIRE
+========================================================== */
 
 .final-reel-fire {
     position: absolute;
@@ -985,8 +895,13 @@ body {
             transparent 80%
         );
 
-    filter:
-        blur(5px);
+    filter: blur(5px);
+
+    opacity: 0;
+}
+
+#slot3.final-reel-anticipation .final-reel-fire {
+    opacity: 1;
 
     animation:
         finalReelFireGlow
@@ -1006,6 +921,11 @@ body {
         opacity: 1;
     }
 }
+
+
+/* ==========================================================
+   FIRE FLAMES
+========================================================== */
 
 .final-reel-flame {
     position: absolute;
@@ -1031,14 +951,10 @@ body {
             transparent 76%
         );
 
-    filter:
-        blur(1px);
+    filter: blur(1px);
 
     opacity:
         var(--fire-opacity);
-
-    transform:
-        rotate(var(--fire-rotate));
 
     animation:
         finalReelFlame
@@ -1062,11 +978,20 @@ body {
         transform:
             translateY(-15px)
             scale(1.25)
-            rotate(calc(var(--fire-rotate) * -1));
+            rotate(
+                calc(
+                    var(--fire-rotate) * -1
+                )
+            );
 
         opacity: 1;
     }
 }
+
+
+/* ==========================================================
+   FIRE PARTICLES
+========================================================== */
 
 .final-reel-particle {
     position: absolute;
@@ -1084,10 +1009,10 @@ body {
     background:
         radial-gradient(
             circle,
-            #ffffff 0%,
+            #fff 0%,
             #ffd700 25%,
             #ff5a00 55%,
-            #ff0000 75%,
+            #f00 75%,
             transparent 100%
         );
 
@@ -1134,11 +1059,11 @@ body {
 
 
 /* ==========================================================
-   ANTICIPATION OVERLAY
-   ========================================================== */
+   ANTICIPATION
+========================================================== */
 
 .anticipation-overlay {
-    position: absolute;
+    position: fixed;
 
     inset: 0;
 
@@ -1188,12 +1113,15 @@ body {
     color: #ffbd00;
 
     font-size:
-        clamp(22px, 5vw, 42px);
+        clamp(
+            22px,
+            5vw,
+            42px
+        );
 
     font-weight: 1000;
 
-    letter-spacing:
-        .12em;
+    letter-spacing: .12em;
 
     animation:
         anticipationText
@@ -1204,30 +1132,29 @@ body {
 .anticipation-subtitle {
     margin-top: 5px;
 
-    color: #ffffff;
+    color: #fff;
 
     font-size:
-        clamp(10px, 2vw, 15px);
+        clamp(
+            10px,
+            2vw,
+            15px
+        );
 
     font-weight: 900;
 
-    letter-spacing:
-        .35em;
+    letter-spacing: .35em;
 }
 
 @keyframes anticipationText {
 
     from {
-        transform:
-            scale(.97);
-
+        transform: scale(.97);
         opacity: .75;
     }
 
     to {
-        transform:
-            scale(1.04);
-
+        transform: scale(1.04);
         opacity: 1;
     }
 }
@@ -1244,6 +1171,9 @@ body {
     position: absolute;
 
     bottom: -15px;
+
+    width: var(--particle-size);
+    height: var(--particle-size);
 
     border-radius: 50%;
 
@@ -1270,11 +1200,7 @@ body {
 
     from {
         transform:
-            translate3d(
-                0,
-                0,
-                0
-            );
+            translate3d(0,0,0);
 
         opacity: 0;
     }
@@ -1298,7 +1224,7 @@ body {
 
 /* ==========================================================
    MESSAGE
-   ========================================================== */
+========================================================== */
 
 .machine-message {
     position: relative;
@@ -1313,19 +1239,20 @@ body {
     justify-content: center;
 
     margin:
-        16px
-        0
-        12px;
+        16px 0 12px;
 
     color: #ffd000;
 
     font-size:
-        clamp(16px, 3vw, 25px);
+        clamp(
+            16px,
+            3vw,
+            25px
+        );
 
     font-weight: 1000;
 
-    letter-spacing:
-        .08em;
+    letter-spacing: .08em;
 
     text-align: center;
 
@@ -1337,7 +1264,7 @@ body {
 
 /* ==========================================================
    LEVER
-   ========================================================== */
+========================================================== */
 
 .lever-area {
     position: absolute;
@@ -1387,13 +1314,16 @@ body {
     width: 24px;
     height: 140px;
 
+    padding: 0;
+
+    border: 0;
+
+    background: transparent;
+
     cursor: pointer;
 
     transform-origin:
         50% 15px;
-
-    transition:
-        transform .18s ease;
 
     z-index: 5;
 }
@@ -1458,25 +1388,22 @@ body {
 @keyframes pullLever {
 
     0% {
-        transform:
-            rotate(0deg);
+        transform: rotate(0deg);
     }
 
     45% {
-        transform:
-            rotate(28deg);
+        transform: rotate(28deg);
     }
 
     100% {
-        transform:
-            rotate(0deg);
+        transform: rotate(0deg);
     }
 }
 
 
 /* ==========================================================
    SPIN BUTTON
-   ========================================================== */
+========================================================== */
 
 .spin-button {
     position: relative;
@@ -1494,7 +1421,7 @@ body {
 
     cursor: pointer;
 
-    color: #ffffff;
+    color: #fff;
 
     background:
         linear-gradient(
@@ -1514,7 +1441,7 @@ body {
         filter .15s ease;
 }
 
-.spin-button:hover {
+.spin-button:hover:not(:disabled) {
     filter:
         brightness(1.15);
 
@@ -1524,7 +1451,7 @@ body {
         inset 0 2px rgba(255,255,255,.3);
 }
 
-.spin-button:active {
+.spin-button:active:not(:disabled) {
     transform:
         translateY(6px);
 
@@ -1545,12 +1472,15 @@ body {
     display: block;
 
     font-size:
-        clamp(22px, 5vw, 32px);
+        clamp(
+            22px,
+            5vw,
+            32px
+        );
 
     font-weight: 1000;
 
-    letter-spacing:
-        .15em;
+    letter-spacing: .15em;
 }
 
 .button-sub {
@@ -1562,8 +1492,7 @@ body {
 
     font-weight: 900;
 
-    letter-spacing:
-        .4em;
+    letter-spacing: .4em;
 
     opacity: .75;
 }
@@ -1571,7 +1500,7 @@ body {
 
 /* ==========================================================
    PROGRESS
-   ========================================================== */
+========================================================== */
 
 .progress-section,
 .persistent-section {
@@ -1598,8 +1527,7 @@ body {
 
     font-weight: 900;
 
-    letter-spacing:
-        .15em;
+    letter-spacing: .15em;
 }
 
 .progress-bar,
@@ -1617,8 +1545,7 @@ body {
 
     border-radius: 10px;
 
-    background:
-        #111;
+    background: #111;
 
     box-shadow:
         inset 0 3px 5px rgba(0,0,0,.8);
@@ -1626,6 +1553,7 @@ body {
 
 .progress-fill {
     width: 0;
+
     height: 100%;
 
     border-radius: inherit;
@@ -1649,6 +1577,7 @@ body {
     position: relative;
 
     width: 0;
+
     height: 100%;
 
     border-radius: inherit;
@@ -1667,6 +1596,319 @@ body {
     transition:
         width .35s ease;
 }
+
+
+/* ==========================================================
+   HOLD / ICE
+========================================================== */
+
+.hold-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(90,210,255,.22),
+            rgba(0,20,40,.82)
+        );
+
+    backdrop-filter:
+        blur(6px);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition:
+        opacity .35s ease;
+
+    z-index: 1000;
+}
+
+.hold-overlay.active {
+    opacity: 1;
+
+    visibility: visible;
+
+    pointer-events: auto;
+}
+
+.hold-panel {
+    width:
+        min(
+            400px,
+            90vw
+        );
+
+    padding:
+        35px 25px;
+
+    text-align: center;
+
+    border:
+        2px solid #8ceeff;
+
+    border-radius: 24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20,65,85,.96),
+            rgba(4,15,25,.98)
+        );
+
+    box-shadow:
+        0 0 30px rgba(50,220,255,.35),
+        inset 0 0 30px rgba(80,210,255,.08);
+}
+
+.hold-icon {
+    font-size: 55px;
+
+    color: #dffcff;
+
+    text-shadow:
+        0 0 15px #63eaff,
+        0 0 35px #008cff;
+
+    animation:
+        icePulse
+        1s
+        infinite alternate;
+}
+
+@keyframes icePulse {
+
+    from {
+        transform: scale(.95);
+        opacity: .7;
+    }
+
+    to {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+}
+
+.hold-title {
+    margin-top: 10px;
+
+    color: #aef7ff;
+
+    font-size: 28px;
+
+    font-weight: 1000;
+
+    letter-spacing: .15em;
+}
+
+.hold-countdown {
+    margin-top: 15px;
+
+    color: #fff;
+
+    font-size: 72px;
+
+    font-weight: 1000;
+
+    line-height: 1;
+
+    text-shadow:
+        0 0 15px #00d9ff;
+}
+
+.hold-label {
+    margin-top: 4px;
+
+    color: #79cddd;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: .3em;
+}
+
+.hold-progress {
+    width: 100%;
+
+    height: 12px;
+
+    margin-top: 25px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: #04151d;
+
+    box-shadow:
+        inset 0 2px 4px rgba(0,0,0,.8);
+}
+
+.hold-progress-fill {
+    width: 100%;
+
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #008cff,
+            #66f3ff,
+            #fff
+        );
+
+    box-shadow:
+        0 0 15px #00d9ff;
+
+    transition:
+        width .1s linear;
+}
+
+.hold-status {
+    margin-top: 15px;
+
+    color: #a7eaf4;
+
+    font-size: 11px;
+
+    font-weight: 900;
+
+    letter-spacing: .2em;
+}
+
+
+/* ==========================================================
+   JACKPOT FLASH
+========================================================== */
+
+.slot-reel.flash {
+    animation:
+        slotFlash
+        .16s
+        infinite alternate;
+}
+
+@keyframes slotFlash {
+
+    from {
+        filter:
+            brightness(1);
+    }
+
+    to {
+        filter:
+            brightness(2)
+            saturate(1.5);
+    }
+}
+
+
+/* ==========================================================
+   COINS
+========================================================== */
+
+.coin {
+    position: fixed;
+
+    top: -40px;
+
+    width: 20px;
+    height: 20px;
+
+    z-index: 2000;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fff5a0,
+            #ffd000 35%,
+            #b36a00 80%
+        );
+
+    border:
+        2px solid #fff0a0;
+
+    box-shadow:
+        0 0 10px #ffd000;
+
+    animation:
+        fallingCoin
+        3.5s
+        linear
+        forwards;
+}
+
+@keyframes fallingCoin {
+
+    from {
+        transform:
+            translateY(-40px)
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            translateY(110vh)
+            rotate(900deg);
+    }
+}
+
+
+/* ==========================================================
+   CONFETTI
+========================================================== */
+
+.confetti {
+    position: fixed;
+
+    top: -20px;
+
+    width: 9px;
+    height: 15px;
+
+    z-index: 1999;
+
+    animation:
+        fallingConfetti
+        4s
+        linear
+        forwards;
+}
+
+@keyframes fallingConfetti {
+
+    from {
+        transform:
+            translateY(-30px)
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            translateY(110vh)
+            rotate(900deg);
+    }
+}
+
+
+/* ==========================================================
+   MINI COIN
+========================================================== */
 
 .mini-coin {
     position: absolute;
@@ -1716,306 +1958,8 @@ body {
 
 
 /* ==========================================================
-   HOLD OVERLAY
-   ========================================================== */
-
-.hold-overlay {
-    position: fixed;
-
-    inset: 0;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    padding: 20px;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(90,210,255,.22),
-            rgba(0,20,40,.82)
-        );
-
-    backdrop-filter:
-        blur(6px);
-
-    opacity: 0;
-
-    visibility: hidden;
-
-    pointer-events: none;
-
-    transition:
-        opacity .35s ease;
-
-    z-index: 1000;
-}
-
-.hold-overlay.active {
-    opacity: 1;
-
-    visibility: visible;
-
-    pointer-events: auto;
-}
-
-.hold-panel {
-    width: min(400px, 90vw);
-
-    padding: 35px 25px;
-
-    text-align: center;
-
-    border:
-        2px solid #8ceeff;
-
-    border-radius: 24px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(20,65,85,.96),
-            rgba(4,15,25,.98)
-        );
-
-    box-shadow:
-        0 0 30px rgba(50,220,255,.35),
-        inset 0 0 30px rgba(80,210,255,.08);
-}
-
-.hold-icon {
-    font-size: 55px;
-
-    color: #dffcff;
-
-    text-shadow:
-        0 0 15px #63eaff,
-        0 0 35px #008cff;
-
-    animation:
-        icePulse
-        1s
-        infinite alternate;
-}
-
-@keyframes icePulse {
-
-    from {
-        transform:
-            scale(.95);
-
-        opacity: .7;
-    }
-
-    to {
-        transform:
-            scale(1.08);
-
-        opacity: 1;
-    }
-}
-
-.hold-title {
-    margin-top: 10px;
-
-    color: #aef7ff;
-
-    font-size: 28px;
-
-    font-weight: 1000;
-
-    letter-spacing:
-        .15em;
-}
-
-.hold-countdown {
-    margin-top: 15px;
-
-    color: #ffffff;
-
-    font-size: 72px;
-
-    font-weight: 1000;
-
-    line-height: 1;
-
-    text-shadow:
-        0 0 15px #00d9ff;
-}
-
-.hold-label {
-    margin-top: 4px;
-
-    color: #79cddd;
-
-    font-size: 10px;
-
-    font-weight: 900;
-
-    letter-spacing:
-        .3em;
-}
-
-.hold-progress {
-    width: 100%;
-    height: 12px;
-
-    margin-top: 25px;
-
-    overflow: hidden;
-
-    border-radius: 10px;
-
-    background: #04151d;
-
-    box-shadow:
-        inset 0 2px 4px rgba(0,0,0,.8);
-}
-
-.hold-progress-fill {
-    width: 100%;
-    height: 100%;
-
-    background:
-        linear-gradient(
-            90deg,
-            #008cff,
-            #66f3ff,
-            #ffffff
-        );
-
-    box-shadow:
-        0 0 15px #00d9ff;
-
-    transition:
-        width .1s linear;
-}
-
-.hold-status {
-    margin-top: 15px;
-
-    color: #a7eaf4;
-
-    font-size: 11px;
-
-    font-weight: 900;
-
-    letter-spacing:
-        .2em;
-}
-
-
-/* ==========================================================
-   JACKPOT EFFECTS
-   ========================================================== */
-
-.slot-reel.flash {
-    animation:
-        slotFlash
-        .16s
-        infinite alternate;
-}
-
-@keyframes slotFlash {
-
-    from {
-        filter:
-            brightness(1);
-    }
-
-    to {
-        filter:
-            brightness(2)
-            saturate(1.5);
-    }
-}
-
-.coin {
-    position: fixed;
-
-    top: -40px;
-
-    width: 20px;
-    height: 20px;
-
-    border-radius: 50%;
-
-    z-index: 2000;
-
-    background:
-        radial-gradient(
-            circle at 35% 30%,
-            #fff5a0,
-            #ffd000 35%,
-            #b36a00 80%
-        );
-
-    border:
-        2px solid #fff0a0;
-
-    box-shadow:
-        0 0 10px #ffd000;
-
-    animation:
-        fallingCoin
-        3.5s
-        linear
-        forwards;
-}
-
-@keyframes fallingCoin {
-
-    0% {
-        transform:
-            translateY(-40px)
-            rotate(0deg);
-    }
-
-    100% {
-        transform:
-            translateY(110vh)
-            rotate(900deg);
-    }
-}
-
-.confetti {
-    position: fixed;
-
-    top: -20px;
-
-    width: 9px;
-    height: 15px;
-
-    z-index: 1999;
-
-    animation:
-        fallingConfetti
-        4s
-        linear
-        forwards;
-}
-
-@keyframes fallingConfetti {
-
-    0% {
-        transform:
-            translateY(-30px)
-            rotate(0deg);
-    }
-
-    100% {
-        transform:
-            translateY(110vh)
-            rotate(900deg);
-    }
-}
-
-
-/* ==========================================================
    FOOTER
-   ========================================================== */
+========================================================== */
 
 .game-footer {
     width: 100%;
@@ -2023,10 +1967,10 @@ body {
     display: flex;
 
     justify-content: center;
+
     gap: 20px;
 
-    padding:
-        10px;
+    padding: 10px;
 
     color: #555;
 
@@ -2034,14 +1978,26 @@ body {
 
     font-weight: 900;
 
-    letter-spacing:
-        .25em;
+    letter-spacing: .25em;
+}
+
+
+/* ==========================================================
+   FOCUS
+========================================================== */
+
+button:focus-visible {
+    outline:
+        3px solid #fff;
+
+    outline-offset:
+        4px;
 }
 
 
 /* ==========================================================
    MOBILE
-   ========================================================== */
+========================================================== */
 
 @media (max-width: 600px) {
 
@@ -2085,7 +2041,10 @@ body {
             minmax(0, 1fr);
 
         height:
-            min(67vw, 300px);
+            min(
+                67vw,
+                300px
+            );
 
         padding: 7px;
 
@@ -2094,7 +2053,11 @@ body {
 
     .reel-symbol {
         font-size:
-            clamp(42px, 15vw, 78px);
+            clamp(
+                42px,
+                15vw,
+                78px
+            );
     }
 
     .reel-center-line {
@@ -2102,7 +2065,11 @@ body {
         right: 7px;
 
         height:
-            clamp(62px, 18vw, 82px);
+            clamp(
+                62px,
+                18vw,
+                82px
+            );
     }
 
     .separator-metal {
@@ -2121,15 +2088,30 @@ body {
         font-size: 14px;
 
         margin:
-            12px
-            0;
+            12px 0;
+    }
+
+    .brand-title {
+        font-size: 30px;
+    }
+
+    .brand-subtitle {
+        font-size: 8px;
+    }
+
+    .round-status {
+        font-size: 9px;
+
+        padding:
+            6px
+            8px;
     }
 }
 
 
 /* ==========================================================
    VERY SMALL DEVICES
-   ========================================================== */
+========================================================== */
 
 @media (max-width: 380px) {
 
@@ -2150,18 +2132,18 @@ body {
     }
 
     .round-status {
-        font-size: 9px;
+        font-size: 8px;
 
         padding:
             6px
-            8px;
+            7px;
     }
 }
 
 
 /* ==========================================================
    REDUCED MOTION
-   ========================================================== */
+========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
 
@@ -2177,5 +2159,4 @@ body {
         scroll-behavior:
             auto !important;
     }
-
 }
